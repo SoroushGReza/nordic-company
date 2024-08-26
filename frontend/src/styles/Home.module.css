@@ -14,3 +14,25 @@
     font-size: 24px;
     text-align: center;
 }
+
+.headerImage {
+    width: 100%;
+    max-width: 150px;
+    border-radius: 50%;
+}
+
+.mainHeading {
+    font-size: 2rem;
+    font-family: Geneva;
+    font-weight: 400;
+    font-style: normal;
+    margin: 0;
+}
+
+.subText {
+    font-size: 1rem;
+    font-family: "Aboreto", system-ui;
+    font-weight: 400;
+    font-style: normal;
+    color: #555;
+}

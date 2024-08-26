@@ -1,0 +1,39 @@
+.menu {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background-color: #F1EBE5;
+    padding: 20px;
+    border-radius: 0;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    margin: 20px;
+    max-width: 90%;
+}
+
+.menu .menuButton {
+    width: 100%;
+    max-width: 400px;
+    padding: 15px 0;
+    font-size: 16px;
+    font-family: "Cormorant Garamond", serif;
+    font-weight: 300;
+    font-style: normal;
+    color: #333;
+    text-align: center;
+    text-decoration: none;
+    border: 1px solid #333;
+    border-radius: 0;
+    background-color: #F1EBE5;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.menu .menuButton:hover {
+    background-color: #333;
+    color: #F1EBE5;
+}
+
+.menu .instagram {
+    font-size: 35px;
+}
