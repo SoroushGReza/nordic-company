@@ -1,3 +1,10 @@
-from django.shortcuts import render
+from rest_framework import viewsets
+from rest_framework.permissions import IsAdminUser
+from .models import Media
+from .serializers import MediaSerializer
 
-# Create your views here.
+
+class MediaViewSet(viewsets.ModelViewSet):
+    queryset = Media.objects.all()
+    serializer_class = MediaSerializer
+    permission_classes = [IsAdminUser]  # Only Admin has access
