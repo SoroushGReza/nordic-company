@@ -1,0 +1,16 @@
+.homeContainer {
+    width: 100%;
+    height: 100vh;
+    background-image: url('../assets/home-bg.png');
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.homeContent {
+    color: white;
+    font-size: 24px;
+    text-align: center;
+}
