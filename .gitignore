@@ -9,3 +9,4 @@ env.py
 *.py[cod]
 .github/
 cloudinary_python.txt
+staticfiles/
