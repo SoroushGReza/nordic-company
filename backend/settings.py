@@ -1,6 +1,9 @@
 from pathlib import Path
 import os
 
+if os.path.exists('env.py'):
+    import env
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -124,4 +127,5 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
-print("Default File Storage:", DEFAULT_FILE_STORAGE)
+CLOUDINARY_URL = os.environ.get('CLOUDINARY_URL')
+
