@@ -1,0 +1,9 @@
+tasks:
+  - name: Backend
+    command: |
+      source env/bin/activate
+      python manage.py runserver
+  - name: Frontend
+    command: |
+      cd frontend
+      npm start
