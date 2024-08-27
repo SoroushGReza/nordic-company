@@ -1,18 +1,13 @@
 .homeContainer {
     width: 100%;
-    height: 100vh;
+    min-height: 100vh;
     background-image: url('../assets/home-bg.png');
     background-size: cover;
     background-position: center;
+    background-repeat: no-repeat;
     display: flex;
     justify-content: center;
     align-items: center;
-}
-
-.homeContent {
-    color: white;
-    font-size: 24px;
-    text-align: center;
 }
 
 .headerImage {
@@ -21,12 +16,18 @@
     border-radius: 50%;
 }
 
+@media (min-width: 768px) {
+    .headerImage {
+        max-width: 250px; /* Öka storleken på bilden för större skärmar */
+    }
+}
+
 .mainHeading {
-    font-size: 2rem;
-    font-family: Geneva;
-    font-weight: 400;
+    font-size: 1.5rem;
+    font-family: 'Architects Daughter', sans-serif;
+    font-weight: normal;
     font-style: normal;
-    margin: 0;
+    margin-top: 20px;
 }
 
 .subText {
@@ -36,4 +37,10 @@
     font-style: normal;
     color: #555;
     letter-spacing: 2px;
+}
+
+@media (min-width: 768px) {
+    .contentContainer {
+        max-width: 1200px;
+    }
 }
