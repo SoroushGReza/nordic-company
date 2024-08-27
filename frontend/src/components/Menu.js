@@ -1,49 +1,44 @@
 import React from "react";
 import { Button, Container } from "react-bootstrap";
 import styles from "../styles/Menu.module.css";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faInstagram } from '@fortawesome/free-brands-svg-icons';
-
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faInstagram } from "@fortawesome/free-brands-svg-icons";
+import { Link } from "react-router-dom";
 
 const Menu = () => {
   return (
     <Container className={styles.menu}>
-      <Button
-        variant="outline-dark"
-        className={styles.menuButtonTop}
-        href="#services"
-      >
-        SERVICES
-      </Button>
-      <Button
-        variant="outline-dark"
-        className={styles.menuButton}
-        href="#about"
-      >
-        About us
-      </Button>
-      <Button
-        variant="outline-dark"
-        className={styles.menuButton}
-        href="#aftercare"
-      >
-        Aftercare tips
-      </Button>
-      <Button variant="outline-dark" className={styles.menuButton} href="#shop">
-        Shop products
-      </Button>
-      <Button
-        variant="outline-dark"
-        className={styles.menuButton}
-        href="#pre-appointment"
-      >
-        Pre appointment info
-      </Button>
-      <Button variant="outline-dark" className={styles.menuButton} href="#book">
-        Book appointment
-      </Button>
+      <Link to="/services" className={styles.link}>
+        <Button variant="outline-dark" className={styles.menuButtonTop}>
+          SERVICES
+        </Button>
+      </Link>
+      <Link to="/about" className={styles.link}>
+        <Button variant="outline-dark" className={styles.menuButton}>
+          About us
+        </Button>
+      </Link>
+      <Link to="/aftercare" className={styles.link}>
+        <Button variant="outline-dark" className={styles.menuButton}>
+          Aftercare tips
+        </Button>
+      </Link>
+      <Link to="/shop" className={styles.link}>
+        <Button variant="outline-dark" className={styles.menuButton}>
+          Shop products
+        </Button>
+      </Link>
+      <Link to="/pre-appointment" className={styles.link}>
+        <Button variant="outline-dark" className={styles.menuButton}>
+          Pre appointment info
+        </Button>
+      </Link>
+      <Link to="/book" className={styles.link}>
+        <Button variant="outline-dark" className={styles.menuButton}>
+          Book appointment
+        </Button>
+      </Link>
       <FontAwesomeIcon className={styles.instagram} icon={faInstagram} />
-
     </Container>
   );
 };
