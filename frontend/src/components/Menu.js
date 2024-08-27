@@ -10,7 +10,7 @@ const Menu = () => {
     <Container className={styles.menu}>
       <Button
         variant="outline-dark"
-        className={styles.menuButton}
+        className={styles.menuButtonTop}
         href="#services"
       >
         SERVICES
