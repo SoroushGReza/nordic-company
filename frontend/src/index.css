@@ -11,3 +11,10 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+@font-face {
+  font-family: 'Architects Daughter';
+  src: url('./assets/fonts/ArchitectsDaughter.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+}
