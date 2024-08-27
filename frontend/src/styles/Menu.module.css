@@ -16,6 +16,7 @@
     width: 100%;
     max-width: 400px;
     padding: 15px 0;
+    margin: 2px;
     font-size: 16px;
     font-family: "Cormorant Garamond", serif;
     font-weight: 300;
@@ -36,4 +37,11 @@
 
 .menu .instagram {
     font-size: 35px;
+}
+
+.menu .instagram:hover {
+    color: white;
+    background: linear-gradient(to bottom right, #f09433, #e6683c, #dc2743, #cc2366, #bc1888, #ab1cbf, #833ab4, #515bd4, #405de6);
+    padding: 5px;
+    border-radius: 8px;
 }
