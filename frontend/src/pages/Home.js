@@ -3,6 +3,7 @@ import { Container, Row, Col } from "react-bootstrap";
 import styles from "../styles/Home.module.css";
 import backgroundImage from "../assets/images/home-bg.png";
 import headerImage from "../assets/images/header-bg.png";
+import headerImageTxt from "../assets/images/anordiccompany.png";
 import Menu from "../components/Menu";
 
 const Home = () => {
@@ -23,7 +24,11 @@ const Home = () => {
               alt="Profile"
               className={styles.headerImage}
             />
-            <h1 className={styles.mainHeading}>A NORDIC COMPANY</h1>
+            <img
+              src={headerImageTxt}
+              alt="Hair Services Title"
+              className={styles.homeImageTxt}
+            />
             <p className={styles.subText}>IN THE COMPANY OF NORDIC BEAUTY</p>
           </Col>
           <Col xs={12} md={6} className={`text-center ${styles.menuContainer}`}>

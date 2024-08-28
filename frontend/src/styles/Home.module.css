@@ -22,6 +22,14 @@
     }
 }
 
+.homeImageTxt {
+    display: block;
+    margin: 0 auto;
+    max-width: 60%;
+    height: auto;
+    margin-bottom: 20px;
+}
+
 .mainHeading {
     font-size: 2.5rem;
     font-family: 'Architects Daughter', sans-serif;
