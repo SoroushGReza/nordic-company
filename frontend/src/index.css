@@ -1,9 +1,25 @@
+/* --- Custom Fonts --- */
 @font-face {
   font-family: 'Architects Daughter';
   src: url('./assets/fonts/ArchitectsDaughter.woff2') format('woff2');
   font-weight: normal;
   font-style: normal;
 }
+
+@font-face {
+  font-family: 'Hero-Light';
+  src: url('./assets/fonts/Hero-Light.ttf') format('truetype');
+  font-weight: 300;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Hero-Regular';
+  src: url('./assets/fonts/Hero-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+
 
 body {
   margin: 0;
