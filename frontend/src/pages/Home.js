@@ -1,8 +1,8 @@
 import React from "react";
 import { Container, Row, Col } from "react-bootstrap";
 import styles from "../styles/Home.module.css";
-import backgroundImage from "../assets/home-bg.png";
-import headerImage from "../assets/header-bg.png";
+import backgroundImage from "../assets/images/home-bg.png";
+import headerImage from "../assets/images/header-bg.png";
 import Menu from "../components/Menu";
 
 const Home = () => {
