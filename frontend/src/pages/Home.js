@@ -21,7 +21,7 @@ const Home = () => {
           >
             <img
               src={headerImage}
-              alt="Profile"
+              alt="Image"
               className={styles.headerImage}
             />
             <img
