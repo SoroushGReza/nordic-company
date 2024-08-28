@@ -1,7 +1,7 @@
 .homeContainer {
     width: 100%;
     min-height: 100vh;
-    background-image: url('../assets/home-bg.png');
+    background-image: url('../assets/images/home-bg.png');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
