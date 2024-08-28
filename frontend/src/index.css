@@ -20,6 +20,10 @@
   font-style: normal;
 }
 
+/* Background colour for the whole website */
+html {
+  background-color: #bbc0b5;
+}
 
 body {
   margin: 0;
