@@ -1,33 +1,172 @@
-.servicesPage {
-    background-color: #CDCFC0;
+/* Background for the wholw page */
+
+html {
+    background-color: #D3D0C8;
+}
+
+
+/* Services Container */
+
+.servicesContainer {
+    background-color: #D3D0C8;
+    padding: 0;
+    margin: 0;
     min-height: 100vh;
-    padding: 20px 0;
+    margin-top: 10%;
 }
 
-.contentContainer {
-    max-width: 1200px;
+
+/* Hero Image */
+
+.heroRow {
+    position: relative;
+    text-align: center;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.imageCol {
+    padding: 0;
+    text-align: center;
+}
+
+.heroImage {
+    width: 100%;
+    height: auto;
+    display: block;
+    margin-bottom: -5px;
+    z-index: 1;
+}
+/* END OF HERO IMAGE */
+
+
+.servicesRow {
+    display: flex;
+    justify-content: center;
+    padding: 0;
+    margin-top: 0;
+}
+
+
+/* Services Title Images */
+
+.ServicesTitle {
+    display: block;
     margin: 0 auto;
-    padding: 20px;
-}
-
-.mainHeading {
-    font-family: "Cormorant Garamond", serif;
-    font-size: 36px;
-    font-weight: 300;
-    color: #333;
+    max-width: 60%;
+    height: auto;
     margin-bottom: 20px;
 }
 
-.subText {
-    font-family: "Cormorant Garamond", serif;
-    font-size: 20px;
-    font-weight: 300;
-    color: #555;
-    margin-bottom: 40px;
+/* Services & Prices */
+
+.servicesContent {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
-@media (max-width: 768px) {
-    .contentContainer {
+
+/* Last Service content */
+
+.servicesContentLast {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 5%;
+}
+
+
+/* Services Box */
+
+.servicesBox {
+    background-color: #EAE5DB;
+    padding: 20px;
+    border-radius: 8px;
+    width: 100%;
+    max-width: 800px;
+    margin-top: 0;
+    margin-bottom: 5%;
+    z-index: 2;
+    position: relative;
+}
+
+/* List of Services */
+
+.servicesList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    font-family: Hero-Regular;
+}
+
+/* --- Prices --- */
+
+span {
+    font-family: Hero-Light;
+}
+
+.servicesList li {
+    display: flex;
+    justify-content: space-between;
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+
+/* --- Lashes Image --- */
+
+.lashImage {
+    position: absolute;
+    top: -20px;
+    left: -20px;
+    width: 100px;
+    height: auto;
+    z-index: 3;
+}
+
+/* --- Brows Image --- */
+
+.browImage {
+    position: absolute;
+    top: -20px;
+    right: -20px;
+    width: 100px;
+    height: auto;
+    z-index: 3;
+}
+
+
+/* ----- Media Queries ----- */
+
+@media (max-width: 576px) {
+    .servicesBox {
+        max-width: 300px;
         padding: 15px;
+    }
+
+    .servicesList li {
+        font-size: 16px;
+    }
+}
+
+
+@media (max-width: 970px) {
+    .servicesList li {
+        font-size: 15px;
+    }
+
+    .servicesList li span {
+        font-size: 15px;
+    }
+}
+
+@media (min-width: 250px) and (max-width: 576px) {
+    .servicesBox {
+        max-width: 100%;
+        margin-bottom: 5%;
+        margin-left: 0;
+        margin-right: 0;
     }
 }
