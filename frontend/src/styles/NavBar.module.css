@@ -1,15 +1,22 @@
+.navbarContainer .navbar {
+  height: 100px;
+  display: flex;
+  align-items: center;
+  padding: 0;
+  overflow: hidden;
+}
+
 .navbarContainer .navbar .logo {
-  height: 45px;
-  margin-right: 0;
+  height: 90px;
+  margin-right: 10px;
   border: none;
 }
 
 .navbarContainer .navbar .logoLink {
   padding: 0;
-  margin-right: 10px;
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  border: none;
+  height: 100%;
 }
 
 .navbarContainer .navbar .navLink {
@@ -26,6 +33,8 @@
   align-items: center;
   justify-content: center;
   padding: 0 15px;
+  margin-top: auto;
+  margin-bottom: auto;
 }
 
 .navbarContainer .navbar .navLink:hover {
@@ -33,4 +42,23 @@
   background-color: #898e82;
 }
 
+@media (max-width: 991.98px) {
+  .navbarContainer .navbar {
+    height: 70px;
+    /* Ändrar höjden på navbaren när den förvandlas till hamburgermeny */
+  }
 
+  .navbarContainer .navbar .logo {
+    height: 65px;
+    /* Justera logotypens höjd för att passa i mitten */
+    margin-right: 0;
+    margin-left: 5%;
+  }
+
+  .navbarContainer .navbar .logoLink {
+    height: 100%;
+    /* Säkerställer att logolänken fortfarande fyller navbarens höjd */
+    justify-content: center;
+    /* Centrerar logon horisontellt */
+  }
+}

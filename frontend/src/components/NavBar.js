@@ -10,6 +10,18 @@ function NavBar() {
       <Navbar expand="lg" className={`${styles.navbar}`}>
         <Container fluid>
           <Row className="w-100 align-items-center">
+            {/* Hamburger menu toggle and logo visible on small screens */}
+            <Col xs={2} className="text-start d-lg-none">
+              <Navbar.Toggle aria-controls="offcanvasNavbar" />
+            </Col>
+            <Col xs={8} className="d-lg-none text-center">
+              <Link to="/" className={styles.logoLink}>
+                <img src={logo} alt="Logo" className={styles.logo} />
+              </Link>
+            </Col>
+
+            <Col xs={2} className="d-lg-none"></Col>
+
             {/* Navigation Links visible on large screens */}
             <Col xs={10} className="d-none d-lg-flex justify-content-start">
               <Nav className="flex-grow-1 pe-3">
@@ -53,10 +65,6 @@ function NavBar() {
                   Aftercare Tips
                 </Nav.Link>
               </Nav>
-            </Col>
-            {/* Hamburger menu toggle visible only on small screens */}
-            <Col xs={2} className="text-end d-lg-none">
-              <Navbar.Toggle aria-controls="offcanvasNavbar" />
             </Col>
           </Row>
 
