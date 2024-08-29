@@ -1,10 +1,18 @@
-import React from "react";
+import React, { useRef } from "react";
 import { Navbar, Nav, Offcanvas, Container, Row, Col } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import styles from "../styles/NavBar.module.css";
 import logo from "../assets/images/nc-logo-black.png";
 
 function NavBar() {
+  const offcanvasRef = useRef(null);
+
+  const handleClose = () => {
+    if (offcanvasRef.current) {
+      offcanvasRef.current.hide();
+    }
+  };
+
   return (
     <div className={styles.navbarContainer}>
       <Navbar expand="lg" className={`${styles.navbar}`}>
@@ -55,7 +63,7 @@ function NavBar() {
                   to="/pre-appointment-info"
                   className={styles.navLink}
                 >
-                  Pre Appointment Info
+                  Pre Appointment
                 </Nav.Link>
                 <Nav.Link
                   as={Link}
@@ -72,46 +80,51 @@ function NavBar() {
             id="offcanvasNavbar"
             aria-labelledby="offcanvasNavbarLabel"
             placement="end"
-            className="d-lg-none"
+            className="d-lg-none customOffcanvas"
+            ref={offcanvasRef}
+            style={{ backgroundColor: '#bbc0b5' }}
           >
             <Offcanvas.Header closeButton>
-              <Offcanvas.Title id="offcanvasNavbarLabel">Meny</Offcanvas.Title>
+              <Offcanvas.Title className={styles.menuTitle} id="offcanvasNavbarLabel">Meny</Offcanvas.Title>
             </Offcanvas.Header>
             <Offcanvas.Body>
               <Nav className="flex-column">
-                <Nav.Link as={Link} to="/" className={styles.navLink}>
+                <Nav.Link as={Link} to="/" className={styles.burgerNavLink} onClick={handleClose}>
                   Home
                 </Nav.Link>
-                <Nav.Link as={Link} to="/services" className={styles.navLink}>
+                <Nav.Link as={Link} to="/services" className={styles.burgerNavLink} onClick={handleClose}>
                   Services
                 </Nav.Link>
                 <Nav.Link
                   as={Link}
                   to="/book-appointment"
-                  className={styles.navLink}
+                  className={styles.burgerNavLink}
+                  onClick={handleClose}
                 >
                   Book Appointment
                 </Nav.Link>
-                <Nav.Link as={Link} to="/shop" className={styles.navLink}>
-                  Shop
+                <Nav.Link as={Link} to="/shop" className={styles.burgerNavLink} onClick={handleClose}>
+                  Shop Products
                 </Nav.Link>
-                <Nav.Link as={Link} to="/about" className={styles.navLink}>
+                <Nav.Link as={Link} to="/about" className={styles.burgerNavLink} onClick={handleClose}>
                   About Us
                 </Nav.Link>
-                <Nav.Link as={Link} to="/contact" className={styles.navLink}>
+                <Nav.Link as={Link} to="/contact" className={styles.burgerNavLink} onClick={handleClose}>
                   Contact
                 </Nav.Link>
                 <Nav.Link
                   as={Link}
                   to="/pre-appointment-info"
-                  className={styles.navLink}
+                  className={styles.burgerNavLink}
+                  onClick={handleClose}
                 >
-                  Pre Appointment Info
+                  Pre Appointment
                 </Nav.Link>
                 <Nav.Link
                   as={Link}
                   to="/aftercare-tips"
-                  className={styles.navLink}
+                  className={styles.burgerNavLink}
+                  onClick={handleClose}
                 >
                   Aftercare Tips
                 </Nav.Link>
