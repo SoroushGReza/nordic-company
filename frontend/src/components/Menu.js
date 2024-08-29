@@ -30,7 +30,7 @@ const Menu = () => {
       </Link>
       <Link to="/pre-appointment" className={styles.link}>
         <Button variant="outline-dark" className={styles.menuButton}>
-          Pre appointment info
+          Pre appointment
         </Button>
       </Link>
       <Link to="/book" className={styles.link}>
