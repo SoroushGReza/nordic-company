@@ -4,6 +4,7 @@
   align-items: center;
   padding: 0;
   overflow: hidden;
+  background: linear-gradient(135deg, #e2e5db, #bbc0b5);
 }
 
 .navbarContainer .navbar .logo {
@@ -27,8 +28,9 @@
   white-space: nowrap;
   border: 1px solid rgb(229, 230, 229);
   border-radius: 24px;
+  background-color: white;
 
-  height: 45px;
+  height: 48px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -42,23 +44,42 @@
   background-color: #898e82;
 }
 
+/* Ändrar höjden på navbaren när den förvandlas till hamburgermeny */
 @media (max-width: 991.98px) {
   .navbarContainer .navbar {
     height: 70px;
-    /* Ändrar höjden på navbaren när den förvandlas till hamburgermeny */
   }
 
   .navbarContainer .navbar .logo {
     height: 65px;
-    /* Justera logotypens höjd för att passa i mitten */
     margin-right: 0;
     margin-left: 5%;
   }
 
   .navbarContainer .navbar .logoLink {
     height: 100%;
-    /* Säkerställer att logolänken fortfarande fyller navbarens höjd */
     justify-content: center;
-    /* Centrerar logon horisontellt */
   }
 }
+
+
+/* ----- Hamburger Menu ----- */
+
+.menuTitle {
+  font-family: Hero-Regular;
+  font-size: 25px !important;
+  color: rgb(71, 71, 71) !important;
+}
+
+.burgerNavLink {
+  font-family: Hero-Regular;
+  color: #ffffff !important;
+  font-size: 20px !important;
+}
+
+.burgerNavLink:hover {
+  color: #898e82 !important;
+}
+
+
+
