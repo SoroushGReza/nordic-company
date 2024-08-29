@@ -4,6 +4,7 @@ import Home from "./pages/Home";
 import Services from "./pages/Services";
 import About from "./pages/About";
 import PreAppointment from "./pages/PreAppointment";
+import Aftercare from "./pages/Aftercare";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 function AppContent() {
@@ -18,6 +19,7 @@ function AppContent() {
         <Route path="/services" element={<Services />} />
         <Route path="/about" element={<About />} />
         <Route path="/pre-appointment-info" element={<PreAppointment />} />
+        <Route path="/aftercare-tips" element={<Aftercare />} />
       </Routes>
     </>
   );
