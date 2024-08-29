@@ -77,10 +77,8 @@
 
 .logoWhite {
     max-width: 350px;
-    display: flexbox;
     margin-bottom: 5%;
     opacity: 0.6;
-
 }
 
 @media (max-width: 410px) {
