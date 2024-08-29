@@ -1,0 +1,87 @@
+.afterCareContainer {
+    background-color: #bbc0b5;
+    padding-top: 3%;
+    margin-top: 0;
+    min-height: 100vh;
+    display: block;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    width: 100%;
+    overflow-x: hidden; 
+}
+
+.afterCareRow {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.afterCareContent {
+    max-width: 800px;
+    width: 100%;
+    padding: 0 20px;
+    text-align: center;
+}
+
+.afterCareImgTxt {
+    max-width: 60%;
+    height: auto;
+}
+
+/*  Heading Title  */
+
+.afterCareHeadingTitle {
+    font-family: Hero-Regular;
+    font-size: 2rem;
+    line-height: 1.6;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+@media (max-width: 676px) {
+    .afterCareHeadingTitle {
+        font-size: 1.4rem;
+    }
+}
+
+.afterCareHeadingTxtContent {
+    font-family: Hero-Regular;
+    font-size: 1.2rem;
+    line-height: 1.6;
+    margin-bottom: 0;
+    text-align: center;
+}
+
+/* Blueberry */
+
+.blueberry {
+    max-width: 160px;
+    margin-bottom: 5%;
+    opacity: 0.6;
+}
+
+@media (max-width: 410px) {
+    .blueberry {
+        max-width: 100px;
+    }
+}
+
+/* Logo Image */
+
+.logoBlack {
+    max-width: 400px;
+    margin-bottom: 5%;
+    text-align: center;
+    opacity: 0.6;
+
+}
+
+@media (max-width: 410px) {
+    .logoBlack {
+        max-width: 260px;
+    }
+}
+
+
