@@ -38,7 +38,14 @@ const Menu = () => {
           Book appointment
         </Button>
       </Link>
-      <FontAwesomeIcon className={styles.instagram} icon={faInstagram} />
+      <a
+        href="https://www.instagram.com/facebykristine/"
+        target="_blank"
+        rel="noopener noreferrer"
+        className={styles.link}
+      >
+        <FontAwesomeIcon className={styles.instagram} icon={faInstagram} />
+      </a>
     </Container>
   );
 };
