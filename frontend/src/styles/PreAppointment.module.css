@@ -1,0 +1,90 @@
+.preAppointmentContainer {
+    background-color: #bbc0b5;
+    padding-top: 3%;
+    margin-top: 0;
+    min-height: 100vh;
+    display: block;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    width: 100%;
+    overflow-x: hidden; 
+}
+
+.preAppointmentRow {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.preAppointmentContent {
+    max-width: 800px;
+    width: 100%;
+    padding: 0 20px;
+    text-align: center;
+}
+
+.PreAppointmentImgTxt {
+    max-width: 60%;
+    height: auto;
+}
+
+/*  Heading Title  */
+
+.preAppointmentHeadingTitle {
+    font-family: Hero-Regular;
+    font-size: 2rem;
+    line-height: 1.6;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+@media (max-width: 676px) {
+    .preAppointmentHeadingTitle {
+        font-size: 1.4rem;
+    }
+}
+
+.preAppointmentHeadingTxtContent {
+    font-family: Hero-Regular;
+    font-size: 1.2rem;
+    line-height: 1.6;
+    margin-bottom: 0;
+    text-align: center;
+}
+
+/* Schampoo Image */
+
+.Schampoo {
+    max-width: 400px;
+    display: flexbox;
+    margin-left: 10%; 
+    margin-right: auto;
+    margin-bottom: 5%;
+    text-align: left;
+
+}
+
+@media (max-width: 410px) {
+    .Schampoo {
+        max-width: 260px;
+    }
+}
+
+
+/* White NC Logo */
+
+.logoWhite {
+    max-width: 350px;
+    display: flexbox;
+    margin-bottom: 5%;
+    opacity: 0.6;
+
+}
+
+@media (max-width: 410px) {
+    .logoWhite {
+        max-width: 240px;
+    }
+}
