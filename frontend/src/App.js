@@ -3,6 +3,7 @@ import NavBar from "./components/NavBar";
 import Home from "./pages/Home";
 import Services from "./pages/Services";
 import About from "./pages/About";
+import PreAppointment from "./pages/PreAppointment";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 function AppContent() {
@@ -16,6 +17,7 @@ function AppContent() {
         <Route path="/" element={<Home />} />
         <Route path="/services" element={<Services />} />
         <Route path="/about" element={<About />} />
+        <Route path="/pre-appointment-info" element={<PreAppointment />} />
       </Routes>
     </>
   );
