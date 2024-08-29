@@ -18,7 +18,7 @@ const Menu = () => {
           About us
         </Button>
       </Link>
-      <Link to="/aftercare" className={styles.link}>
+      <Link to="/aftercare-tips" className={styles.link}>
         <Button variant="outline-dark" className={styles.menuButton}>
           Aftercare tips
         </Button>
@@ -28,7 +28,7 @@ const Menu = () => {
           Shop products
         </Button>
       </Link>
-      <Link to="/pre-appointment" className={styles.link}>
+      <Link to="/pre-appointment-info" className={styles.link}>
         <Button variant="outline-dark" className={styles.menuButton}>
           Pre appointment
         </Button>
