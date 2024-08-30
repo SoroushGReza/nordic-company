@@ -35,7 +35,6 @@ INSTALLED_APPS = [
     "corsheaders",
     "cloudinary_storage",
     "cloudinary",
-    "drf_api",
     "media_manager",
 ]
 
