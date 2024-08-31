@@ -4,7 +4,8 @@ from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth import authenticate
 from rest_framework.views import APIView
 from django.contrib.auth import get_user_model
-
+import logging
+from rest_framework_simplejwt.tokens import RefreshToken
 from .serializers import (
     UserRegistrationSerializer,
     UserLoginSerializer,
@@ -13,14 +14,34 @@ from .serializers import (
     DeleteAccountSerializer,
 )
 
+logger = logging.getLogger(__name__)
+
 CustomUser = get_user_model()
 
 
 class UserRegistrationView(generics.CreateAPIView):
+    queryset = CustomUser.objects.all()
     serializer_class = UserRegistrationSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+
+        # Generera en JWT-token
+        refresh = RefreshToken.for_user(user)
+        return Response(
+            {
+                "refresh": str(refresh),
+                "access": str(refresh.access_token),
+            },
+            status=status.HTTP_201_CREATED,
+        )
 
 
 class UserLoginView(APIView):
+    permission_classes = [IsAuthenticated]
+
     def post(self, request, *args, **kwargs):
         serializer = UserLoginSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -31,9 +52,8 @@ class UserLoginView(APIView):
         if user is not None:
             return Response({"message": "Login successful"})
         return Response(
-            {
-                "message": "Invalid credentials"
-            }, status=status.HTTP_401_UNAUTHORIZED
+            {"message": "Invalid credentials"},
+            status=status.HTTP_401_UNAUTHORIZED,  # noqa
         )
 
 
@@ -59,9 +79,8 @@ class ChangePasswordView(generics.UpdateAPIView):
 
         if not self.object.check_password(serializer.data.get("old_password")):
             return Response(
-                {
-                    "old_password": "Wrong password."
-                }, status=status.HTTP_400_BAD_REQUEST
+                {"old_password": "Wrong password."},
+                status=status.HTTP_400_BAD_REQUEST,  # noqa
             )
 
         self.object.set_password(serializer.data.get("new_password"))
@@ -80,9 +99,8 @@ class DeleteAccountView(APIView):
 
         if not user.check_password(serializer.validated_data["password"]):
             return Response(
-                {
-                    "password": "Incorrect password"
-                }, status=status.HTTP_400_BAD_REQUEST
+                {"password": "Incorrect password"},
+                status=status.HTTP_400_BAD_REQUEST,  # noqa
             )
 
         user.delete()
