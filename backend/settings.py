@@ -18,16 +18,18 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["8000-soroushgrez-tinyswebsit-hmdy1e3e5ct.ws-us115.gitpod.io"]
+ALLOWED_HOSTS = [
+    "8000-soroushgrez-tinyswebsit-hmdy1e3e5ct.ws-us115.gitpod.io",
+    "localhost",
+]
 
 CSRF_TRUSTED_ORIGINS = ["https://*.gitpod.io"]
 
-# CORS_ALLOWED_ORIGINS = [
-#     "https://3000-soroushgrez-tinyswebsit-hmdy1e3e5ct.ws-us115.gitpod.io",
-#     "https://8000-soroushgrez-tinyswebsit-hmdy1e3e5ct.ws-us115.gitpod.io",
-# ]
-
-CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "https://3000-soroushgrez-tinyswebsit-hmdy1e3e5ct.ws-us115.gitpod.io",
+    "https://8000-soroushgrez-tinyswebsit-hmdy1e3e5ct.ws-us115.gitpod.io",
+]
 
 CORS_ALLOW_CREDENTIALS = True
 
@@ -64,12 +66,12 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "rest_framework",
-    'rest_framework.authtoken',
-    'dj_rest_auth',
-    'django.contrib.sites',
-    'allauth',
-    'allauth.account',
-    'allauth.socialaccount',
+    "rest_framework.authtoken",
+    "dj_rest_auth",
+    "django.contrib.sites",
+    "allauth",
+    "allauth.account",
+    "allauth.socialaccount",
     "corsheaders",
     "cloudinary_storage",
     "cloudinary",

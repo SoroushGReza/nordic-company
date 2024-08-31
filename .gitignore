@@ -10,3 +10,4 @@ env.py
 .github/
 cloudinary_python.txt
 staticfiles/
+.vs/

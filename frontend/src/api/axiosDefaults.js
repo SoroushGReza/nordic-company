@@ -1,8 +1,8 @@
 import axios from "axios";
 import Cookies from "js-cookie";
 
-axios.defaults.baseURL =
-  "https://8000-soroushgrez-tinyswebsit-hmdy1e3e5ct.ws-us115.gitpod.io/api";
+axios.defaults.baseURL = 'http://localhost:8000/api';
+  /*"https://8000-soroushgrez-tinyswebsit-hmdy1e3e5ct.ws-us115.gitpod.io/api";*/
 axios.defaults.headers.post["Content-Type"] = "application/json";
 axios.defaults.withCredentials = true;
 
