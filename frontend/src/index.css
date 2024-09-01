@@ -1,3 +1,6 @@
+/* --- GooGle FOnts --- */
+@import url('https://fonts.googleapis.com/css2?family=Delius+Unicase:wght@400;700&display=swap');
+
 /* --- Custom Fonts --- */
 @font-face {
   font-family: 'Architects Daughter';
@@ -20,9 +23,10 @@
   font-style: normal;
 }
 
+
 /* Background colour for the whole website */
 html {
-  background-color: #bbc0b5;
+    background-color: #bbc0b5;
 }
 
 body {

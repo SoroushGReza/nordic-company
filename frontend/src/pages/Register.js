@@ -24,7 +24,7 @@ const Register = () => {
                 email,
                 password,
                 password2,
-                name,            
+                name,
                 surname,
                 phone_number: phoneNumber
             });
@@ -41,38 +41,6 @@ const Register = () => {
                 <Col md={{ span: 6, offset: 3 }}>
                     <h2 className={styles.registerHeader}>Register</h2>
                     <Form onSubmit={handleSubmit}>
-                        <Form.Group controlId="formEmail">
-                            <Form.Label className={styles.customLabel}>Email</Form.Label>
-                            <Form.Control
-                                className={styles.customInput}
-                                type="email"
-                                placeholder="Enter email"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                            />
-                        </Form.Group>
-
-                        <Form.Group controlId="formPassword">
-                            <Form.Label className={styles.customLabel}>Password</Form.Label>
-                            <Form.Control
-                                className={styles.customInput}
-                                type="password"
-                                placeholder="Password"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                            />
-                        </Form.Group>
-
-                        <Form.Group controlId="formPassword2">
-                            <Form.Label className={styles.customLabel}>Confirm Password</Form.Label>
-                            <Form.Control
-                                className={styles.customInput}
-                                type="password"
-                                placeholder="Confirm Password"
-                                value={password2}
-                                onChange={(e) => setPassword2(e.target.value)}
-                            />
-                        </Form.Group>
 
                         <Form.Group controlId="formName">
                             <Form.Label className={styles.customLabel}>Name</Form.Label>
@@ -107,9 +75,44 @@ const Register = () => {
                             />
                         </Form.Group>
 
-                        <Button variant="primary" type="submit">
-                            Register
-                        </Button>
+                        <Form.Group controlId="formEmail">
+                            <Form.Label className={styles.customLabel}>Email</Form.Label>
+                            <Form.Control
+                                className={styles.customInput}
+                                type="email"
+                                placeholder="Enter email"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                            />
+                        </Form.Group>
+
+                        <Form.Group controlId="formPassword">
+                            <Form.Label className={styles.customLabel}>Password</Form.Label>
+                            <Form.Control
+                                className={styles.customInput}
+                                type="password"
+                                placeholder="Password"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                            />
+                        </Form.Group>
+
+                        <Form.Group controlId="formPassword2">
+                            <Form.Label className={styles.customLabel}>Confirm Password</Form.Label>
+                            <Form.Control
+                                className={styles.customInput}
+                                type="password"
+                                placeholder="Confirm Password"
+                                value={password2}
+                                onChange={(e) => setPassword2(e.target.value)}
+                            />
+                        </Form.Group>
+
+                        <div className="d-flex justify-content-center">
+                            <Button className={styles.customButton} variant="primary" type="submit">
+                                Register
+                            </Button>
+                        </div>
                     </Form>
                 </Col>
             </Row>

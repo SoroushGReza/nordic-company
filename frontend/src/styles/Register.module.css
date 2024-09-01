@@ -16,7 +16,7 @@ body, html {
 .registerHeader {
     text-align: center;
     margin-bottom: 5%;
-    margin-top: 3%;
+    margin-top: 12%;
     font-family: Hero-Regular;
     font-size: 38px;
 }
@@ -32,4 +32,29 @@ body, html {
     margin-top: -5px;
     margin-bottom: 13px;
     background-color: mintcream !important;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+    border-radius: 4px;
 }
+
+.customButton {
+    background-color: #224200 !important;
+    margin-bottom: 10%;
+    margin-top: 6%;
+    border: none !important;
+    height: 38px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 15px;
+    border-radius: 8px;
+    color: #ffffff !important;
+    font-family: 'Delius Unicase', sans-serif !important;
+    font-size: 18px !important;
+    width: 27%;
+}
+
+
+    .customButton:hover {
+        background-color: #043500 !important;
+        color: #58a100 !important;
+    }
