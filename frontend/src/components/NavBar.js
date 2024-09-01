@@ -5,136 +5,221 @@ import styles from "../styles/NavBar.module.css";
 import logo from "../assets/images/nc-logo-black.png";
 
 function NavBar() {
-  const offcanvasRef = useRef(null);
+    const offcanvasRef = useRef(null);
 
-  const handleClose = () => {
-    if (offcanvasRef.current) {
-      offcanvasRef.current.hide();
-    }
-  };
+    const handleClose = () => {
+        if (offcanvasRef.current) {
+            offcanvasRef.current.hide();
+        }
+    };
 
-  return (
-    <div className={styles.navbarContainer}>
-      <Navbar expand="lg" className={`${styles.navbar}`}>
-        <Container fluid>
-          <Row className="w-100 align-items-center">
-            {/* Hamburger menu toggle and logo visible on small screens */}
-            <Col xs={2} className="text-start d-lg-none">
-              <Navbar.Toggle aria-controls="offcanvasNavbar" />
-            </Col>
-            <Col xs={8} className="d-lg-none text-center">
-              <Link to="/" className={styles.logoLink}>
-                <img src={logo} alt="Logo" className={styles.logo} />
-              </Link>
-            </Col>
+    // Kontrollera om användaren är inloggad
+    const isAuthenticated = () => {
+        const token = localStorage.getItem("access");
+        return token !== null;
+    };
 
-            <Col xs={2} className="d-lg-none"></Col>
+    // Hantera utloggning
+    const handleLogout = () => {
+        localStorage.removeItem("access");
+        localStorage.removeItem("refresh");
+        window.location.reload(); // Ladda om sidan för att tillämpa ändringarna
+    };
 
-            {/* Navigation Links visible on large screens */}
-            <Col xs={10} className="d-none d-lg-flex justify-content-start">
-              <Nav className="flex-grow-1 pe-3">
-                <Nav.Link as={Link} to="/" className={styles.logoLink}>
-                  <img src={logo} alt="Logo" className={styles.logo} />
-                </Nav.Link>
-                <Nav.Link as={Link} to="/" className={styles.navLink}>
-                  Home
-                </Nav.Link>
-                <Nav.Link as={Link} to="/services" className={styles.navLink}>
-                  Services
-                </Nav.Link>
-                <Nav.Link
-                  as={Link}
-                  to="/book-appointment"
-                  className={styles.navLink}
-                >
-                  Book Appointment
-                </Nav.Link>
-                <Nav.Link as={Link} to="/shop" className={styles.navLink}>
-                  Shop
-                </Nav.Link>
-                <Nav.Link as={Link} to="/about" className={styles.navLink}>
-                  About Us
-                </Nav.Link>
-                <Nav.Link as={Link} to="/contact" className={styles.navLink}>
-                  Contact
-                </Nav.Link>
-                <Nav.Link
-                  as={Link}
-                  to="/pre-appointment-info"
-                  className={styles.navLink}
-                >
-                  Pre Appointment
-                </Nav.Link>
-                <Nav.Link
-                  as={Link}
-                  to="/aftercare-tips"
-                  className={styles.navLink}
-                >
-                  Aftercare Tips
-                </Nav.Link>
-              </Nav>
-            </Col>
-          </Row>
+    return (
+        <div className={styles.navbarContainer}>
+            <Navbar expand="lg" className={`${styles.navbar}`}>
+                <Container fluid>
+                    <Row className="w-100 align-items-center">
+                        {/* Hamburger menu toggle and logo visible on small screens */}
+                        <Col xs={2} className="text-start d-lg-none">
+                            <Navbar.Toggle aria-controls="offcanvasNavbar" />
+                        </Col>
+                        <Col xs={8} className="d-lg-none text-center">
+                            <Link to="/" className={styles.logoLink}>
+                                <img src={logo} alt="Logo" className={styles.logo} />
+                            </Link>
+                        </Col>
 
-          <Navbar.Offcanvas
-            id="offcanvasNavbar"
-            aria-labelledby="offcanvasNavbarLabel"
-            placement="end"
-            className="d-lg-none customOffcanvas"
-            ref={offcanvasRef}
-            style={{ backgroundColor: '#bbc0b5' }}
-          >
-            <Offcanvas.Header closeButton>
-              <Offcanvas.Title className={styles.menuTitle} id="offcanvasNavbarLabel">Meny</Offcanvas.Title>
-            </Offcanvas.Header>
-            <Offcanvas.Body>
-              <Nav className="flex-column">
-                <Nav.Link as={Link} to="/" className={styles.burgerNavLink} onClick={handleClose}>
-                  Home
-                </Nav.Link>
-                <Nav.Link as={Link} to="/services" className={styles.burgerNavLink} onClick={handleClose}>
-                  Services
-                </Nav.Link>
-                <Nav.Link
-                  as={Link}
-                  to="/book-appointment"
-                  className={styles.burgerNavLink}
-                  onClick={handleClose}
-                >
-                  Book Appointment
-                </Nav.Link>
-                <Nav.Link as={Link} to="/shop" className={styles.burgerNavLink} onClick={handleClose}>
-                  Shop Products
-                </Nav.Link>
-                <Nav.Link as={Link} to="/about" className={styles.burgerNavLink} onClick={handleClose}>
-                  About Us
-                </Nav.Link>
-                <Nav.Link as={Link} to="/contact" className={styles.burgerNavLink} onClick={handleClose}>
-                  Contact
-                </Nav.Link>
-                <Nav.Link
-                  as={Link}
-                  to="/pre-appointment-info"
-                  className={styles.burgerNavLink}
-                  onClick={handleClose}
-                >
-                  Pre Appointment
-                </Nav.Link>
-                <Nav.Link
-                  as={Link}
-                  to="/aftercare-tips"
-                  className={styles.burgerNavLink}
-                  onClick={handleClose}
-                >
-                  Aftercare Tips
-                </Nav.Link>
-              </Nav>
-            </Offcanvas.Body>
-          </Navbar.Offcanvas>
-        </Container>
-      </Navbar>
-    </div>
-  );
+                        <Col xs={2} className="d-lg-none"></Col>
+
+                        {/* Navigation Links visible on large screens */}
+                        <Col xs={10} className="d-none d-lg-flex justify-content-start">
+                            <Nav className="flex-grow-1 pe-3">
+                                <Nav.Link as={Link} to="/" className={styles.logoLink}>
+                                    <img src={logo} alt="Logo" className={styles.logo} />
+                                </Nav.Link>
+                                <Nav.Link as={Link} to="/" className={styles.navLink}>
+                                    Home
+                                </Nav.Link>
+                                <Nav.Link as={Link} to="/services" className={styles.navLink}>
+                                    Services
+                                </Nav.Link>
+
+                                {/* Visa endast Book Appointment-länken om användaren är inloggad */}
+                                {isAuthenticated() && (
+                                    <Nav.Link
+                                        as={Link}
+                                        to="/book-appointment"
+                                        className={styles.navLink}
+                                    >
+                                        Book Appointment
+                                    </Nav.Link>
+                                )}
+
+                                <Nav.Link as={Link} to="/shop" className={styles.navLink}>
+                                    Shop
+                                </Nav.Link>
+                                <Nav.Link as={Link} to="/about" className={styles.navLink}>
+                                    About Us
+                                </Nav.Link>
+                                <Nav.Link as={Link} to="/contact" className={styles.navLink}>
+                                    Contact
+                                </Nav.Link>
+                                <Nav.Link
+                                    as={Link}
+                                    to="/pre-appointment-info"
+                                    className={styles.navLink}
+                                >
+                                    Pre Appointment
+                                </Nav.Link>
+                                <Nav.Link
+                                    as={Link}
+                                    to="/aftercare-tips"
+                                    className={styles.navLink}
+                                >
+                                    Aftercare Tips
+                                </Nav.Link>
+
+                                {/* Visa Login/Register eller Logout beroende på inloggningsstatus */}
+                                {!isAuthenticated() ? (
+                                    <>
+                                        <Nav.Link as={Link} to="/login" className={styles.navLink}>
+                                            Login
+                                        </Nav.Link>
+                                        <Nav.Link as={Link} to="/register" className={styles.navLink}>
+                                            Register
+                                        </Nav.Link>
+                                    </>
+                                ) : (
+                                    <Nav.Link as={Link} to="/" onClick={handleLogout} className={styles.navLink}>
+                                        Logout
+                                    </Nav.Link>
+                                )}
+                            </Nav>
+                        </Col>
+                    </Row>
+
+                    <Navbar.Offcanvas
+                        id="offcanvasNavbar"
+                        aria-labelledby="offcanvasNavbarLabel"
+                        placement="end"
+                        className="d-lg-none customOffcanvas"
+                        ref={offcanvasRef}
+                        style={{ backgroundColor: "#bbc0b5" }}
+                    >
+                        <Offcanvas.Header closeButton>
+                            <Offcanvas.Title
+                                className={styles.menuTitle}
+                                id="offcanvasNavbarLabel"
+                            >
+                                Meny
+                            </Offcanvas.Title>
+                        </Offcanvas.Header>
+                        <Offcanvas.Body>
+                            <Nav className="flex-column">
+                                <Nav.Link
+                                    as={Link}
+                                    to="/"
+                                    className={styles.burgerNavLink}
+                                    onClick={handleClose}
+                                >
+                                    Home
+                                </Nav.Link>
+                                <Nav.Link
+                                    as={Link}
+                                    to="/services"
+                                    className={styles.burgerNavLink}
+                                    onClick={handleClose}
+                                >
+                                    Services
+                                </Nav.Link>
+
+                                {/* Visa endast Book Appointment-länken i offcanvas om användaren är inloggad */}
+                                {isAuthenticated() && (
+                                    <Nav.Link
+                                        as={Link}
+                                        to="/book-appointment"
+                                        className={styles.burgerNavLink}
+                                        onClick={handleClose}
+                                    >
+                                        Book Appointment
+                                    </Nav.Link>
+                                )}
+
+                                <Nav.Link
+                                    as={Link}
+                                    to="/shop"
+                                    className={styles.burgerNavLink}
+                                    onClick={handleClose}
+                                >
+                                    Shop Products
+                                </Nav.Link>
+                                <Nav.Link
+                                    as={Link}
+                                    to="/about"
+                                    className={styles.burgerNavLink}
+                                    onClick={handleClose}
+                                >
+                                    About Us
+                                </Nav.Link>
+                                <Nav.Link
+                                    as={Link}
+                                    to="/contact"
+                                    className={styles.burgerNavLink}
+                                    onClick={handleClose}
+                                >
+                                    Contact
+                                </Nav.Link>
+                                <Nav.Link
+                                    as={Link}
+                                    to="/pre-appointment-info"
+                                    className={styles.burgerNavLink}
+                                    onClick={handleClose}
+                                >
+                                    Pre Appointment
+                                </Nav.Link>
+                                <Nav.Link
+                                    as={Link}
+                                    to="/aftercare-tips"
+                                    className={styles.burgerNavLink}
+                                    onClick={handleClose}
+                                >
+                                    Aftercare Tips
+                                </Nav.Link>
+
+                                {/* Visa Login/Register eller Logout beroende på inloggningsstatus */}
+                                {!isAuthenticated() ? (
+                                    <>
+                                        <Nav.Link as={Link} to="/login" className={styles.burgerNavLink} onClick={handleClose}>
+                                            Login
+                                        </Nav.Link>
+                                        <Nav.Link as={Link} to="/register" className={styles.burgerNavLink} onClick={handleClose}>
+                                            Register
+                                        </Nav.Link>
+                                    </>
+                                ) : (
+                                    <Nav.Link as={Link} to="/" onClick={handleLogout} className={styles.burgerNavLink}>
+                                        Logout
+                                    </Nav.Link>
+                                )}
+                            </Nav>
+                        </Offcanvas.Body>
+                    </Navbar.Offcanvas>
+                </Container>
+            </Navbar>
+        </div>
+    );
 }
 
 export default NavBar;
