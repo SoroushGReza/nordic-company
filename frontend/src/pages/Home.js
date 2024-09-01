@@ -21,7 +21,7 @@ const Home = () => {
           >
             <img
               src={headerImage}
-              alt="Image"
+              alt="Header  bg"
               className={styles.headerImage}
             />
             <img
