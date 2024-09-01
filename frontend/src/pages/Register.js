@@ -20,16 +20,21 @@ const Register = () => {
             return;
         }
         try {
-            await axiosReq.post("/accounts/register/", {
+            const response = await axiosReq.post("/accounts/register/", {
                 email,
                 password,
                 password2,
                 name,
                 surname,
-                phone_number: phoneNumber
+                phone_number: phoneNumber,
             });
 
-            navigate("/login");
+            // Spara JWT-token i localStorage
+            localStorage.setItem("refresh", response.data.refresh);
+            localStorage.setItem("access", response.data.access);
+
+            // Navigera till hemsidan
+            navigate("/");
         } catch (error) {
             console.error(error);
         }
