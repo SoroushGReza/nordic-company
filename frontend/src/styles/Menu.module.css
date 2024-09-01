@@ -58,23 +58,46 @@
     transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-.menu .menuButton:hover {
-    background-color: #333;
-    color: #F1EBE5;
+    .menu .menuButton:hover {
+        background-color: #333;
+        color: #F1EBE5;
+    }
+
+.menu .customMenuButton {
+    background: linear-gradient(to right, #d3d2ae, #d5cca0) !important;
+    width: 100%;
+    max-width: 400px;
+    padding: 15px 0;
+    margin: 2px;
+    font-size: 17px;
+    font-family: "Hero-Regular", serif;
+    font-weight: 300;
+    font-style: normal;
+    color: #333;
+    text-align: center;
+    text-decoration: none;
+    border: 1px solid #333;
+    border-radius: 0;
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
+
+    .menu .customMenuButton:hover {
+        background: linear-gradient(to right, #acab8e, #b3ab87) !important;
+    }
 
 .menu .instagram {
     font-size: 35px;
     padding: 5px;
-    color: #333;;
+    color: #333;
+    ;
 }
 
-.menu .instagram:hover {
-    color: white;
-    background: linear-gradient(to bottom right, #f09433, #e6683c, #dc2743, #cc2366, #bc1888, #ab1cbf, #833ab4, #515bd4, #405de6);
-    padding: 5px;
-    border-radius: 8px;
-}
+    .menu .instagram:hover {
+        color: white;
+        background: linear-gradient(to bottom right, #f09433, #e6683c, #dc2743, #cc2366, #bc1888, #ab1cbf, #833ab4, #515bd4, #405de6);
+        padding: 5px;
+        border-radius: 8px;
+    }
 
 .link {
     text-decoration: none;

@@ -77,7 +77,7 @@ const Menu = () => {
                         </Button>
                     </Link>
                     <Link to="/register" className={styles.link}>
-                        <Button variant="outline-dark" className={styles.menuButton}>
+                        <Button variant="outline-dark" className={styles.customMenuButton}>
                             Register
                         </Button>
                     </Link>
@@ -87,7 +87,7 @@ const Menu = () => {
             {isAuthenticated() && (
                 <Button
                     variant="outline-dark"
-                    className={styles.menuButton}
+                    className={styles.customMenuButton}
                     onClick={handleLogout}
                 >
                     Logout
