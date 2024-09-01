@@ -56,16 +56,14 @@ function NavBar() {
                                     Services
                                 </Nav.Link>
 
-                                {/* Visa endast Book Appointment-länken om användaren är inloggad */}
-                                {isAuthenticated() && (
-                                    <Nav.Link
-                                        as={Link}
-                                        to="/book-appointment"
-                                        className={styles.navLink}
-                                    >
-                                        Book Appointment
-                                    </Nav.Link>
-                                )}
+                                {/* Appointment is always visible */}
+                                <Nav.Link
+                                    as={Link}
+                                    to={isAuthenticated() ? "/book-appointment" : "/login"}
+                                    className={styles.navLink}
+                                >
+                                    Appointment
+                                </Nav.Link>
 
                                 <Nav.Link as={Link} to="/shop" className={styles.navLink}>
                                     Shop
@@ -76,20 +74,26 @@ function NavBar() {
                                 <Nav.Link as={Link} to="/contact" className={styles.navLink}>
                                     Contact
                                 </Nav.Link>
-                                <Nav.Link
-                                    as={Link}
-                                    to="/pre-appointment-info"
-                                    className={styles.navLink}
-                                >
-                                    Pre Appointment
-                                </Nav.Link>
-                                <Nav.Link
-                                    as={Link}
-                                    to="/aftercare-tips"
-                                    className={styles.navLink}
-                                >
-                                    Aftercare Tips
-                                </Nav.Link>
+
+                                {/* Show Pre Appointment and Aftercare Tips only if authenticated */}
+                                {isAuthenticated() && (
+                                    <>
+                                        <Nav.Link
+                                            as={Link}
+                                            to="/pre-appointment-info"
+                                            className={styles.navLink}
+                                        >
+                                            Pre Appointment
+                                        </Nav.Link>
+                                        <Nav.Link
+                                            as={Link}
+                                            to="/aftercare-tips"
+                                            className={styles.navLink}
+                                        >
+                                            Aftercare Tips
+                                        </Nav.Link>
+                                    </>
+                                )}
 
                                 {/* Visa Login/Register eller Logout beroende på inloggningsstatus */}
                                 {!isAuthenticated() ? (
@@ -145,17 +149,15 @@ function NavBar() {
                                     Services
                                 </Nav.Link>
 
-                                {/* Visa endast Book Appointment-länken i offcanvas om användaren är inloggad */}
-                                {isAuthenticated() && (
-                                    <Nav.Link
-                                        as={Link}
-                                        to="/book-appointment"
-                                        className={styles.burgerNavLink}
-                                        onClick={handleClose}
-                                    >
-                                        Book Appointment
-                                    </Nav.Link>
-                                )}
+                                {/* Book Appointment is always visible */}
+                                <Nav.Link
+                                    as={Link}
+                                    to={isAuthenticated() ? "/book-appointment" : "/login"}
+                                    className={styles.burgerNavLink}
+                                    onClick={handleClose}
+                                >
+                                    Book Appointment
+                                </Nav.Link>
 
                                 <Nav.Link
                                     as={Link}
@@ -181,22 +183,28 @@ function NavBar() {
                                 >
                                     Contact
                                 </Nav.Link>
-                                <Nav.Link
-                                    as={Link}
-                                    to="/pre-appointment-info"
-                                    className={styles.burgerNavLink}
-                                    onClick={handleClose}
-                                >
-                                    Pre Appointment
-                                </Nav.Link>
-                                <Nav.Link
-                                    as={Link}
-                                    to="/aftercare-tips"
-                                    className={styles.burgerNavLink}
-                                    onClick={handleClose}
-                                >
-                                    Aftercare Tips
-                                </Nav.Link>
+
+                                {/* Show Pre Appointment and Aftercare Tips only if authenticated */}
+                                {isAuthenticated() && (
+                                    <>
+                                        <Nav.Link
+                                            as={Link}
+                                            to="/pre-appointment-info"
+                                            className={styles.burgerNavLink}
+                                            onClick={handleClose}
+                                        >
+                                            Pre Appointment
+                                        </Nav.Link>
+                                        <Nav.Link
+                                            as={Link}
+                                            to="/aftercare-tips"
+                                            className={styles.burgerNavLink}
+                                            onClick={handleClose}
+                                        >
+                                            Aftercare Tips
+                                        </Nav.Link>
+                                    </>
+                                )}
 
                                 {/* Visa Login/Register eller Logout beroende på inloggningsstatus */}
                                 {!isAuthenticated() ? (
