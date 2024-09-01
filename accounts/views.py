@@ -51,7 +51,7 @@ class UserRegistrationView(generics.CreateAPIView):
 
 
 class UserLoginView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = []
 
     def post(self, request, *args, **kwargs):
         serializer = UserLoginSerializer(data=request.data)
