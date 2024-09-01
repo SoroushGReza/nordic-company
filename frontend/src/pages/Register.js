@@ -3,6 +3,7 @@ import { Container, Row, Col, Form, Button } from "react-bootstrap";
 import { useNavigate, Link } from "react-router-dom";
 import { axiosReq } from "../api/axiosDefaults";
 import styles from "../styles/Register.module.css";
+import RegisterTxtImg from "../assets/images/Register.png";
 
 const Register = () => {
     const [name, setName] = useState("");
@@ -53,7 +54,12 @@ const Register = () => {
             <Row className="justify-content-center">
                 <Col md={6} className={styles.formCol}>
                     <div className={styles.formWrapper}>
-                        <h2 className={styles.registerHeader}>Register</h2>
+                        <Row className="justify-content-center">
+                            <Col xs={12} className="d-flex justify-content-center">
+                                <img src={RegisterTxtImg} alt="Register" className={styles.pageImgTxt} />
+                            </Col>
+                        </Row>
+                        {/*<h2 className={styles.registerHeader}>Register</h2>*/}
                         <Form onSubmit={handleSubmit}>
 
                             <Form.Group controlId="formName">

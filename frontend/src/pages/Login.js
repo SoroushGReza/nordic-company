@@ -3,6 +3,7 @@ import { Container, Row, Col, Form, Button } from "react-bootstrap";
 import { useNavigate, Link } from "react-router-dom";
 import { axiosReq } from "../api/axiosDefaults";
 import styles from "../styles/Register.module.css";
+import LoginTxtImg from "../assets/images/Login.png";
 
 const Login = () => {
     const [email, setEmail] = useState("");
@@ -34,7 +35,12 @@ const Login = () => {
             <Row className="justify-content-center">
                 <Col md={6} className={styles.formCol}>
                     <div className={styles.formWrapper}>
-                        <h2 className={styles.registerHeader}>Login</h2>
+                        <Row className="justify-content-center">
+                            <Col xs={12} className="d-flex justify-content-center">
+                                <img src={LoginTxtImg} alt="Register" className={styles.pageImgTxt} />
+                            </Col>
+                        </Row>
+                        {/*<h2 className={styles.registerHeader}>Login</h2>*/}
                         <Form onSubmit={handleSubmit}>
                             <Form.Group controlId="formEmail">
                                 <Form.Label className={styles.customLabel}>Email address</Form.Label>
