@@ -1,22 +1,33 @@
 body, html {
     padding: 0;
     margin: 0;
+    background-color: #bcc0b6 !important;
+    height: 100%;
 }
 
 
-.registerContainer {
-    background-color: #bbc0b5;
-    padding: 0;
-    margin: 0;
-    min-height: 100vh;
-    overflow: hidden;
+
+.formCol {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: calc(100vh - 100px);
+}
+
+.formWrapper {
+    background-color: #bcc0b6;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    border: 1px solid #ccc;
     width: 100%;
+    max-width: 500px;
+    margin: 20px 0;
 }
 
 .registerHeader {
     text-align: center;
     margin-bottom: 5%;
-    margin-top: 12%;
     font-family: Hero-Regular;
     font-size: 38px;
 }
@@ -48,13 +59,23 @@ body, html {
     padding: 0 15px;
     border-radius: 8px;
     color: #ffffff !important;
-    font-family: 'Delius Unicase', sans-serif !important;
+    font-family: Hero-Regular !important;
     font-size: 18px !important;
     width: 27%;
 }
-
 
     .customButton:hover {
         background-color: #043500 !important;
         color: #58a100 !important;
     }
+
+.msgLinkTxt h3 {
+    font-family: Hero-Light;
+    font-size: 20px !important;
+    white-space: nowrap;
+}
+
+.msgLink {
+    text-decoration: none;
+    font-family: Hero-Regular;
+}
