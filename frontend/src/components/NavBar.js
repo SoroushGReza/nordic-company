@@ -106,7 +106,7 @@ function NavBar() {
                                         </Nav.Link>
                                     </>
                                 ) : (
-                                    <Nav.Link as={Link} to="/" onClick={handleLogout} className={styles.navLink}>
+                                        <Nav.Link as={Link} to="/" onClick={handleLogout} className={styles.navLink}>
                                         Logout
                                     </Nav.Link>
                                 )}

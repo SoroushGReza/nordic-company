@@ -1,85 +1,81 @@
 .navbarContainer .navbar {
-  height: 100px;
-  display: flex;
-  align-items: center;
-  padding: 0;
-  overflow: hidden;
-  background: linear-gradient(135deg, #e2e5db, #bbc0b5);
+    height: 100px;
+    display: flex;
+    align-items: center;
+    padding: 0;
+    overflow: hidden;
+    background: linear-gradient(135deg, #e2e5db, #bbc0b5);
 }
 
-.navbarContainer .navbar .logo {
-  height: 90px;
-  margin-right: 10px;
-  border: none;
-}
+    .navbarContainer .navbar .logo {
+        height: 90px;
+        margin-right: 10px;
+        border: none;
+    }
 
-.navbarContainer .navbar .logoLink {
-  padding: 0;
-  display: flex;
-  align-items: center;
-  height: 100%;
-}
+    .navbarContainer .navbar .logoLink {
+        padding: 0;
+        display: flex;
+        align-items: center;
+        height: 100%;
+    }
 
-.navbarContainer .navbar .navLink {
-  color: rgb(56, 57, 57);
-  font-size: 15px;
-  font-family: Hero-Regular;
-  margin-right: 5px;
-  white-space: nowrap;
-  border: 1px solid rgb(229, 230, 229);
-  border-radius: 24px;
-  background-color: white;
+    .navbarContainer .navbar .navLink {
+        color: rgb(56, 57, 57);
+        font-size: 15px;
+        font-family: Hero-Regular;
+        margin-right: 5px;
+        white-space: nowrap;
+        border: 1px solid rgb(229, 230, 229);
+        border-radius: 24px;
+        background-color: white;
+        height: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 15px;
+        margin-top: auto;
+        margin-bottom: auto;
+    }
 
-  height: 48px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 15px;
-  margin-top: auto;
-  margin-bottom: auto;
-}
-
-.navbarContainer .navbar .navLink:hover {
-  color: #ffffff;
-  background-color: #898e82;
-}
+        .navbarContainer .navbar .navLink:hover {
+            color: #ffffff;
+            background-color: #898e82;
+        }
 
 /* Ändrar höjden på navbaren när den förvandlas till hamburgermeny */
 @media (max-width: 991.98px) {
-  .navbarContainer .navbar {
-    height: 70px;
-  }
+    .navbarContainer .navbar {
+        height: 70px;
+    }
 
-  .navbarContainer .navbar .logo {
-    height: 65px;
-    margin-right: 0;
-    margin-left: 5%;
-  }
+        .navbarContainer .navbar .logo {
+            height: 65px;
+            margin-right: 0;
+            margin-left: 5%;
+        }
 
-  .navbarContainer .navbar .logoLink {
-    height: 100%;
-    justify-content: center;
-  }
+        .navbarContainer .navbar .logoLink {
+            height: 100%;
+            justify-content: center;
+        }
 }
 
 
 /* ----- Hamburger Menu ----- */
 
 .menuTitle {
-  font-family: Hero-Regular;
-  font-size: 25px !important;
-  color: rgb(71, 71, 71) !important;
+    font-family: Hero-Regular;
+    font-size: 25px !important;
+    color: rgb(71, 71, 71) !important;
 }
 
 .burgerNavLink {
-  font-family: Hero-Regular;
-  color: #ffffff !important;
-  font-size: 20px !important;
+    font-family: Hero-Regular;
+    color: #ffffff !important;
+    font-size: 20px !important;
 }
 
-.burgerNavLink:hover {
-  color: #898e82 !important;
-}
-
-
-
+    .burgerNavLink:hover {
+        color: #898e82 !important;
+    }
