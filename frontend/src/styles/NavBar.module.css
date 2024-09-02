@@ -26,7 +26,8 @@
         font-family: Hero-Regular;
         margin-right: 5px;
         white-space: nowrap;
-        border: 1px solid rgb(229, 230, 229);
+        border: none;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
         border-radius: 24px;
         background-color: white;
         height: 48px;
@@ -42,6 +43,11 @@
             color: #ffffff;
             background-color: #898e82;
         }
+
+    .navbarContainer .navbar .logOutHover:hover {
+        background-color: #ea626275 !important;
+    }
+
 
 /* Ändrar höjden på navbaren när den förvandlas till hamburgermeny */
 @media (max-width: 991.98px) {
@@ -74,8 +80,20 @@
     font-family: Hero-Regular;
     color: #ffffff !important;
     font-size: 20px !important;
+    text-shadow: 0 3px 5px rgba(0, 0, 0, 0.3);
 }
 
     .burgerNavLink:hover {
-        color: #898e82 !important;
+        /*color: #676b62 !important;
+        text-shadow: 0 3px 5px rgba(0, 0, 0, 0.5);*/
+        text-shadow: 0 3px 5px #ffffff;
+        color: #515151c4 !important;
     }
+
+.customBurgerLogout:hover {
+    color: #763333ff !important;
+}
+
+.customBurgerLogout {
+    color: rgb(78, 94, 62) !important; /* Röd färg för länken */
+}
