@@ -77,6 +77,7 @@ INSTALLED_APPS = [
     "cloudinary",
     "accounts",
     "media_manager",
+    "bookings",
 ]
 
 SITE_ID = 1
