@@ -55,6 +55,8 @@ SIMPLE_JWT = {
     "AUTH_COOKIE_SAMESITE": "Lax",
 }
 
+REST_USE_JWT = True
+
 
 # Application definition
 
@@ -72,6 +74,7 @@ INSTALLED_APPS = [
     "allauth",
     "allauth.account",
     "allauth.socialaccount",
+    "dj_rest_auth.registration",
     "corsheaders",
     "cloudinary_storage",
     "cloudinary",
