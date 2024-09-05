@@ -25,3 +25,13 @@ class Booking(models.Model):
 
     def is_cancellable(self):
         return self.date_time - timezone.now() >= timezone.timedelta(hours=8)
+
+
+class Availability(models.Model):
+    date = models.DateField()
+    start_time = models.TimeField()
+    end_time = models.TimeField()
+    is_available = models.BooleanField(default=True)
+
+    def __str__(self):
+        return f"Available on {self.date} from {self.start_time} to {self.end_time}"

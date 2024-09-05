@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Booking, Service
+from .models import Booking, Service, Availability
 
 
 class ServiceSerializer(serializers.ModelSerializer):
@@ -18,3 +18,9 @@ class BookingSerializer(serializers.ModelSerializer):
         model = Booking
         fields = ["id", "service", "service_id", "user", "date_time", "created_at"]
         read_only_fields = ["user", "created_at"]
+
+
+class AvailabilitySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Availability
+        fields = ["id", "date", "start_time", "end_time", "is_available"]

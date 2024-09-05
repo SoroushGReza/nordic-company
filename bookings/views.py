@@ -1,6 +1,6 @@
 from rest_framework import generics, permissions
-from .models import Booking, Service
-from .serializers import BookingSerializer, ServiceSerializer
+from .models import Booking, Service, Availability
+from .serializers import BookingSerializer, ServiceSerializer, AvailabilitySerializer
 
 
 class ServiceListView(generics.ListAPIView):
@@ -36,3 +36,15 @@ class BookingDetailView(generics.RetrieveUpdateDestroyAPIView):
         if self.request.user.is_staff:
             return Booking.objects.all()
         return Booking.objects.filter(user=self.request.user)
+
+
+class AvailabilityListCreateView(generics.ListCreateAPIView):
+    queryset = Availability.objects.all()
+    serializer_class = AvailabilitySerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def perform_create(self, serializer):
+        if self.request.user.is_staff:
+            serializer.save()
+        else:
+            raise permissions.PermissionDenied("Only admins can create availability.")
