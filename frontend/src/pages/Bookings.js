@@ -1,25 +1,29 @@
 import React, { useState, useEffect } from "react";
-import Calendar from "react-calendar"; // Importera kalenderkomponenten
-import 'react-calendar/dist/Calendar.css'; // Kalenderns CSS
-import { axiosReq } from "../api/axiosDefaults"; // Axios inställningar
+import Calendar from "react-calendar";
+import 'react-calendar/dist/Calendar.css';
+import { axiosReq } from "../api/axiosDefaults";
 import { Container, Row, Col, Button, Alert } from "react-bootstrap";
 
 const Bookings = () => {
-    const [date, setDate] = useState(new Date()); // Håller det valda datumet
-    const [availableTimes, setAvailableTimes] = useState([]); // Lista med tillgängliga tider
-    const [bookedTimes, setBookedTimes] = useState([]); // Lista med bokade tider
-    const [bookingSuccess, setBookingSuccess] = useState(false); // För att visa om bokningen lyckades
+    const [date, setDate] = useState(new Date());
+    const [availableTimes, setAvailableTimes] = useState([]);
+    const [bookedTimes, setBookedTimes] = useState([]);
+    const [bookingSuccess, setBookingSuccess] = useState(false);
 
     // Hämtar tillgängliga och bokade tider från API
     useEffect(() => {
         const fetchTimes = async () => {
             try {
                 const { data: availability } = await axiosReq.get("/availability/");
-                const { data: bookings } = await axiosReq.get("/bookings/list/");
+                const { data: bookings } = await axiosReq.get("/bookings/mine/");
 
-                // Extrahera tillgängliga och bokade tider från svaren
-                setAvailableTimes(availability);
-                setBookedTimes(bookings.map(booking => booking.date)); // Anta att 'date' är i formatet 'YYYY-MM-DD'
+                // Visa svar i konsolen för felsökning
+                console.log('Availability:', availability);
+                console.log('Bookings:', bookings);
+
+                // Extrahera tillgängliga tider och bokade tider
+                setAvailableTimes(availability.map(item => item.date)); // Lägger till tillgängliga datum
+                setBookedTimes(bookings.map(booking => booking.date)); // Lägger till bokade datum
             } catch (err) {
                 console.error("Error fetching times:", err);
             }
@@ -29,23 +33,22 @@ const Bookings = () => {
     }, []);
 
     // När användaren klickar på en tillgänglig tid
-    const handleBooking = async (date) => {
+    const handleBooking = async (selectedDate) => {
         try {
-            await axiosReq.post("/bookings/create/", { date });
+            await axiosReq.post("/bookings/", { date: selectedDate });
             setBookingSuccess(true);
         } catch (err) {
             console.error("Error booking time:", err);
         }
     };
 
-    // Funktion som bestämmer om en dag är tillgänglig eller redan bokad
+    // Bestämmer om en dag är tillgänglig eller redan bokad
     const isTileDisabled = ({ date }) => {
-        const formattedDate = date.toISOString().split('T')[0]; // Formatera datumet till YYYY-MM-DD
+        const formattedDate = date.toISOString().split('T')[0];
 
-        // Om datumet inte finns i availableTimes eller om det redan är bokat, blockera det
+        // Blockera om datumet inte finns i availableTimes eller redan är bokat
         return !availableTimes.includes(formattedDate) || bookedTimes.includes(formattedDate);
     };
-
 
     return (
         <Container>
@@ -57,10 +60,10 @@ const Bookings = () => {
                     <Calendar
                         onChange={setDate}
                         value={date}
-                        tileDisabled={isTileDisabled} // Används för att göra redan bokade dagar otillgängliga
+                        tileDisabled={isTileDisabled}
                     />
                     <Button
-                        onClick={() => handleBooking(date)}
+                        onClick={() => handleBooking(date.toISOString().split('T')[0])}
                         disabled={bookedTimes.includes(date.toISOString().split('T')[0])}
                         className="mt-3"
                     >
