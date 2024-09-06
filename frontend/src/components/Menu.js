@@ -15,7 +15,7 @@ const Menu = () => {
 
     const handleBookAppointmentClick = () => {
         if (isAuthenticated()) {
-            navigate("/book");
+            navigate("/bookings");
         } else {
             navigate("/login");
         }
@@ -39,11 +39,12 @@ const Menu = () => {
                     About us
                 </Button>
             </Link>
-            <Link to="/shop" className={styles.link}>
-                <Button variant="outline-dark" className={styles.menuButton}>
-                    Shop
-                </Button>
-            </Link>
+            {/*Coomnebted out for use in futre development of Shop*/}
+            {/*<Link to="/shop" className={styles.link}>*/}
+            {/*    <Button variant="outline-dark" className={styles.menuButton}>*/}
+            {/*        Shop*/}
+            {/*    </Button>*/}
+            {/*</Link>*/}
 
             {/* Book Appointment Button */}
             <Button
