@@ -2,14 +2,19 @@ from django.contrib import admin
 from .models import Service, Booking, Availability
 
 
-# Admin panel for the Service model with new fields (worktime and price)
+# Admin panel for the Service model
 @admin.register(Service)
 class ServiceAdmin(admin.ModelAdmin):
-    list_display = [
-        "name",
-        "worktime",
-        "price",
-    ]
+    list_display = ["name", "worktime", "price"]
+    fieldsets = (
+        (
+            None,
+            {
+                "fields": ("name", "worktime", "price"),
+                "description": "For worktime, use the format: HH:MM:SS (e.g., 4:00:00 for 4 hours)",
+            },
+        ),
+    )
 
 
 # Admin panel for the Booking model
