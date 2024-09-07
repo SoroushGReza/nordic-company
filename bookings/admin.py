@@ -2,20 +2,36 @@ from django.contrib import admin
 from .models import Service, Booking, Availability
 
 
+# Admin panel for the Service model with new fields (worktime and price)
 @admin.register(Service)
 class ServiceAdmin(admin.ModelAdmin):
-    list_display = ["name"]
+    list_display = [
+        "name",
+        "worktime",
+        "price",
+    ]  # Display name, worktime, and price in the admin panel
 
 
+# Admin panel for the Booking model
 @admin.register(Booking)
 class BookingAdmin(admin.ModelAdmin):
-    list_display = ["service", "user", "date_time", "created_at"]
-    list_filter = ["service", "date_time"]
-    search_fields = ["user__username", "service__name"]
+    list_display = [
+        "user",
+        "date_time",
+        "created_at",
+    ]  # List user and date of the booking
+    list_filter = ["date_time"]  # Filter by date
+    search_fields = ["user__username"]  # Search by username
 
 
+# Admin panel for the Availability model
 @admin.register(Availability)
 class AvailabilityAdmin(admin.ModelAdmin):
-    list_display = ["date", "start_time", "end_time", "is_available"]
-    list_filter = ["date", "is_available"]
-    search_fields = ["date"]
+    list_display = [
+        "date",
+        "start_time",
+        "end_time",
+        "is_available",
+    ]  # Display availability information
+    list_filter = ["date", "is_available"]  # Filter by date and availability status
+    search_fields = ["date"]  # Search by date
