@@ -9,7 +9,7 @@ class ServiceAdmin(admin.ModelAdmin):
         "name",
         "worktime",
         "price",
-    ]  # Display name, worktime, and price in the admin panel
+    ]
 
 
 # Admin panel for the Booking model
