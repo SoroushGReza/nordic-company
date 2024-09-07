@@ -9,9 +9,9 @@ import "react-big-calendar/lib/css/react-big-calendar.css";
 import { axiosReq } from "../api/axiosDefaults";
 import "../styles/Bookings.module.css";
 
-// Localization for the calendar
+// Localization for the calendar using Irish locale (en-IE)
 const locales = {
-    "en-US": require("date-fns/locale/en-US"),
+    "en-IE": require("date-fns/locale/en-IE"),  // Irish Timezone
 };
 
 const localizer = dateFnsLocalizer({
@@ -28,6 +28,7 @@ const Bookings = () => {
     const [services, setServices] = useState([]); // Tjänster hämtas från API
     const [selectedServices, setSelectedServices] = useState([]); // Valda tjänster
     const [bookingSuccess, setBookingSuccess] = useState(false); // Hantera framgångsmeddelande
+    const [selectedTime, setSelectedTime] = useState(null); // Vald tid från kalendern
 
     // Hämtar tillgängliga tider och bokningar från API
     useEffect(() => {
@@ -57,6 +58,27 @@ const Bookings = () => {
         }
     };
 
+    // Funktion för att hantera bokningsbegäran
+    const handleBookingSubmit = async () => {
+        try {
+            const bookingData = {
+                service_ids: selectedServices,
+                date_time: selectedTime ? selectedTime.toISOString() : new Date().toISOString(),
+            };
+
+            // Skicka POST-begäran för att skapa bokning
+            const response = await axiosReq.post("/bookings/", bookingData);
+
+            if (response.status === 201) {
+                setBookingSuccess(true); // Visa framgångsmeddelande om bokningen skapades
+            } else {
+                console.error("Booking Failed.");
+            }
+        } catch (error) {
+            console.error("Error creating booking:", error);
+        }
+    };
+
     return (
         <Container>
             <Row className="justify-content-center">
@@ -77,10 +99,8 @@ const Bookings = () => {
                     </Form>
 
                     <Button
-                        onClick={() => {
-                            setBookingSuccess(true);
-                        }}
-                        disabled={!selectedServices.length}
+                        onClick={handleBookingSubmit} // Skickar bokning till backend
+                        disabled={!selectedServices.length || !selectedTime} // Inaktivera knappen om ingen tjänst eller tid har valts
                         className="mt-3"
                     >
                         Book Services
@@ -120,8 +140,7 @@ const Bookings = () => {
                             if (!isAvailable) {
                                 alert("Selected time is not available!");
                             } else {
-                                // Hantera bokningslogik här om tiden är tillgänglig
-                                setBookingSuccess(true);
+                                setSelectedTime(slotInfo.start);  // Spara vald tid
                             }
                         }}
                     />
