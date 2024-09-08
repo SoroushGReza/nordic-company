@@ -77,3 +77,23 @@ class AvailabilityListCreateView(generics.ListCreateAPIView):
     queryset = Availability.objects.all()
     serializer_class = AvailabilitySerializer
     permission_classes = [permissions.IsAuthenticated]
+
+
+# View to list all bookings without user details
+class AllBookingsListView(generics.ListAPIView):
+    serializer_class = BookingSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        bookings = Booking.objects.all().prefetch_related("services")
+        anonymized_data = [
+            {
+                "date_time": booking.date_time,
+                "services": [
+                    {"name": service.name, "worktime": service.worktime}
+                    for service in booking.services.all()
+                ],
+            }
+            for booking in bookings
+        ]
+        return Response(anonymized_data)
