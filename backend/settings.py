@@ -77,6 +77,9 @@ SIMPLE_JWT = {
 
 REST_USE_JWT = True
 
+# Email verification Temporarly OFF
+ACCOUNT_EMAIL_VERIFICATION = 'none'
+
 
 # Application definition
 
