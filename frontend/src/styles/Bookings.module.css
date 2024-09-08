@@ -1,0 +1,11 @@
+.booked-event {
+    background-color: gray !important;
+}
+
+.available-event {
+    background-color: green !important;
+}
+
+.unavailable-event {
+    background-color: lightgray !important;
+}
