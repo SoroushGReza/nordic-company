@@ -6,7 +6,7 @@ from .models import Booking, Service, Availability
 class ServiceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Service
-        fields = ["id", "name", "worktime", "price"]  # Expose the new fields
+        fields = ["id", "name", "worktime", "price"]
 
 
 # Serializer for Booking to handle multiple services
@@ -20,6 +20,15 @@ class BookingSerializer(serializers.ModelSerializer):
         model = Booking
         fields = ["id", "services", "service_ids", "user", "date_time", "created_at"]
         read_only_fields = ["user", "created_at"]
+
+    def create(self, validated_data):
+        services = validated_data.pop("services")
+        request = self.context["request"]
+        booking = Booking.objects.create(
+            user=request.user, **validated_data
+        )  # Associate the user here
+        booking.services.set(services)
+        return booking
 
 
 # Serializer for Availability

@@ -190,7 +190,7 @@ const Bookings = () => {
 
                     <Calendar
                         localizer={localizer}
-                        events={allEvents} // Använd kombinerade händelser
+                        events={allEvents}  // Använd kombinerade händelser
                         step={30}
                         timeslots={2}
                         defaultView="week"
@@ -199,26 +199,30 @@ const Bookings = () => {
                         max={new Date(2024, 9, 6, 20, 30)}
                         style={{ height: 600 }}
                         selectable={true}
-                        eventPropGetter={eventPropGetter} // Ställ in färger för händelser
+                        eventPropGetter={eventPropGetter}  // Ställ in färger för händelser
                         onSelectSlot={(slotInfo) => {
-                            const selectedStart = new Date(slotInfo.start).toISOString();
-                            const selectedEnd = new Date(slotInfo.end).toISOString();
+                            // Konvertera den valda tiden till ett tidsvärde i millisekunder
+                            const selectedStartTime = new Date(slotInfo.start).getTime();
+                            const selectedEndTime = new Date(slotInfo.end).getTime();
 
-                            // Kontrollera om vald tid är tillgänglig
+                            // Kontrollera om den valda tiden finns bland tillgängliga tider
                             const isAvailable = availableTimes.some((availability) => {
-                                const start = new Date(availability.date + 'T' + availability.start_time).toISOString();
-                                const end = new Date(availability.date + 'T' + availability.end_time).toISOString();
-                                return selectedStart >= start && selectedEnd <= end;
+                                const availabilityStartTime = new Date(availability.date + 'T' + availability.start_time).getTime();
+                                const availabilityEndTime = new Date(availability.date + 'T' + availability.end_time).getTime();
+
+                                // Jämför de valda tiderna med tillgängliga tider
+                                return selectedStartTime >= availabilityStartTime && selectedEndTime <= availabilityEndTime;
                             });
 
                             if (!isAvailable) {
                                 alert("Selected time is not available!");
                             } else {
-                                setSelectedTime(slotInfo.start);  // Spara vald tid
-                                console.log("Selected Time:", slotInfo.start);  // Lägg till en console-log för felsökning
+                                setSelectedTime(slotInfo.start);  // Spara den valda starttiden
+                                console.log("Selected Time:", slotInfo.start);  // Logga vald tid för felsökning
                             }
                         }}
                     />
+
                 </Col>
             </Row>
         </Container>
