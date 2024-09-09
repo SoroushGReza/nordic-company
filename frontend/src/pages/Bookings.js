@@ -38,15 +38,13 @@ const Bookings = () => {
 
                 setAvailableTimes(availability);
                 setBookedTimes(bookings);
-                setServices(servicesData);  // Här sätts tjänsterna
+                setServices(servicesData);
             } catch (err) {
                 console.error("Error fetching times:", err);
             }
         };
         fetchTimes();
     }, []);
-
-
 
     const handleServiceChange = (serviceId) => {
         if (selectedServices.includes(serviceId)) {
@@ -56,12 +54,10 @@ const Bookings = () => {
         }
     };
 
-
     useEffect(() => {
         console.log("Selected Services: ", selectedServices);
         console.log("Selected Time: ", selectedTime);
     }, [selectedServices, selectedTime]);
-
 
     const handleBookingSubmit = async () => {
         if (!selectedTime || !selectedServices.length) {
@@ -87,8 +83,6 @@ const Bookings = () => {
         }
     };
 
-
-
     // Funktion för att ställa in färger på händelser i kalendern
     const eventPropGetter = (event) => {
         let backgroundColor = "lightgray"; // Standard för otillgänglig tid
@@ -106,10 +100,10 @@ const Bookings = () => {
                 borderRadius: "0px",
                 opacity: 0.8,
                 border: "none",
+                cursor: event.available ? "pointer" : "default",  // Gör tillgängliga tider klickbara
             },
         };
     };
-
 
     // Förbered tillgängliga tider som händelser
     const availableEvents = availableTimes.map((availability) => {
@@ -139,18 +133,12 @@ const Bookings = () => {
 
         return {
             start: new Date(booking.date_time),
-            end: new Date(new Date(booking.date_time).getTime() + totalWorktimeIn30MinuteBlocks * 30 * 60 * 1000),  // Beräkna sluttiden i 30-minutersblock
+            end: new Date(new Date(booking.date_time).getTime() + totalWorktimeIn30MinuteBlocks * 30 * 60 * 1000),
             title: "Booked",
             available: false,
             booked: true,
         };
     });
-
-
-
-
-
-
 
     const allEvents = [...availableEvents, ...bookedEvents]; // Kombinera alla händelser
 
@@ -176,8 +164,6 @@ const Bookings = () => {
                         })}
                     </Form>
 
-
-
                     <Button
                         onClick={handleBookingSubmit}
                         disabled={!selectedServices.length || !selectedTime}
@@ -199,30 +185,24 @@ const Bookings = () => {
                         max={new Date(2024, 9, 6, 20, 30)}
                         style={{ height: 600 }}
                         selectable={true}
-                        eventPropGetter={eventPropGetter}  // Ställ in färger för händelser
+                        eventPropGetter={eventPropGetter}  // Ställ in färger och cursor för händelser
                         onSelectSlot={(slotInfo) => {
-                            // Konvertera den valda tiden till ett tidsvärde i millisekunder
-                            const selectedStartTime = new Date(slotInfo.start).getTime();
-                            const selectedEndTime = new Date(slotInfo.end).getTime();
+                            console.log("Slot clicked! Info: ", slotInfo);
 
-                            // Kontrollera om den valda tiden finns bland tillgängliga tider
-                            const isAvailable = availableTimes.some((availability) => {
-                                const availabilityStartTime = new Date(availability.date + 'T' + availability.start_time).getTime();
-                                const availabilityEndTime = new Date(availability.date + 'T' + availability.end_time).getTime();
-
-                                // Jämför de valda tiderna med tillgängliga tider
-                                return selectedStartTime >= availabilityStartTime && selectedEndTime <= availabilityEndTime;
-                            });
-
-                            if (!isAvailable) {
-                                alert("Selected time is not available!");
+                            // Använd den exakta tidpunkten som användaren klickar på
+                            setSelectedTime(slotInfo.start);
+                            console.log("Selected Time:", slotInfo.start);
+                        }}
+                        onSelectEvent={(event) => {
+                            if (event.available) {
+                                // Om en tillgänglig tid klickas, välj den exakta tidpunkten.
+                                setSelectedTime(event.start);
+                                console.log("Selected Time from Event:", event.start);
                             } else {
-                                setSelectedTime(slotInfo.start);  // Spara den valda starttiden
-                                console.log("Selected Time:", slotInfo.start);  // Logga vald tid för felsökning
+                                alert("This time is already booked!");
                             }
                         }}
                     />
-
                 </Col>
             </Row>
         </Container>
@@ -230,3 +210,4 @@ const Bookings = () => {
 };
 
 export default Bookings;
+

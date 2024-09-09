@@ -4,6 +4,8 @@
 
 .available-event {
     background-color: green !important;
+    cursor: pointer !important;
+    z-index: 1;
 }
 
 .unavailable-event {
