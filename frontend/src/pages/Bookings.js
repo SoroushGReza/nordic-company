@@ -100,23 +100,36 @@ const Bookings = () => {
                 borderRadius: "0px",
                 opacity: 0.8,
                 border: "none",
-                cursor: event.available ? "pointer" : "default",  // Gör tillgängliga tider klickbara
+                cursor: event.available ? "pointer" : "default",
             },
         };
     };
 
+
     // Förbered tillgängliga tider som händelser
-    const availableEvents = availableTimes.map((availability) => {
+    const availableEvents = availableTimes.flatMap((availability) => {
         const start = new Date(availability.date + 'T' + availability.start_time);
         const end = new Date(availability.date + 'T' + availability.end_time);
-        return {
-            start,
-            end,
-            title: "Available",
-            available: true,
-            booked: false,
-        };
+
+        const events = [];
+        let current = start;
+
+        // Gå igenom varje 30-minuters intervall och skapa separata event
+        while (current < end) {
+            const next = new Date(current.getTime() + 30 * 60 * 1000); // 30 minuter framåt
+            events.push({
+                start: new Date(current),
+                end: next,
+                title: "Available",
+                available: true,
+                booked: false,
+            });
+            current = next;
+        }
+
+        return events;
     });
+
 
     // Förbered bokade tider som händelser
     const bookedEvents = bookedTimes.map((booking) => {
