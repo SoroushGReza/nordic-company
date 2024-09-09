@@ -1,29 +1,23 @@
 from rest_framework import serializers
-from .models import Booking, Service, Availability
+from .models import Booking, Availability
 
 
-# Serializer for Service with added price and worktime fields
-class ServiceSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Service
-        fields = ["id", "name", "worktime", "price"]  # Expose the new fields
-
-
-# Serializer for Booking to handle multiple services
-class BookingSerializer(serializers.ModelSerializer):
-    services = ServiceSerializer(many=True, read_only=True)  # Return list of services
-    service_ids = serializers.PrimaryKeyRelatedField(
-        queryset=Service.objects.all(), source="services", many=True, write_only=True
-    )  # Handle multiple service IDs
-
-    class Meta:
-        model = Booking
-        fields = ["id", "services", "service_ids", "user", "date_time", "created_at"]
-        read_only_fields = ["user", "created_at"]
-
-
-# Serializer for Availability
 class AvailabilitySerializer(serializers.ModelSerializer):
+    start_time = serializers.SerializerMethodField()
+    end_time = serializers.SerializerMethodField()
+
     class Meta:
         model = Availability
-        fields = ["id", "date", "start_time", "end_time", "is_available"]
+        fields = ["date", "start_time", "end_time"]
+
+    def get_start_time(self, obj):
+        return obj.start_time.isoformat()
+
+    def get_end_time(self, obj):
+        return obj.end_time.isoformat()
+
+
+class BookingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Booking
+        fields = "__all__"

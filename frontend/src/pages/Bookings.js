@@ -201,21 +201,23 @@ const Bookings = () => {
                         selectable={true}
                         eventPropGetter={eventPropGetter} // Ställ in färger för händelser
                         onSelectSlot={(slotInfo) => {
+                            const selectedStart = new Date(slotInfo.start).toISOString();
+                            const selectedEnd = new Date(slotInfo.end).toISOString();
+
+                            // Kontrollera om vald tid är tillgänglig
                             const isAvailable = availableTimes.some((availability) => {
-                                const start = new Date(availability.date + 'T' + availability.start_time);
-                                const end = new Date(availability.date + 'T' + availability.end_time);
-                                return slotInfo.start >= start && slotInfo.end <= end;
+                                const start = new Date(availability.date + 'T' + availability.start_time).toISOString();
+                                const end = new Date(availability.date + 'T' + availability.end_time).toISOString();
+                                return selectedStart >= start && selectedEnd <= end;
                             });
 
                             if (!isAvailable) {
                                 alert("Selected time is not available!");
                             } else {
-                                setSelectedTime(slotInfo.start);
+                                setSelectedTime(slotInfo.start);  // Spara vald tid
+                                console.log("Selected Time:", slotInfo.start);  // Lägg till en console-log för felsökning
                             }
                         }}
-
-
-
                     />
                 </Col>
             </Row>
