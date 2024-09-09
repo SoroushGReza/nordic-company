@@ -1,11 +1,15 @@
 import axios from "axios";
 
-// Grundläggande inställningar för Axios
-axios.defaults.baseURL = "https://nordic-company-b4376fa6e38c.herokuapp.com/api/";
+// Dynamically set the base URL based on the environment
+axios.defaults.baseURL =
+    process.env.NODE_ENV === "development"
+        ? "http://localhost:8000/api/"
+        : "https://nordic-company-b4376fa6e38c.herokuapp.com/api/";
+
 axios.defaults.headers.post["Content-Type"] = "application/json";
 axios.defaults.withCredentials = true;
 
-// Funktion för att hämta token från localStorage
+// Function to get token from localStorage
 const getToken = () => {
     const token = localStorage.getItem("access");
     if (token) {
@@ -14,7 +18,7 @@ const getToken = () => {
     return null;
 };
 
-// Sätt access-token om den finns
+// Set access-token if it exists
 const setAuthHeader = () => {
     const token = getToken();
     if (token) {
@@ -22,16 +26,16 @@ const setAuthHeader = () => {
     }
 };
 
-// Skapa Axios-instans för förfrågningar
+// Create Axios instance for requests
 export const axiosReq = axios.create();
 export const axiosRes = axios.create();
 
-// Sätt token vid varje förfrågan
+// Set token for each request
 axiosReq.interceptors.request.use(
     (config) => {
         const token = getToken();
         if (token) {
-            config.headers["Authorization"] = token; // Sätt header för varje request
+            config.headers["Authorization"] = token;
         }
         return config;
     },
@@ -40,39 +44,32 @@ axiosReq.interceptors.request.use(
     }
 );
 
-// Hantera svar, speciellt 401-fel för att försöka uppdatera token
+// Handle responses, especially 401 errors for token refresh
 axiosReq.interceptors.response.use(
     (response) => {
-        return response; // Returnera svar om allt går bra
+        return response;
     },
     async (error) => {
         const originalRequest = error.config;
-
-        // Om 401 Unauthorized och vi har inte redan försökt uppdatera token
         if (error.response && error.response.status === 401 && !originalRequest._retry) {
             originalRequest._retry = true;
             try {
                 const refreshToken = localStorage.getItem("refresh");
-
-                // Skicka förfrågan om att uppdatera access-token
                 const { data } = await axios.post("/accounts/token/refresh/", {
                     refresh: refreshToken,
                 });
 
-                localStorage.setItem("access", data.access); // Spara ny access-token
+                localStorage.setItem("access", data.access);
                 axios.defaults.headers.common["Authorization"] = `Bearer ${data.access}`;
 
-                // Upprepa den ursprungliga förfrågan
                 return axiosReq(originalRequest);
             } catch (refreshError) {
-                console.error("Misslyckades med att uppdatera token", refreshError);
-                // Logga ut användaren om refresh-token misslyckas
+                console.error("Failed to refresh token", refreshError);
                 localStorage.removeItem("access");
                 localStorage.removeItem("refresh");
-                window.location.href = "/login"; // Skicka användaren till login
+                window.location.href = "/login";
             }
         }
-
         return Promise.reject(error);
     }
 );

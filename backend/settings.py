@@ -35,7 +35,7 @@ else:
 SECRET_KEY = os.getenv("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv("DJANGO_DEVELOPMENT") == "True"
 
 ALLOWED_HOSTS = [
     "8000-soroushgrez-tinyswebsit-hmdy1e3e5ct.ws-us115.gitpod.io",
@@ -43,7 +43,10 @@ ALLOWED_HOSTS = [
     "localhost",
 ]
 
-CSRF_TRUSTED_ORIGINS = ["https://*.gitpod.io"]
+CSRF_TRUSTED_ORIGINS = [
+    "https://*.gitpod.io",
+    "http://localhost:3000",
+    ]
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
