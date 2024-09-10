@@ -1,6 +1,12 @@
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from django.http import HttpResponse
+
+
+def welcome_view(request):
+    return HttpResponse("Welcome To My Custom Made Bookings-System API!")
+
 
 urlpatterns = [
     path("secure-admin/", admin.site.urls),  # Admin panelen
@@ -17,5 +23,6 @@ urlpatterns = [
     path(
         "api/auth/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"
     ),  # JWT Token refresh
-    path("api/", include("bookings.urls")),  # Andra API endpoints
+    path("api/", include("bookings.urls")),
+    path("", welcome_view),
 ]
