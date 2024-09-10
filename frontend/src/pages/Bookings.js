@@ -22,13 +22,13 @@ const localizer = dateFnsLocalizer({
 });
 
 const Bookings = () => {
-    const [availableTimes, setAvailableTimes] = useState([]);
-    const [bookedTimes, setBookedTimes] = useState([]);
     const [services, setServices] = useState([]);
     const [selectedServices, setSelectedServices] = useState([]);
     const [bookingSuccess, setBookingSuccess] = useState(false);
     const [selectedTime, setSelectedTime] = useState(null);
     const [totalWorktime, setTotalWorktime] = useState(0); // Storing total worktime
+    const [allEvents, setAllEvents] = useState([]);
+
 
     useEffect(() => {
         const fetchTimes = async () => {
@@ -37,15 +37,66 @@ const Bookings = () => {
                 const { data: bookings } = await axiosReq.get("/bookings/mine/");
                 const { data: servicesData } = await axiosReq.get("/services/");
 
-                setAvailableTimes(availability);
-                setBookedTimes(bookings);
                 setServices(servicesData);
+
+                const availableEvents = availability.flatMap((availability) => {
+                    const start = new Date(availability.date + 'T' + availability.start_time);
+                    const end = new Date(availability.date + 'T' + availability.end_time);
+
+                    const events = [];
+                    let current = start;
+
+                    while (current < end) {
+                        const next = new Date(current.getTime() + 30 * 60 * 1000); // 30 minutes forward
+                        events.push({
+                            start: new Date(current),
+                            end: next,
+                            title: "Available",
+                            available: true,
+                            booked: false,
+                        });
+                        current = next;
+                    }
+
+                    return events;
+                });
+
+                const bookedEvents = bookings.flatMap((booking) => {
+                    const totalWorktimeInMinutes = booking.services.reduce((acc, service) => {
+                        const worktimeInMinutes = parseWorktimeToMinutes(service.worktime);
+                        return acc + worktimeInMinutes;
+                    }, 0);
+
+                    const startTime = new Date(booking.date_time);
+                    const endTime = new Date(startTime.getTime() + totalWorktimeInMinutes * 60 * 1000);
+
+                    const events = [];
+                    let current = startTime;
+
+                    while (current < endTime) {
+                        const next = new Date(current.getTime() + 30 * 60 * 1000); // Add 30 minutes
+                        events.push({
+                            start: new Date(current),
+                            end: next,
+                            title: "Booked",
+                            available: false,
+                            booked: true,
+                        });
+                        current = next;
+                    }
+
+                    return events;
+                });
+
+                // Combine available events and booked events & update allEvents
+                setAllEvents([...availableEvents, ...bookedEvents]);
             } catch (err) {
                 console.error("Error fetching times:", err);
             }
         };
         fetchTimes();
     }, []);
+
 
     // Function to convert "HH:MM:SS" to minutes
     const parseWorktimeToMinutes = (worktime) => {
@@ -54,7 +105,6 @@ const Bookings = () => {
         console.log(`Parsed worktime: ${worktime} -> ${totalMinutes} minutes`);
         return totalMinutes;
     };
-
 
 
     const handleServiceChange = (serviceId) => {
@@ -67,7 +117,7 @@ const Bookings = () => {
 
         setSelectedServices(updatedSelectedServices);
 
-        // Summera arbetstiden för alla valda tjänster
+        // Summarize working time for all chosen services
         const selectedServiceTimes = services
             .filter((service) => updatedSelectedServices.includes(service.id))
             .reduce((total, service) => total + parseWorktimeToMinutes(service.worktime), 0);
@@ -76,7 +126,6 @@ const Bookings = () => {
 
         setTotalWorktime(selectedServiceTimes);
     };
-
 
 
     useEffect(() => {
@@ -92,7 +141,7 @@ const Bookings = () => {
             return;
         }
 
-        // Check if worktime is bigger than 0
+        // Control that worktime is bigger than 0
         if (totalWorktime === 0) {
             alert("Total worktime is 0. Please select services correctly.");
             return;
@@ -104,9 +153,8 @@ const Bookings = () => {
         try {
             const bookingData = {
                 service_ids: selectedServices,
-                date_time: selectedTime.toISOString(),
-                // Beräkna sluttid baserat på total arbetstid
-                end_time: new Date(selectedTime.getTime() + totalWorktime * 60000).toISOString(),
+                date_time: selectedTime.start.toISOString(),
+                end_time: selectedTime.end.toISOString(),
             };
 
             console.log("Booking data to be sent:", bookingData);
@@ -117,7 +165,6 @@ const Bookings = () => {
             console.error("Error creating booking:", err.response ? err.response.data : err.message);
         }
     };
-
 
 
     // Function to show different colours for different events in the calendar
@@ -141,67 +188,6 @@ const Bookings = () => {
             },
         };
     };
-
-
-    // Prepare available times as events
-    const availableEvents = availableTimes.flatMap((availability) => {
-        const start = new Date(availability.date + 'T' + availability.start_time);
-        const end = new Date(availability.date + 'T' + availability.end_time);
-
-        const events = [];
-        let current = start;
-
-        // Go through every 30-minute interval och create event
-        while (current < end) {
-            const next = new Date(current.getTime() + 30 * 60 * 1000); // 30 minutes and forward
-            events.push({
-                start: new Date(current),
-                end: next,
-                title: "Available",
-                available: true,
-                booked: false,
-            });
-            current = next;
-        }
-
-        return events;
-    });
-
-
-    // Update booked times to mark all 30-minute intervals 
-    const bookedEvents = bookedTimes.flatMap((booking) => {
-        const totalWorktimeInMinutes = booking.services.reduce((acc, service) => {
-            console.log(`Service: ${service.name}, Worktime: ${service.worktime}`);
-
-            // Convert worktime from hours to minutes
-            const worktimeInMinutes = parseWorktimeToMinutes(service.worktime);
-            return acc + worktimeInMinutes;
-        }, 0);
-
-        const startTime = new Date(booking.date_time);
-        const endTime = new Date(startTime.getTime() + totalWorktimeInMinutes * 60 * 1000);
-
-        const events = [];
-        let current = startTime;
-
-        while (current < endTime || current.getTime() === endTime.getTime()) { // Control to se if reaching endtime
-            const next = new Date(current.getTime() + 30 * 60 * 1000); // Add 30 minutes
-            events.push({
-                start: new Date(current),
-                end: next,
-                title: "Booked",
-                available: false,
-                booked: true,
-            });
-            current = next;
-        }
-
-        return events;
-    });
-
-
-
-    const allEvents = [...availableEvents, ...bookedEvents];
 
     return (
         <Container>
@@ -238,7 +224,7 @@ const Bookings = () => {
 
                     <Calendar
                         localizer={localizer}
-                        events={allEvents}
+                        events={allEvents}  // Use combined events
                         step={30}
                         timeslots={2}
                         defaultView="week"
@@ -257,13 +243,36 @@ const Bookings = () => {
                         }}
                         onSelectEvent={(event) => {
                             if (event.available) {
-                                // If an available time is clicked, choose that time
-                                setSelectedTime(event.start);
-                                console.log("Selected Time from Event:", event.start);
+                                // Få starttiden
+                                const startTime = event.start;
+
+                                // Beräkna sluttiden baserat på total arbetstid (totalWorktime i minuter)
+                                const endTime = new Date(startTime.getTime() + totalWorktime * 60000); // Lägg till total worktime till starttiden
+
+                                console.log("Selected Time from Event:", startTime);
+                                console.log("Calculated End Time:", endTime);
+
+                                // Skapa ett nytt event för att markera hela intervallet
+                                const selectedRange = {
+                                    start: startTime,
+                                    end: endTime,
+                                    title: "Selected Time",
+                                    available: true
+                                };
+
+                                // Uppdatera selectedTime
+                                setSelectedTime(selectedRange);
+
+                                // Uppdatera allEvents för att lägga till det nya valtidsintervallet
+                                const newEvents = [...allEvents, selectedRange];
+                                setAllEvents(newEvents);
+
+                                console.log("Updated allEvents with selected time range:", newEvents);
                             } else {
                                 alert("This time is already booked!");
                             }
                         }}
+
                     />
                 </Col>
             </Row>
@@ -272,3 +281,4 @@ const Bookings = () => {
 };
 
 export default Bookings;
+
