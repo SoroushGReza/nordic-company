@@ -1,6 +1,8 @@
 from django.db import models
 from django.conf import settings  # To access AUTH_USER_MODEL
 from django.utils import timezone
+from django.utils.timezone import timedelta
+
 
 class Service(models.Model):
     name = models.CharField(max_length=100)
@@ -12,10 +14,8 @@ class Service(models.Model):
 
 
 class Booking(models.Model):
-    services = models.ManyToManyField(Service)  # Allows multiple services to be booked
-    user = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE
-    )  
+    services = models.ManyToManyField(Service)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     date_time = models.DateTimeField()
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -24,6 +24,14 @@ class Booking(models.Model):
 
     def is_cancellable(self):
         return self.date_time - timezone.now() >= timezone.timedelta(hours=8)
+
+    def calculate_end_time(self):
+        # Calculate total duration of services
+        total_worktime = sum(
+            [service.worktime for service in self.services.all()], timedelta()
+        )
+        # Add total_worktime to the booking's start time to get the end time
+        return self.date_time + total_worktime
 
 
 class Availability(models.Model):

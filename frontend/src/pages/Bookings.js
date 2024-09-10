@@ -28,6 +28,7 @@ const Bookings = () => {
     const [selectedServices, setSelectedServices] = useState([]);
     const [bookingSuccess, setBookingSuccess] = useState(false);
     const [selectedTime, setSelectedTime] = useState(null);
+    const [totalWorktime, setTotalWorktime] = useState(0); // Storing total worktime
 
     useEffect(() => {
         const fetchTimes = async () => {
@@ -46,42 +47,78 @@ const Bookings = () => {
         fetchTimes();
     }, []);
 
-    const handleServiceChange = (serviceId) => {
-        if (selectedServices.includes(serviceId)) {
-            setSelectedServices(selectedServices.filter((id) => id !== serviceId));
-        } else {
-            setSelectedServices([...selectedServices, serviceId]);
-        }
+    // Funktion för att omvandla "HH:MM:SS" till minuter
+    const parseWorktimeToMinutes = (worktime) => {
+        const [hours, minutes, seconds] = worktime.split(':').map(Number); // Omvandla HH:MM:SS till nummer
+        const totalMinutes = (hours * 60) + minutes + (seconds / 60);  // Omvandla till minuter
+        console.log(`Parsed worktime: ${worktime} -> ${totalMinutes} minutes`);
+        return totalMinutes;
     };
+
+
+
+    const handleServiceChange = (serviceId) => {
+        let updatedSelectedServices;
+        if (selectedServices.includes(serviceId)) {
+            updatedSelectedServices = selectedServices.filter((id) => id !== serviceId);
+        } else {
+            updatedSelectedServices = [...selectedServices, serviceId];
+        }
+
+        setSelectedServices(updatedSelectedServices);
+
+        // Summera arbetstiden för alla valda tjänster
+        const selectedServiceTimes = services
+            .filter((service) => updatedSelectedServices.includes(service.id))
+            .reduce((total, service) => total + parseWorktimeToMinutes(service.worktime), 0);
+
+        console.log("Total Worktime (minutes):", selectedServiceTimes);
+
+        setTotalWorktime(selectedServiceTimes);
+    };
+
+
 
     useEffect(() => {
         console.log("Selected Services: ", selectedServices);
         console.log("Selected Time: ", selectedTime);
     }, [selectedServices, selectedTime]);
 
+    const [isSubmitting] = useState(false);  // Ny state för att hantera knappen
+
     const handleBookingSubmit = async () => {
-        if (!selectedTime || !selectedServices.length) {
-            alert("Please select a service and a time before booking.");
+        if (!selectedTime || selectedServices.length === 0) {
+            alert("Please select a time and at least one service.");
             return;
         }
+
+        // Kontrollera att arbetstiden är större än 0
+        if (totalWorktime === 0) {
+            alert("Total worktime is 0. Please select services correctly.");
+            return;
+        }
+
+        console.log("Selected Time:", selectedTime);
+        console.log("Total Worktime (minutes):", totalWorktime);
 
         try {
             const bookingData = {
                 service_ids: selectedServices,
                 date_time: selectedTime.toISOString(),
+                // Beräkna sluttid baserat på total arbetstid
+                end_time: new Date(selectedTime.getTime() + totalWorktime * 60000).toISOString(),
             };
 
-            const response = await axiosReq.post("/bookings/", bookingData);
+            console.log("Booking data to be sent:", bookingData);
 
-            if (response.status === 201) {
-                setBookingSuccess(true);
-            } else {
-                console.error("Booking Failed.");
-            }
-        } catch (error) {
-            console.error("Error creating booking:", error.response ? error.response.data : error.message);
+            await axiosReq.post("/bookings/", bookingData);
+            setBookingSuccess(true);
+        } catch (err) {
+            console.error("Error creating booking:", err.response ? err.response.data : err.message);
         }
     };
+
+
 
     // Funktion för att ställa in färger på händelser i kalendern
     const eventPropGetter = (event) => {
@@ -179,11 +216,12 @@ const Bookings = () => {
 
                     <Button
                         onClick={handleBookingSubmit}
-                        disabled={!selectedServices.length || !selectedTime}
+                        disabled={isSubmitting || !selectedServices.length || !selectedTime}
                         className="mt-3"
                     >
-                        Book Services
+                        {isSubmitting ? "Booking..." : "Book Services"}
                     </Button>
+
 
                     <h2 className="mt-4">Choose Date / Time</h2>
 
