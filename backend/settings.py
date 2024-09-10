@@ -10,9 +10,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 if os.path.exists("env.py"):
     import env  # noqa F401
 
-# Använd SQLite i utvecklingsmiljö
+# Use SQLite during Dvelopment
 if os.getenv("DJANGO_DEVELOPMENT") == "True":
-    # Använd SQLite för utveckling
+    # Use SQLite
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.sqlite3",
@@ -20,7 +20,7 @@ if os.getenv("DJANGO_DEVELOPMENT") == "True":
         }
     }
 else:
-    # Använd NEON Tech PostgreSQL för produktion
+    # Use NEON Tech
     DATABASES = {
         "default": dj_database_url.config(
             default=os.getenv("DATABASE_URL"), conn_max_age=600, ssl_require=True
@@ -46,7 +46,7 @@ ALLOWED_HOSTS = [
 CSRF_TRUSTED_ORIGINS = [
     "https://*.gitpod.io",
     "http://localhost:3000",
-    ]
+]
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
@@ -81,7 +81,7 @@ SIMPLE_JWT = {
 REST_USE_JWT = True
 
 # Email verification Temporarly OFF
-ACCOUNT_EMAIL_VERIFICATION = 'none'
+ACCOUNT_EMAIL_VERIFICATION = "none"
 
 
 # Application definition
