@@ -47,10 +47,10 @@ const Bookings = () => {
         fetchTimes();
     }, []);
 
-    // Funktion för att omvandla "HH:MM:SS" till minuter
+    // Function to convert "HH:MM:SS" to minutes
     const parseWorktimeToMinutes = (worktime) => {
-        const [hours, minutes, seconds] = worktime.split(':').map(Number); // Omvandla HH:MM:SS till nummer
-        const totalMinutes = (hours * 60) + minutes + (seconds / 60);  // Omvandla till minuter
+        const [hours, minutes, seconds] = worktime.split(':').map(Number); // Convert HH:MM:SS till numbers
+        const totalMinutes = (hours * 60) + minutes + (seconds / 60);  // Convert to minutes
         console.log(`Parsed worktime: ${worktime} -> ${totalMinutes} minutes`);
         return totalMinutes;
     };
@@ -84,7 +84,7 @@ const Bookings = () => {
         console.log("Selected Time: ", selectedTime);
     }, [selectedServices, selectedTime]);
 
-    const [isSubmitting] = useState(false);  // Ny state för att hantera knappen
+    const [isSubmitting] = useState(false);
 
     const handleBookingSubmit = async () => {
         if (!selectedTime || selectedServices.length === 0) {
@@ -92,7 +92,7 @@ const Bookings = () => {
             return;
         }
 
-        // Kontrollera att arbetstiden är större än 0
+        // Check if worktime is bigger than 0
         if (totalWorktime === 0) {
             alert("Total worktime is 0. Please select services correctly.");
             return;
@@ -120,14 +120,14 @@ const Bookings = () => {
 
 
 
-    // Funktion för att ställa in färger på händelser i kalendern
+    // Function to show different colours for different events in the calendar
     const eventPropGetter = (event) => {
-        let backgroundColor = "lightgray"; // Standard för otillgänglig tid
+        let backgroundColor = "lightgray"; // Unavailable times
 
         if (event.available && !event.booked) {
-            backgroundColor = "green"; // Tillgänglig tid
+            backgroundColor = "green"; // Available times
         } else if (event.booked) {
-            backgroundColor = "red"; // Bokad tid visas som röd
+            backgroundColor = "red"; // Already Booked
         }
 
         return {
@@ -143,7 +143,7 @@ const Bookings = () => {
     };
 
 
-    // Förbered tillgängliga tider som händelser
+    // Prepare available times as events
     const availableEvents = availableTimes.flatMap((availability) => {
         const start = new Date(availability.date + 'T' + availability.start_time);
         const end = new Date(availability.date + 'T' + availability.end_time);
@@ -151,9 +151,9 @@ const Bookings = () => {
         const events = [];
         let current = start;
 
-        // Gå igenom varje 30-minuters intervall och skapa separata event
+        // Go through every 30-minute interval och create event
         while (current < end) {
-            const next = new Date(current.getTime() + 30 * 60 * 1000); // 30 minuter framåt
+            const next = new Date(current.getTime() + 30 * 60 * 1000); // 30 minutes and forward
             events.push({
                 start: new Date(current),
                 end: next,
@@ -168,29 +168,40 @@ const Bookings = () => {
     });
 
 
-    // Förbered bokade tider som händelser
-    const bookedEvents = bookedTimes.map((booking) => {
+    // Update booked times to mark all 30-minute intervals 
+    const bookedEvents = bookedTimes.flatMap((booking) => {
         const totalWorktimeInMinutes = booking.services.reduce((acc, service) => {
             console.log(`Service: ${service.name}, Worktime: ${service.worktime}`);
 
-            // Konvertera arbetstiden från sekunder till minuter
-            const worktimeInMinutes = service.worktime / 60;
+            // Convert worktime from hours to minutes
+            const worktimeInMinutes = parseWorktimeToMinutes(service.worktime);
             return acc + worktimeInMinutes;
         }, 0);
 
-        // Beräkna sluttiden baserat på 30-minutersintervaller
-        const totalWorktimeIn30MinuteBlocks = Math.ceil(totalWorktimeInMinutes / 30);
+        const startTime = new Date(booking.date_time);
+        const endTime = new Date(startTime.getTime() + totalWorktimeInMinutes * 60 * 1000);
 
-        return {
-            start: new Date(booking.date_time),
-            end: new Date(new Date(booking.date_time).getTime() + totalWorktimeIn30MinuteBlocks * 30 * 60 * 1000),
-            title: "Booked",
-            available: false,
-            booked: true,
-        };
+        // Create several events for every 30-minute interval between start and end time
+        const events = [];
+        let current = startTime;
+
+        while (current < endTime) {
+            const next = new Date(current.getTime() + 30 * 60 * 1000); // Add 30 minutes
+            events.push({
+                start: new Date(current),
+                end: next,
+                title: "Booked",
+                available: false,
+                booked: true,
+            });
+            current = next;
+        }
+
+        return events;
     });
 
-    const allEvents = [...availableEvents, ...bookedEvents]; // Kombinera alla händelser
+
+    const allEvents = [...availableEvents, ...bookedEvents]; // Combine all events
 
     return (
         <Container>
@@ -227,7 +238,7 @@ const Bookings = () => {
 
                     <Calendar
                         localizer={localizer}
-                        events={allEvents}  // Använd kombinerade händelser
+                        events={allEvents}  // Use combined events
                         step={30}
                         timeslots={2}
                         defaultView="week"
@@ -236,17 +247,17 @@ const Bookings = () => {
                         max={new Date(2024, 9, 6, 20, 30)}
                         style={{ height: 600 }}
                         selectable={true}
-                        eventPropGetter={eventPropGetter}  // Ställ in färger och cursor för händelser
+                        eventPropGetter={eventPropGetter}  // Set colour and cursor for events
                         onSelectSlot={(slotInfo) => {
                             console.log("Slot clicked! Info: ", slotInfo);
 
-                            // Använd den exakta tidpunkten som användaren klickar på
+                            // Use the exact time user klicks on
                             setSelectedTime(slotInfo.start);
                             console.log("Selected Time:", slotInfo.start);
                         }}
                         onSelectEvent={(event) => {
                             if (event.available) {
-                                // Om en tillgänglig tid klickas, välj den exakta tidpunkten.
+                                // If an available time is clicked, choose that time
                                 setSelectedTime(event.start);
                                 console.log("Selected Time from Event:", event.start);
                             } else {
