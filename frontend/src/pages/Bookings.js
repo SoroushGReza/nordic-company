@@ -181,11 +181,10 @@ const Bookings = () => {
         const startTime = new Date(booking.date_time);
         const endTime = new Date(startTime.getTime() + totalWorktimeInMinutes * 60 * 1000);
 
-        // Create several events for every 30-minute interval between start and end time
         const events = [];
         let current = startTime;
 
-        while (current < endTime) {
+        while (current < endTime || current.getTime() === endTime.getTime()) { // Control to se if reaching endtime
             const next = new Date(current.getTime() + 30 * 60 * 1000); // Add 30 minutes
             events.push({
                 start: new Date(current),
@@ -201,7 +200,8 @@ const Bookings = () => {
     });
 
 
-    const allEvents = [...availableEvents, ...bookedEvents]; // Combine all events
+
+    const allEvents = [...availableEvents, ...bookedEvents];
 
     return (
         <Container>
@@ -238,7 +238,7 @@ const Bookings = () => {
 
                     <Calendar
                         localizer={localizer}
-                        events={allEvents}  // Use combined events
+                        events={allEvents}
                         step={30}
                         timeslots={2}
                         defaultView="week"
@@ -272,4 +272,3 @@ const Bookings = () => {
 };
 
 export default Bookings;
-
