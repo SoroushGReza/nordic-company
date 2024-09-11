@@ -102,7 +102,6 @@ const Bookings = () => {
     const parseWorktimeToMinutes = (worktime) => {
         const [hours, minutes, seconds] = worktime.split(':').map(Number); // Convert HH:MM:SS till numbers
         const totalMinutes = (hours * 60) + minutes + (seconds / 60);  // Convert to minutes
-        console.log(`Parsed worktime: ${worktime} -> ${totalMinutes} minutes`);
         return totalMinutes;
     };
 
@@ -121,8 +120,6 @@ const Bookings = () => {
         const selectedServiceTimes = services
             .filter((service) => updatedSelectedServices.includes(service.id))
             .reduce((total, service) => total + parseWorktimeToMinutes(service.worktime), 0);
-
-        console.log("Total Worktime (minutes):", selectedServiceTimes);
 
         setTotalWorktime(selectedServiceTimes);
     };
@@ -147,17 +144,12 @@ const Bookings = () => {
             return;
         }
 
-        console.log("Selected Time:", selectedTime);
-        console.log("Total Worktime (minutes):", totalWorktime);
-
         try {
             const bookingData = {
                 service_ids: selectedServices,
                 date_time: selectedTime.start.toISOString(),
                 end_time: selectedTime.end.toISOString(),
             };
-
-            console.log("Booking data to be sent:", bookingData);
 
             await axiosReq.post("/bookings/", bookingData);
             setBookingSuccess(true);
@@ -198,7 +190,6 @@ const Bookings = () => {
 
                     <Form>
                         {services.map((service) => {
-                            console.log(`Rendering service: ${service.name} (ID: ${service.id})`);
                             return (
                                 <Form.Check
                                     type="checkbox"
@@ -235,24 +226,44 @@ const Bookings = () => {
                         selectable={true}
                         eventPropGetter={eventPropGetter}  // Set colour and cursor for events
                         onSelectSlot={(slotInfo) => {
-                            console.log("Slot clicked! Info: ", slotInfo);
 
-                            // Use the exact time user klicks on
-                            setSelectedTime(slotInfo.start);
-                            console.log("Selected Time:", slotInfo.start);
+                            const selectedStartTime = slotInfo.start;
+                            const selectedEndTime = new Date(selectedStartTime.getTime() + totalWorktime * 60000);  // Beräkna sluttiden baserat på total arbetstid
+
+                            console.log("Selected time range:", selectedStartTime, "to", selectedEndTime);
+
+                            // Clear selected times
+                            let updatedEvents = allEvents.filter(event => event.title !== "Selected Time");
+
+                            // Add the new selected time
+                            const newEvent = {
+                                start: selectedStartTime,
+                                end: selectedEndTime,
+                                title: "Selected Time",
+                                available: true
+                            };
+
+                            updatedEvents = [...updatedEvents, newEvent];
+
+                            // Update the state with the new time and events
+                            setAllEvents(updatedEvents);
+                            setSelectedTime({ start: selectedStartTime, end: selectedEndTime });
                         }}
-                        onSelectEvent={(event) => {
-                            if (event.available) {
-                                // Få starttiden
-                                const startTime = event.start;
 
-                                // Beräkna sluttiden baserat på total arbetstid (totalWorktime i minuter)
-                                const endTime = new Date(startTime.getTime() + totalWorktime * 60000); // Lägg till total worktime till starttiden
+                        onSelectEvent={(event) => {
+                            if (event.available && event.title === "Selected Time") {
+                                // If time already selected, Un-select it
+                                setAllEvents(allEvents.filter(ev => ev !== event));
+                                setSelectedTime(null);
+                                console.log("Time unselected:", event.start);
+                            } else if (event.available && totalWorktime > 0) {
+                                // Select new time with calculated endtime
+                                const startTime = event.start;
+                                const endTime = new Date(startTime.getTime() + totalWorktime * 60000);
 
                                 console.log("Selected Time from Event:", startTime);
                                 console.log("Calculated End Time:", endTime);
 
-                                // Skapa ett nytt event för att markera hela intervallet
                                 const selectedRange = {
                                     start: startTime,
                                     end: endTime,
@@ -260,19 +271,14 @@ const Bookings = () => {
                                     available: true
                                 };
 
-                                // Uppdatera selectedTime
                                 setSelectedTime(selectedRange);
 
-                                // Uppdatera allEvents för att lägga till det nya valtidsintervallet
-                                const newEvents = [...allEvents, selectedRange];
+                                const newEvents = [...allEvents.filter(ev => ev.title !== "Selected Time"), selectedRange];
                                 setAllEvents(newEvents);
-
-                                console.log("Updated allEvents with selected time range:", newEvents);
                             } else {
                                 alert("This time is already booked!");
                             }
                         }}
-
                     />
                 </Col>
             </Row>
