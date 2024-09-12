@@ -105,6 +105,7 @@ const Bookings = () => {
                     return events;
                 });
 
+
                 // Combine available and booked events
                 setAllEvents([...availableEvents, ...bookedEvents]);
             } catch (err) {
@@ -312,6 +313,7 @@ const Bookings = () => {
                                     title: "Selected Time",
                                     available: true,
                                 };
+
 
                                 setSelectedTime(selectedRange);
 
