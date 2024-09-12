@@ -1,12 +1,16 @@
 .booked-event {
-    background-color: gray !important;
+    background-color: transparent !important;
+    border: none !important;
+    pointer-events: none !important;
+    z-index: 1;
 }
 
 .available-event {
     background-color: green !important;
     cursor: pointer !important;
-    z-index: 1;
+    z-index: 2;
 }
+
 
 .unavailable-event {
     background-color: lightgray !important;

@@ -39,8 +39,7 @@ const Bookings = () => {
 
                 setServices(servicesData);
 
-
-                // Parse bookings into intervals
+                // Parse bookings into intervals with a transparent overlay style
                 const bookedEvents = bookings.flatMap((booking) => {
                     const totalWorktimeInMinutes = booking.services.reduce((acc, service) => {
                         const worktimeInMinutes = parseWorktimeToMinutes(service.worktime);
@@ -56,12 +55,8 @@ const Bookings = () => {
                     while (current < endTime) {
                         const next = new Date(current.getTime() + 30 * 60 * 1000); // Add 30 minutes
 
-
-                        // Create a copy of `current` to ensure each loop iteration is independent
-                        const eventStart = new Date(current);
-
                         events.push({
-                            start: eventStart,
+                            start: new Date(current),
                             end: next,
                             title: "Booked",
                             available: false,
@@ -99,7 +94,6 @@ const Bookings = () => {
                             events.push({
                                 start: eventStart,
                                 end: next,
-                                title: "Available",
                                 available: true,
                                 booked: false,
                             });
@@ -120,6 +114,8 @@ const Bookings = () => {
         };
         fetchTimes();
     }, []);
+
+
 
 
     // Function to convert "HH:MM:SS" to minutes
@@ -188,19 +184,27 @@ const Bookings = () => {
         let style = {};
 
         if (event.booked) {
+            // Make booked events completely transparent and unclickable
             style = {
-                backgroundColor: 'red',
-                pointerEvents: 'none', // Disable clicking on booked events
+                backgroundColor: 'transparent',
+                border: 'none',
+                pointerEvents: 'none',
+                color: 'transparent',
             };
         } else if (event.available) {
+            // Available events, shown as green and clickable
             style = {
                 backgroundColor: 'green',
                 cursor: 'pointer',
+                border: 'none',
+                fontSize: 10,
             };
         }
 
         return { style };
     };
+
+
 
     return (
         <Container>
@@ -236,7 +240,7 @@ const Bookings = () => {
 
                     <Calendar
                         localizer={localizer}
-                        events={allEvents}  // Use combined events
+                        events={allEvents}
                         step={30}
                         timeslots={2}
                         defaultView="week"
@@ -247,39 +251,56 @@ const Bookings = () => {
                         selectable={true}
                         eventPropGetter={eventPropGetter}  // Set colour and cursor for events
                         onSelectSlot={(slotInfo) => {
-
                             const selectedStartTime = slotInfo.start;
-                            const selectedEndTime = new Date(selectedStartTime.getTime() + totalWorktime * 60000);  // Beräkna sluttiden baserat på total arbetstid
+                            const selectedEndTime = new Date(selectedStartTime.getTime() + totalWorktime * 60000);  // Calculate the end time based on total worktime
+
+                            // Prevent selecting any slot that overlaps with booked time slots
+                            const isOverlappingBooked = allEvents.some(event =>
+                                event.booked && (
+                                    (selectedStartTime >= event.start && selectedStartTime < event.end) ||  // Selected start overlaps with a booked slot
+                                    (selectedEndTime > event.start && selectedEndTime <= event.end) ||      // Selected end overlaps with a booked slot
+                                    (selectedStartTime <= event.start && selectedEndTime >= event.end)      // Selected time covers an entire booked slot
+                                )
+                            );
+
+                            if (isOverlappingBooked) {
+                                // Alert should not even trigger because interaction is prevented, but adding just in case.
+                                console.log("This time is already booked.");
+                                return;  // Prevent further action if it overlaps
+                            }
 
                             console.log("Selected time range:", selectedStartTime, "to", selectedEndTime);
 
-                            // Clear selected times
+                            // Clear previous selected times
                             let updatedEvents = allEvents.filter(event => event.title !== "Selected Time");
 
-                            // Add the new selected time
+                            // Add new selected time
                             const newEvent = {
-                                start: selectedStartTime,
-                                end: selectedEndTime,
+                                //start: selectedStartTime,
+                                //end: selectedEndTime,
                                 title: "Selected Time",
-                                available: true
+                                available: true,
                             };
 
                             updatedEvents = [...updatedEvents, newEvent];
 
-                            // Update the state with the new time and events
+                            // Update state with new time and events
                             setAllEvents(updatedEvents);
                             setSelectedTime({ start: selectedStartTime, end: selectedEndTime });
                         }}
 
                         onSelectEvent={(event) => {
-
-                            if (event.available && event.title === "Selected Time") {
-                                // If time already selected, Un-select it
+                            if (event.booked) {
+                                // Prevent clicking on booked events by showing a warning
+                                alert("This time is already booked!");
+                                return;  // Prevent interaction with booked events
+                            } else if (event.available && event.title === "Selected Time") {
+                                // Un-select time if already selected
                                 setAllEvents(allEvents.filter(ev => ev !== event));
                                 setSelectedTime(null);
                                 console.log("Time unselected:", event.start);
                             } else if (event.available && totalWorktime > 0) {
-                                // Select new time with calculated endtime
+                                // Select a new time
                                 const startTime = event.start;
                                 const endTime = new Date(startTime.getTime() + totalWorktime * 60000);
 
@@ -290,7 +311,7 @@ const Bookings = () => {
                                     start: startTime,
                                     end: endTime,
                                     title: "Selected Time",
-                                    available: true
+                                    available: true,
                                 };
 
 
@@ -298,9 +319,6 @@ const Bookings = () => {
 
                                 const newEvents = [...allEvents.filter(ev => ev.title !== "Selected Time"), selectedRange];
                                 setAllEvents(newEvents);
-
-                            } else {
-                                alert("This time is already booked!");
                             }
                         }}
 
