@@ -22,13 +22,13 @@ const localizer = dateFnsLocalizer({
 });
 
 const Bookings = () => {
-    const [availableTimes, setAvailableTimes] = useState([]);
-    const [bookedTimes, setBookedTimes] = useState([]);
     const [services, setServices] = useState([]);
     const [selectedServices, setSelectedServices] = useState([]);
     const [bookingSuccess, setBookingSuccess] = useState(false);
     const [selectedTime, setSelectedTime] = useState(null);
     const [totalWorktime, setTotalWorktime] = useState(0); // Storing total worktime
+    const [allEvents, setAllEvents] = useState([]);
+
 
     useEffect(() => {
         const fetchTimes = async () => {
@@ -37,9 +37,80 @@ const Bookings = () => {
                 const { data: bookings } = await axiosReq.get("/bookings/mine/");
                 const { data: servicesData } = await axiosReq.get("/services/");
 
-                setAvailableTimes(availability);
-                setBookedTimes(bookings);
                 setServices(servicesData);
+
+                // Parse bookings into intervals
+                const bookedEvents = bookings.flatMap((booking) => {
+                    const totalWorktimeInMinutes = booking.services.reduce((acc, service) => {
+                        const worktimeInMinutes = parseWorktimeToMinutes(service.worktime);
+                        return acc + worktimeInMinutes;
+                    }, 0);
+
+                    const startTime = new Date(booking.date_time);
+                    const endTime = new Date(startTime.getTime() + totalWorktimeInMinutes * 60 * 1000);
+
+                    const events = [];
+                    let current = startTime;
+
+                    while (current < endTime) {
+                        const next = new Date(current.getTime() + 30 * 60 * 1000); // Add 30 minutes
+
+                        // Create a copy of `current` to ensure each loop iteration is independent
+                        const eventStart = new Date(current);
+
+                        events.push({
+                            start: eventStart,
+                            end: next,
+                            title: "Booked",
+                            available: false,
+                            booked: true,
+                        });
+
+                        current = next;
+                    }
+
+                    return events;
+                });
+
+                // Parse availability into intervals while avoiding overlaps with booked events
+                const availableEvents = availability.flatMap((availability) => {
+                    const start = new Date(availability.date + 'T' + availability.start_time);
+                    const end = new Date(availability.date + 'T' + availability.end_time);
+
+                    const events = [];
+                    let current = start;
+
+                    while (current < end) {
+                        const next = new Date(current.getTime() + 30 * 60 * 1000); // 30 minutes forward
+
+                        // Create a copy of `current` to ensure each loop iteration is independent
+                        const eventStart = new Date(current);
+
+                        // Check if this available time overlaps with any booked time
+                        const isOverlapping = bookedEvents.some(booked =>
+                            (eventStart >= booked.start && eventStart < booked.end) ||
+                            (next > booked.start && next <= booked.end)
+                        );
+
+                        // Only add available times that don't overlap
+                        if (!isOverlapping) {
+                            events.push({
+                                start: eventStart,
+                                end: next,
+                                title: "Available",
+                                available: true,
+                                booked: false,
+                            });
+                        }
+
+                        current = next;
+                    }
+
+                    return events;
+                });
+
+                // Combine available and booked events
+                setAllEvents([...availableEvents, ...bookedEvents]);
             } catch (err) {
                 console.error("Error fetching times:", err);
             }
@@ -47,14 +118,14 @@ const Bookings = () => {
         fetchTimes();
     }, []);
 
+
+
     // Function to convert "HH:MM:SS" to minutes
     const parseWorktimeToMinutes = (worktime) => {
         const [hours, minutes, seconds] = worktime.split(':').map(Number); // Convert HH:MM:SS till numbers
         const totalMinutes = (hours * 60) + minutes + (seconds / 60);  // Convert to minutes
-        console.log(`Parsed worktime: ${worktime} -> ${totalMinutes} minutes`);
         return totalMinutes;
     };
-
 
 
     const handleServiceChange = (serviceId) => {
@@ -67,16 +138,13 @@ const Bookings = () => {
 
         setSelectedServices(updatedSelectedServices);
 
-        // Summera arbetstiden för alla valda tjänster
+        // Summarize working time for all chosen services
         const selectedServiceTimes = services
             .filter((service) => updatedSelectedServices.includes(service.id))
             .reduce((total, service) => total + parseWorktimeToMinutes(service.worktime), 0);
 
-        console.log("Total Worktime (minutes):", selectedServiceTimes);
-
         setTotalWorktime(selectedServiceTimes);
     };
-
 
 
     useEffect(() => {
@@ -92,24 +160,18 @@ const Bookings = () => {
             return;
         }
 
-        // Check if worktime is bigger than 0
+        // Control that worktime is bigger than 0
         if (totalWorktime === 0) {
             alert("Total worktime is 0. Please select services correctly.");
             return;
         }
 
-        console.log("Selected Time:", selectedTime);
-        console.log("Total Worktime (minutes):", totalWorktime);
-
         try {
             const bookingData = {
                 service_ids: selectedServices,
-                date_time: selectedTime.toISOString(),
-                // Beräkna sluttid baserat på total arbetstid
-                end_time: new Date(selectedTime.getTime() + totalWorktime * 60000).toISOString(),
+                date_time: selectedTime.start.toISOString(),
+                end_time: selectedTime.end.toISOString(),
             };
-
-            console.log("Booking data to be sent:", bookingData);
 
             await axiosReq.post("/bookings/", bookingData);
             setBookingSuccess(true);
@@ -119,89 +181,25 @@ const Bookings = () => {
     };
 
 
-
     // Function to show different colours for different events in the calendar
     const eventPropGetter = (event) => {
-        let backgroundColor = "lightgray"; // Unavailable times
+        let style = {};
 
-        if (event.available && !event.booked) {
-            backgroundColor = "green"; // Available times
-        } else if (event.booked) {
-            backgroundColor = "red"; // Already Booked
+        if (event.booked) {
+            style = {
+                backgroundColor: 'red',
+                pointerEvents: 'none', // Disable clicking on booked events
+            };
+        } else if (event.available) {
+            style = {
+                backgroundColor: 'green',
+                cursor: 'pointer',
+            };
         }
 
-        return {
-            style: {
-                backgroundColor,
-                color: "white",
-                borderRadius: "0px",
-                opacity: 0.8,
-                border: "none",
-                cursor: event.available ? "pointer" : "default",
-            },
-        };
+        return { style };
     };
 
-
-    // Prepare available times as events
-    const availableEvents = availableTimes.flatMap((availability) => {
-        const start = new Date(availability.date + 'T' + availability.start_time);
-        const end = new Date(availability.date + 'T' + availability.end_time);
-
-        const events = [];
-        let current = start;
-
-        // Go through every 30-minute interval och create event
-        while (current < end) {
-            const next = new Date(current.getTime() + 30 * 60 * 1000); // 30 minutes and forward
-            events.push({
-                start: new Date(current),
-                end: next,
-                title: "Available",
-                available: true,
-                booked: false,
-            });
-            current = next;
-        }
-
-        return events;
-    });
-
-
-    // Update booked times to mark all 30-minute intervals 
-    const bookedEvents = bookedTimes.flatMap((booking) => {
-        const totalWorktimeInMinutes = booking.services.reduce((acc, service) => {
-            console.log(`Service: ${service.name}, Worktime: ${service.worktime}`);
-
-            // Convert worktime from hours to minutes
-            const worktimeInMinutes = parseWorktimeToMinutes(service.worktime);
-            return acc + worktimeInMinutes;
-        }, 0);
-
-        const startTime = new Date(booking.date_time);
-        const endTime = new Date(startTime.getTime() + totalWorktimeInMinutes * 60 * 1000);
-
-        const events = [];
-        let current = startTime;
-
-        while (current < endTime || current.getTime() === endTime.getTime()) { // Control to se if reaching endtime
-            const next = new Date(current.getTime() + 30 * 60 * 1000); // Add 30 minutes
-            events.push({
-                start: new Date(current),
-                end: next,
-                title: "Booked",
-                available: false,
-                booked: true,
-            });
-            current = next;
-        }
-
-        return events;
-    });
-
-
-
-    const allEvents = [...availableEvents, ...bookedEvents];
 
     return (
         <Container>
@@ -212,7 +210,6 @@ const Bookings = () => {
 
                     <Form>
                         {services.map((service) => {
-                            console.log(`Rendering service: ${service.name} (ID: ${service.id})`);
                             return (
                                 <Form.Check
                                     type="checkbox"
@@ -238,7 +235,7 @@ const Bookings = () => {
 
                     <Calendar
                         localizer={localizer}
-                        events={allEvents}
+                        events={allEvents}  // Use combined events
                         step={30}
                         timeslots={2}
                         defaultView="week"
@@ -249,17 +246,55 @@ const Bookings = () => {
                         selectable={true}
                         eventPropGetter={eventPropGetter}  // Set colour and cursor for events
                         onSelectSlot={(slotInfo) => {
-                            console.log("Slot clicked! Info: ", slotInfo);
 
-                            // Use the exact time user klicks on
-                            setSelectedTime(slotInfo.start);
-                            console.log("Selected Time:", slotInfo.start);
+                            const selectedStartTime = slotInfo.start;
+                            const selectedEndTime = new Date(selectedStartTime.getTime() + totalWorktime * 60000);  // Beräkna sluttiden baserat på total arbetstid
+
+                            console.log("Selected time range:", selectedStartTime, "to", selectedEndTime);
+
+                            // Clear selected times
+                            let updatedEvents = allEvents.filter(event => event.title !== "Selected Time");
+
+                            // Add the new selected time
+                            const newEvent = {
+                                start: selectedStartTime,
+                                end: selectedEndTime,
+                                title: "Selected Time",
+                                available: true
+                            };
+
+                            updatedEvents = [...updatedEvents, newEvent];
+
+                            // Update the state with the new time and events
+                            setAllEvents(updatedEvents);
+                            setSelectedTime({ start: selectedStartTime, end: selectedEndTime });
                         }}
+
                         onSelectEvent={(event) => {
-                            if (event.available) {
-                                // If an available time is clicked, choose that time
-                                setSelectedTime(event.start);
-                                console.log("Selected Time from Event:", event.start);
+                            if (event.available && event.title === "Selected Time") {
+                                // If time already selected, Un-select it
+                                setAllEvents(allEvents.filter(ev => ev !== event));
+                                setSelectedTime(null);
+                                console.log("Time unselected:", event.start);
+                            } else if (event.available && totalWorktime > 0) {
+                                // Select new time with calculated endtime
+                                const startTime = event.start;
+                                const endTime = new Date(startTime.getTime() + totalWorktime * 60000);
+
+                                console.log("Selected Time from Event:", startTime);
+                                console.log("Calculated End Time:", endTime);
+
+                                const selectedRange = {
+                                    start: startTime,
+                                    end: endTime,
+                                    title: "Selected Time",
+                                    available: true
+                                };
+
+                                setSelectedTime(selectedRange);
+
+                                const newEvents = [...allEvents.filter(ev => ev.title !== "Selected Time"), selectedRange];
+                                setAllEvents(newEvents);
                             } else {
                                 alert("This time is already booked!");
                             }
@@ -272,3 +307,4 @@ const Bookings = () => {
 };
 
 export default Bookings;
+
