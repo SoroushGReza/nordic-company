@@ -39,6 +39,7 @@ const Bookings = () => {
 
                 setServices(servicesData);
 
+
                 // Parse bookings into intervals
                 const bookedEvents = bookings.flatMap((booking) => {
                     const totalWorktimeInMinutes = booking.services.reduce((acc, service) => {
@@ -54,6 +55,7 @@ const Bookings = () => {
 
                     while (current < endTime) {
                         const next = new Date(current.getTime() + 30 * 60 * 1000); // Add 30 minutes
+
 
                         // Create a copy of `current` to ensure each loop iteration is independent
                         const eventStart = new Date(current);
@@ -109,6 +111,7 @@ const Bookings = () => {
                     return events;
                 });
 
+
                 // Combine available and booked events
                 setAllEvents([...availableEvents, ...bookedEvents]);
             } catch (err) {
@@ -117,7 +120,6 @@ const Bookings = () => {
         };
         fetchTimes();
     }, []);
-
 
 
     // Function to convert "HH:MM:SS" to minutes
@@ -200,7 +202,6 @@ const Bookings = () => {
         return { style };
     };
 
-
     return (
         <Container>
             <Row className="justify-content-center">
@@ -248,7 +249,7 @@ const Bookings = () => {
                         onSelectSlot={(slotInfo) => {
 
                             const selectedStartTime = slotInfo.start;
-                            const selectedEndTime = new Date(selectedStartTime.getTime() + totalWorktime * 60000);  // Beräkna sluttiden baserat på total arbetstid
+                            const selectedEndTime = new Date(selectedStartTime.getTime() + totalWorktime * 60000);  // BerÃ¤kna sluttiden baserat pÃ¥ total arbetstid
 
                             console.log("Selected time range:", selectedStartTime, "to", selectedEndTime);
 
@@ -271,6 +272,7 @@ const Bookings = () => {
                         }}
 
                         onSelectEvent={(event) => {
+
                             if (event.available && event.title === "Selected Time") {
                                 // If time already selected, Un-select it
                                 setAllEvents(allEvents.filter(ev => ev !== event));
@@ -291,14 +293,17 @@ const Bookings = () => {
                                     available: true
                                 };
 
+
                                 setSelectedTime(selectedRange);
 
                                 const newEvents = [...allEvents.filter(ev => ev.title !== "Selected Time"), selectedRange];
                                 setAllEvents(newEvents);
+
                             } else {
                                 alert("This time is already booked!");
                             }
                         }}
+
                     />
                 </Col>
             </Row>
