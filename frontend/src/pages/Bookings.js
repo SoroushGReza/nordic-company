@@ -34,40 +34,27 @@ const Bookings = () => {
         const fetchTimes = async () => {
             try {
                 const { data: availability } = await axiosReq.get("/availability/");
-                const { data: bookings } = await axiosReq.get("/bookings/mine/");
+                const { data: bookings } = await axiosReq.get("/bookings/all/");
                 const { data: servicesData } = await axiosReq.get("/services/");
 
                 setServices(servicesData);
 
-                // Parse bookings into intervals with a transparent overlay style
-                const bookedEvents = bookings.flatMap((booking) => {
-                    const totalWorktimeInMinutes = booking.services.reduce((acc, service) => {
-                        const worktimeInMinutes = parseWorktimeToMinutes(service.worktime);
-                        return acc + worktimeInMinutes;
-                    }, 0);
-
-                    const startTime = new Date(booking.date_time);
-                    const endTime = new Date(startTime.getTime() + totalWorktimeInMinutes * 60 * 1000);
-
-                    const events = [];
-                    let current = startTime;
-
-                    while (current < endTime) {
-                        const next = new Date(current.getTime() + 30 * 60 * 1000); // Add 30 minutes
-
-                        events.push({
-                            start: new Date(current),
-                            end: next,
-                            title: "Booked",
-                            available: false,
-                            booked: true,
-                        });
-
-                        current = next;
+                // Parse the bookings into events using date_time and end_time
+                const bookedEvents = bookings.map((booking) => {
+                    // Check if the booking has the necessary fields
+                    if (!booking.date_time || !booking.end_time) {
+                        console.warn("Skipping invalid booking entry:", booking);
+                        return null;
                     }
 
-                    return events;
-                });
+                    return {
+                        start: new Date(booking.date_time),
+                        end: new Date(booking.end_time),
+                        title: "Booked",
+                        available: false,
+                        booked: true,
+                    };
+                }).filter(event => event !== null); // Filter out null events
 
                 // Parse availability into intervals while avoiding overlaps with booked events
                 const availableEvents = availability.flatMap((availability) => {
@@ -80,7 +67,6 @@ const Bookings = () => {
                     while (current < end) {
                         const next = new Date(current.getTime() + 30 * 60 * 1000); // 30 minutes forward
 
-                        // Create a copy of `current` to ensure each loop iteration is independent
                         const eventStart = new Date(current);
 
                         // Check if this available time overlaps with any booked time
@@ -105,16 +91,15 @@ const Bookings = () => {
                     return events;
                 });
 
-
                 // Combine available and booked events
                 setAllEvents([...availableEvents, ...bookedEvents]);
+
             } catch (err) {
                 console.error("Error fetching times:", err);
             }
         };
         fetchTimes();
     }, []);
-
 
 
 
@@ -143,12 +128,6 @@ const Bookings = () => {
 
         setTotalWorktime(selectedServiceTimes);
     };
-
-
-    useEffect(() => {
-        console.log("Selected Services: ", selectedServices);
-        console.log("Selected Time: ", selectedTime);
-    }, [selectedServices, selectedTime]);
 
     const [isSubmitting] = useState(false);
 
@@ -265,11 +244,8 @@ const Bookings = () => {
 
                             if (isOverlappingBooked) {
                                 // Alert should not even trigger because interaction is prevented, but adding just in case.
-                                console.log("This time is already booked.");
                                 return;  // Prevent further action if it overlaps
                             }
-
-                            console.log("Selected time range:", selectedStartTime, "to", selectedEndTime);
 
                             // Clear previous selected times
                             let updatedEvents = allEvents.filter(event => event.title !== "Selected Time");
@@ -298,15 +274,10 @@ const Bookings = () => {
                                 // Un-select time if already selected
                                 setAllEvents(allEvents.filter(ev => ev !== event));
                                 setSelectedTime(null);
-                                console.log("Time unselected:", event.start);
                             } else if (event.available && totalWorktime > 0) {
                                 // Select a new time
                                 const startTime = event.start;
                                 const endTime = new Date(startTime.getTime() + totalWorktime * 60000);
-
-                                console.log("Selected Time from Event:", startTime);
-                                console.log("Calculated End Time:", endTime);
-
                                 const selectedRange = {
                                     start: startTime,
                                     end: endTime,
