@@ -33,28 +33,54 @@ const Bookings = () => {
     useEffect(() => {
         const fetchTimes = async () => {
             try {
+                // Hämta tillgänglighet, alla bokningar och användarens egna bokningar
                 const { data: availability } = await axiosReq.get("/availability/");
-                const { data: bookings } = await axiosReq.get("/bookings/all/");
+                const { data: allBookings } = await axiosReq.get("/bookings/all/");
+                const { data: myBookings } = await axiosReq.get("/bookings/mine/");
                 const { data: servicesData } = await axiosReq.get("/services/");
 
                 setServices(servicesData);
 
-                // Parse the bookings into events using date_time and end_time
-                const bookedEvents = bookings.map((booking) => {
-                    // Check if the booking has the necessary fields
+                // Log för inspektion
+                console.log("Full booking data from /bookings/all/:", allBookings);
+                console.log("Full booking data from /bookings/mine/:", myBookings);
+
+                // Parse all bookings (block other users' bookings)
+                const bookedEvents = allBookings.map((booking) => {
                     if (!booking.date_time || !booking.end_time) {
-                        console.warn("Skipping invalid booking entry:", booking);
+                        console.warn("Skipping invalid booking entry (all bookings):", booking);
                         return null;
                     }
 
                     return {
                         start: new Date(booking.date_time),
                         end: new Date(booking.end_time),
-                        title: "Booked",
+                        title: "Booked (Unavailable)",
                         available: false,
                         booked: true,
+                        mine: false // Not user's own booking
                     };
-                }).filter(event => event !== null); // Filter out null events
+                }).filter(event => event !== null);
+
+                // Parse user's own bookings (these will be interactive and visible)
+                const myBookedEvents = myBookings.map((booking) => {
+                    // Log the entire booking entry to understand what's missing
+                    console.log("Inspecting my booking entry:", booking);
+
+                    if (!booking.date_time || !booking.end_time) {
+                        console.warn("Skipping invalid user booking entry (missing date_time or end_time):", booking);
+                        return null;
+                    }
+
+                    return {
+                        start: new Date(booking.date_time),
+                        end: new Date(booking.end_time),
+                        title: "My Booking",
+                        available: true,
+                        booked: true,
+                        mine: true // User's own booking
+                    };
+                }).filter(event => event !== null);
 
                 // Parse availability into intervals while avoiding overlaps with booked events
                 const availableEvents = availability.flatMap((availability) => {
@@ -82,6 +108,7 @@ const Bookings = () => {
                                 end: next,
                                 available: true,
                                 booked: false,
+                                mine: false // Not user’s own booking
                             });
                         }
 
@@ -91,8 +118,11 @@ const Bookings = () => {
                     return events;
                 });
 
-                // Combine available and booked events
-                setAllEvents([...availableEvents, ...bookedEvents]);
+                // Combine available, booked events (for blocking times), and user's own bookings (for interaction)
+                setAllEvents([...availableEvents, ...bookedEvents, ...myBookedEvents]);
+
+                // Log för verifiering av slutlig lista
+                console.log("Combined events (available + booked + mine):", [...availableEvents, ...bookedEvents, ...myBookedEvents]);
 
             } catch (err) {
                 console.error("Error fetching times:", err);
