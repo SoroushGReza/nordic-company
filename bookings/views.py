@@ -58,7 +58,6 @@ def perform_create(self, serializer):
 
 
 # View to list user bookings
-# View to list user bookings
 class BookingListView(generics.ListAPIView):
     serializer_class = BookingSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -98,7 +97,6 @@ class AvailabilityListCreateView(generics.ListCreateAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
 
-# View to list all bookings without user details
 # View to list all bookings without user details, excluding the current user's own bookings
 class AllBookingsListView(generics.ListAPIView):
     serializer_class = BookingSerializer
