@@ -58,12 +58,30 @@ def perform_create(self, serializer):
 
 
 # View to list user bookings
+# View to list user bookings
 class BookingListView(generics.ListAPIView):
     serializer_class = BookingSerializer
     permission_classes = [permissions.IsAuthenticated]
 
-    def get_queryset(self):
-        return Booking.objects.filter(user=self.request.user)
+    def get(self, request, *args, **kwargs):
+        bookings = Booking.objects.filter(user=self.request.user).prefetch_related(
+            "services"
+        )
+
+        user_data = [
+            {
+                "date_time": booking.date_time,
+                "end_time": booking.calculate_end_time(),
+                "services": [
+                    {"name": service.name, "worktime": service.worktime}
+                    for service in booking.services.all()
+                ],
+                "id": booking.id,
+                "created_at": booking.created_at,
+            }
+            for booking in bookings
+        ]
+        return Response(user_data)
 
 
 # View to retrieve booking details
@@ -81,12 +99,16 @@ class AvailabilityListCreateView(generics.ListCreateAPIView):
 
 
 # View to list all bookings without user details
+# View to list all bookings without user details, excluding the current user's own bookings
 class AllBookingsListView(generics.ListAPIView):
     serializer_class = BookingSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
-        bookings = Booking.objects.all().prefetch_related("services")
+        # Exclude current user's bookings
+        bookings = Booking.objects.exclude(user=request.user).prefetch_related(
+            "services"
+        )
         anonymized_data = [
             {
                 "date_time": booking.date_time,
