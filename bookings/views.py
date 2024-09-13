@@ -26,10 +26,9 @@ def perform_create(self, serializer):
     total_worktime = timedelta()
 
     for service in services:
-        # Anta att service.worktime är i timmar och omvandla till timedelta
         total_worktime += timedelta(hours=service.worktime)
 
-    # Nu kan vi fortsätta att kontrollera tillgängligheten baserat på total_worktime
+    # Control availability based on total_worktime
     booking_time = serializer.validated_data["date_time"]
     available_slots = Availability.objects.filter(
         date=booking_time.date(), is_available=True
@@ -44,7 +43,7 @@ def perform_create(self, serializer):
             hours=slot.end_time.hour, minutes=slot.end_time.minute
         )
 
-        # Kontrollera om tiden räcker för bokningen
+        # Check if time is enough for the booking
         if end_time_delta - start_time_delta >= total_worktime:
             is_slot_available = True
             break
@@ -54,7 +53,7 @@ def perform_create(self, serializer):
             {"error": "No available slot for the selected services"}, status=400
         )
 
-    # Spara bokningen om det finns tillgänglig tid
+    # Save booking if its a available time
     serializer.save(user=self.request.user)
 
 
@@ -91,6 +90,7 @@ class AllBookingsListView(generics.ListAPIView):
         anonymized_data = [
             {
                 "date_time": booking.date_time,
+                "end_time": booking.calculate_end_time(),
                 "services": [
                     {"name": service.name, "worktime": service.worktime}
                     for service in booking.services.all()
