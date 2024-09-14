@@ -1,16 +1,25 @@
+.user-booking {
+    background-color: navy !important;
+    color: white !important;
+    cursor: pointer !important;
+    z-index: 3;
+    border: none !important;
+    font-size: 10px !important;
+}
+
 .booked-event {
     background-color: transparent !important;
     border: none !important;
     pointer-events: none !important;
-    z-index: 1;
+    color: transparent !important;
 }
 
 .available-event {
     background-color: green !important;
     cursor: pointer !important;
-    z-index: 2;
+    border: none !important;
+    font-size: 10px !important;
 }
-
 
 .unavailable-event {
     background-color: lightgray !important;

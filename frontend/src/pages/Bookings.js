@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Container, Row, Col, Button, Form, Alert } from "react-bootstrap";
+import { Container, Row, Col, Button, Form, Alert, Modal } from "react-bootstrap";
 import { Calendar, dateFnsLocalizer } from "react-big-calendar";
 import format from "date-fns/format";
 import parse from "date-fns/parse";
@@ -7,7 +7,7 @@ import startOfWeek from "date-fns/startOfWeek";
 import getDay from "date-fns/getDay";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { axiosReq } from "../api/axiosDefaults";
-import "../styles/Bookings.module.css";
+import styles from "../styles/Bookings.module.css";
 
 const locales = {
     "en-IE": require("date-fns/locale/en-IE"),
@@ -21,6 +21,19 @@ const localizer = dateFnsLocalizer({
     locales,
 });
 
+const calculateBookingDuration = (start, end) => {
+    const diffInMs = new Date(end) - new Date(start);  // Calculate difference in mili-seconds
+    const totalMinutes = Math.floor(diffInMs / (1000 * 60));  // Convert to minutes
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = totalMinutes % 60;
+
+    return `${hours}h ${minutes > 0 ? `${minutes}min` : ''}`;  // Return "5h 30min" etc.
+};
+
+const calculateTotalPrice = (services) => {
+    return services.reduce((total, service) => total + parseFloat(service.price), 0);
+};
+
 const Bookings = () => {
     const [services, setServices] = useState([]);
     const [selectedServices, setSelectedServices] = useState([]);
@@ -28,12 +41,13 @@ const Bookings = () => {
     const [selectedTime, setSelectedTime] = useState(null);
     const [totalWorktime, setTotalWorktime] = useState(0); // Storing total worktime
     const [allEvents, setAllEvents] = useState([]);
+    const [selectedBooking, setSelectedBooking] = useState(null);
 
 
     useEffect(() => {
         const fetchTimes = async () => {
             try {
-                // Hämta tillgänglighet, alla bokningar och användarens egna bokningar
+                // Get availability, all bookings, user's own bookings, services
                 const { data: availability } = await axiosReq.get("/availability/");
                 const { data: allBookings } = await axiosReq.get("/bookings/all/");
                 const { data: myBookings } = await axiosReq.get("/bookings/mine/");
@@ -41,11 +55,7 @@ const Bookings = () => {
 
                 setServices(servicesData);
 
-                // Log för inspektion
-                console.log("Full booking data from /bookings/all/:", allBookings);
-                console.log("Full booking data from /bookings/mine/:", myBookings);
-
-                // Parse all bookings (block other users' bookings)
+                // create events for ALL booked times
                 const bookedEvents = allBookings.map((booking) => {
                     if (!booking.date_time || !booking.end_time) {
                         console.warn("Skipping invalid booking entry (all bookings):", booking);
@@ -58,15 +68,12 @@ const Bookings = () => {
                         title: "Booked (Unavailable)",
                         available: false,
                         booked: true,
-                        mine: false // Not user's own booking
+                        mine: false // NOT user's own booking
                     };
                 }).filter(event => event !== null);
 
-                // Parse user's own bookings (these will be interactive and visible)
+                // User's own bookings (interactive)
                 const myBookedEvents = myBookings.map((booking) => {
-                    // Log the entire booking entry to understand what's missing
-                    console.log("Inspecting my booking entry:", booking);
-
                     if (!booking.date_time || !booking.end_time) {
                         console.warn("Skipping invalid user booking entry (missing date_time or end_time):", booking);
                         return null;
@@ -78,11 +85,13 @@ const Bookings = () => {
                         title: "My Booking",
                         available: true,
                         booked: true,
-                        mine: true // User's own booking
+                        id: booking.id,
+                        mine: true, // User's own booking
+                        className: "user-booking"
                     };
                 }).filter(event => event !== null);
 
-                // Parse availability into intervals while avoiding overlaps with booked events
+                // Filter available times and remove those that overlap bookings
                 const availableEvents = availability.flatMap((availability) => {
                     const start = new Date(availability.date + 'T' + availability.start_time);
                     const end = new Date(availability.date + 'T' + availability.end_time);
@@ -93,22 +102,27 @@ const Bookings = () => {
                     while (current < end) {
                         const next = new Date(current.getTime() + 30 * 60 * 1000); // 30 minutes forward
 
+                        // Create a copy of current and next to avoid ESLint-warning
                         const eventStart = new Date(current);
+                        const eventEnd = new Date(next);
 
-                        // Check if this available time overlaps with any booked time
-                        const isOverlapping = bookedEvents.some(booked =>
-                            (eventStart >= booked.start && eventStart < booked.end) ||
-                            (next > booked.start && next <= booked.end)
-                        );
+                        // Check if there is overlaping booked times
+                        const isOverlapping = [...bookedEvents, ...myBookedEvents].some(booked => {
+                            return (
+                                (booked.start <= eventStart && eventStart < booked.end) ||
+                                (booked.start < eventEnd && eventEnd <= booked.end) ||
+                                (eventStart <= booked.start && eventEnd >= booked.end)
+                            );
+                        });
 
-                        // Only add available times that don't overlap
+                        // Only add available times that dest not overlap with bookings
                         if (!isOverlapping) {
                             events.push({
                                 start: eventStart,
-                                end: next,
+                                end: eventEnd,
                                 available: true,
                                 booked: false,
-                                mine: false // Not user’s own booking
+                                mine: false // NOT User's own booking
                             });
                         }
 
@@ -118,11 +132,7 @@ const Bookings = () => {
                     return events;
                 });
 
-                // Combine available, booked events (for blocking times), and user's own bookings (for interaction)
                 setAllEvents([...availableEvents, ...bookedEvents, ...myBookedEvents]);
-
-                // Log för verifiering av slutlig lista
-                console.log("Combined events (available + booked + mine):", [...availableEvents, ...bookedEvents, ...myBookedEvents]);
 
             } catch (err) {
                 console.error("Error fetching times:", err);
@@ -130,6 +140,7 @@ const Bookings = () => {
         };
         fetchTimes();
     }, []);
+
 
 
 
@@ -167,7 +178,7 @@ const Bookings = () => {
             return;
         }
 
-        // Control that worktime is bigger than 0
+        // Chech that worktime is bigger than 0
         if (totalWorktime === 0) {
             alert("Total worktime is 0. Please select services correctly.");
             return;
@@ -190,30 +201,20 @@ const Bookings = () => {
 
     // Function to show different colours for different events in the calendar
     const eventPropGetter = (event) => {
-        let style = {};
+        let className = '';
 
-        if (event.booked) {
-            // Make booked events completely transparent and unclickable
-            style = {
-                backgroundColor: 'transparent',
-                border: 'none',
-                pointerEvents: 'none',
-                color: 'transparent',
-            };
+        if (event.booked && event.mine) {
+            className = styles['user-booking'];
+        } else if (event.booked) {
+            className = styles['booked-event'];
         } else if (event.available) {
-            // Available events, shown as green and clickable
-            style = {
-                backgroundColor: 'green',
-                cursor: 'pointer',
-                border: 'none',
-                fontSize: 10,
-            };
+            className = styles['available-event'];
+        } else {
+            className = styles['unavailable-event'];
         }
 
-        return { style };
+        return { className };
     };
-
-
 
     return (
         <Container>
@@ -282,8 +283,8 @@ const Bookings = () => {
 
                             // Add new selected time
                             const newEvent = {
-                                //start: selectedStartTime,
-                                //end: selectedEndTime,
+                                start: selectedStartTime,
+                                end: selectedEndTime,
                                 title: "Selected Time",
                                 available: true,
                             };
@@ -295,17 +296,36 @@ const Bookings = () => {
                             setSelectedTime({ start: selectedStartTime, end: selectedEndTime });
                         }}
 
-                        onSelectEvent={(event) => {
-                            if (event.booked) {
-                                // Prevent clicking on booked events by showing a warning
+                        onSelectEvent={async (event) => {
+                            if (event.booked && !event.mine) {
                                 alert("This time is already booked!");
-                                return;  // Prevent interaction with booked events
+                                return;
+                            } else if (event.mine) {
+                                // Needed to capture booking services for event selection.
+                                // eslint-disable-next-line no-unused-vars
+                                const selectedServices = event.services || [];
+
+                                // Check if event has an id to get details 
+                                if (!event.id) {
+                                    console.error("No booking ID found for this event.");
+                                    return; // Abort if missing id
+                                }
+
+                                try {
+                                    // Get full booking details
+                                    const response = await axiosReq.get(`/bookings/${event.id}/`);
+                                    const bookingData = response.data;
+
+                                    // Set booking and add services from backend
+                                    setSelectedBooking({ ...event, services: bookingData.services });
+                                } catch (error) {
+                                    console.error("Error fetching booking details:", error);
+                                }
+
                             } else if (event.available && event.title === "Selected Time") {
-                                // Un-select time if already selected
                                 setAllEvents(allEvents.filter(ev => ev !== event));
                                 setSelectedTime(null);
                             } else if (event.available && totalWorktime > 0) {
-                                // Select a new time
                                 const startTime = event.start;
                                 const endTime = new Date(startTime.getTime() + totalWorktime * 60000);
                                 const selectedRange = {
@@ -315,15 +335,47 @@ const Bookings = () => {
                                     available: true,
                                 };
 
-
                                 setSelectedTime(selectedRange);
 
                                 const newEvents = [...allEvents.filter(ev => ev.title !== "Selected Time"), selectedRange];
                                 setAllEvents(newEvents);
                             }
                         }}
-
                     />
+                    {selectedBooking && (
+                        <Modal show={true} onHide={() => setSelectedBooking(null)}>
+                            <Modal.Header closeButton>
+                                <Modal.Title>Booking Details</Modal.Title>
+                            </Modal.Header>
+                            <Modal.Body>
+                                <p><strong>Date:</strong> {new Date(selectedBooking.start).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                                <p><strong>Total Duration:</strong> {calculateBookingDuration(selectedBooking.start, selectedBooking.end)}</p>
+
+                                <p><strong>Services:</strong></p>
+                                <ul>
+                                    {selectedBooking.services && selectedBooking.services.length > 0 ? (
+                                        selectedBooking.services.map((service) => (
+                                            <li key={service.id}>
+                                                {service.name}
+                                            </li>
+                                        ))
+                                    ) : (
+                                        <li>No services booked.</li>
+                                    )}
+                                </ul>
+
+                                {/* Show total price */}
+                                {selectedBooking.services && selectedBooking.services.length > 0 && (
+                                    <p><strong>Price from</strong> {calculateTotalPrice(selectedBooking.services)} Euro</p>
+                                )}
+                            </Modal.Body>
+                            <Modal.Footer>
+                                <Button variant="secondary" onClick={() => setSelectedBooking(null)}>
+                                    Close
+                                </Button>
+                            </Modal.Footer>
+                        </Modal>
+                    )}
                 </Col>
             </Row>
         </Container>
