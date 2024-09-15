@@ -21,3 +21,4 @@ This project is currently under development.
 <div align="center">
   <img src="frontend/src/assets/images/nc-logo-black.png" alt="Nordic Company" width="170">
 </div>
+
