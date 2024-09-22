@@ -3,6 +3,7 @@ from .models import Booking, Service, Availability
 from .serializers import BookingSerializer, ServiceSerializer, AvailabilitySerializer
 from rest_framework.response import Response
 from datetime import timedelta
+from django.db.models import Q
 
 
 # View to list available services
