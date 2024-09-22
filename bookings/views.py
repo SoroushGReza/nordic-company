@@ -1,8 +1,10 @@
 from rest_framework import generics, permissions
+from rest_framework.exceptions import ValidationError
 from .models import Booking, Service, Availability
 from .serializers import BookingSerializer, ServiceSerializer, AvailabilitySerializer
 from rest_framework.response import Response
 from datetime import timedelta
+from django.db.models import Q
 
 
 # View to list available services
@@ -18,43 +20,52 @@ class BookingCreateView(generics.CreateAPIView):
     serializer_class = BookingSerializer
     permission_classes = [permissions.IsAuthenticated]
 
+    def perform_create(self, serializer):
+        services = serializer.validated_data["services"]
+        total_worktime = sum([service.worktime for service in services], timedelta())
 
-def perform_create(self, serializer):
-    services = serializer.validated_data["services"]
+        booking_time = serializer.validated_data["date_time"]
+        end_time = booking_time + total_worktime
 
-    # Initiate total_worktime as timedelta
-    total_worktime = timedelta()
-
-    for service in services:
-        total_worktime += timedelta(hours=service.worktime)
-
-    # Control availability based on total_worktime
-    booking_time = serializer.validated_data["date_time"]
-    available_slots = Availability.objects.filter(
-        date=booking_time.date(), is_available=True
-    )
-
-    is_slot_available = False
-    for slot in available_slots:
-        start_time_delta = timedelta(
-            hours=slot.start_time.hour, minutes=slot.start_time.minute
-        )
-        end_time_delta = timedelta(
-            hours=slot.end_time.hour, minutes=slot.end_time.minute
+        # Check against the availability slots
+        available_slots = Availability.objects.filter(
+            date=booking_time.date(), is_available=True
         )
 
-        # Check if time is enough for the booking
-        if end_time_delta - start_time_delta >= total_worktime:
-            is_slot_available = True
-            break
+        is_slot_available = False
+        for slot in available_slots:
+            start_time_delta = timedelta(
+                hours=slot.start_time.hour, minutes=slot.start_time.minute
+            )
+            end_time_delta = timedelta(
+                hours=slot.end_time.hour, minutes=slot.end_time.minute
+            )
 
-    if not is_slot_available:
-        return Response(
-            {"error": "No available slot for the selected services"}, status=400
+            if end_time_delta - start_time_delta >= total_worktime:
+                is_slot_available = True
+                break
+
+        if not is_slot_available:
+            raise ValidationError(
+                {"error": "No available slot for the selected services"}
+            )
+
+        # Check for overlaps with existing bookings
+        overlapping_bookings = (
+            Booking.objects.filter(
+                Q(date_time__lt=end_time) & Q(date_time__gte=booking_time)
+            )
+            .filter(services__in=services)
+            .exists()
         )
 
-    # Save booking if its a available time
-    serializer.save(user=self.request.user)
+        if overlapping_bookings:
+            raise ValidationError(
+                {"error": "This booking overlaps with an existing one."}
+            )
+
+        # Save booking
+        serializer.save(user=self.request.user)
 
 
 # View to list user bookings
