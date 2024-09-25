@@ -11,3 +11,4 @@ env.py
 cloudinary_python.txt
 staticfiles/
 .vs/
+venv/
