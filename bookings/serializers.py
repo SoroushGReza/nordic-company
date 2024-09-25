@@ -2,6 +2,7 @@ from rest_framework import serializers
 from .models import Booking, Service, Availability
 from django.utils import timezone
 from datetime import timedelta
+import pytz
 
 
 # Serializer for Service with added price and worktime fields
@@ -26,7 +27,7 @@ class BookingSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         services = data.get("services", [])
-        start_time = data.get("date_time")
+        start_time = data.get("date_time").astimezone(pytz.timezone("Europe/Dublin"))
         total_duration = sum([service.worktime for service in services], timedelta())
 
         if start_time < timezone.now():

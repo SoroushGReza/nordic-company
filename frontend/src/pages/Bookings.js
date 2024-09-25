@@ -261,20 +261,20 @@ const Bookings = () => {
                         selectable={true}
                         eventPropGetter={eventPropGetter}  // Set colour and cursor for events
                         onSelectSlot={(slotInfo) => {
-                            const selectedStartTime = slotInfo.start;
-                            const selectedEndTime = new Date(selectedStartTime.getTime() + totalWorktime * 60000);  // Calculate the end time based on total worktime
+                            // Convert to Dublin timezone
+                            const adjustedStartTime = new Date(slotInfo.start.toLocaleString("en-IE", { timeZone: "Europe/Dublin" }));
+                            const adjustedEndTime = new Date(adjustedStartTime.getTime() + totalWorktime * 60000); // Calculate based on total worktime
 
                             // Prevent selecting any slot that overlaps with booked time slots
                             const isOverlappingBooked = allEvents.some(event =>
                                 event.booked && (
-                                    (selectedStartTime >= event.start && selectedStartTime < event.end) ||  // Selected start overlaps with a booked slot
-                                    (selectedEndTime > event.start && selectedEndTime <= event.end) ||      // Selected end overlaps with a booked slot
-                                    (selectedStartTime <= event.start && selectedEndTime >= event.end)      // Selected time covers an entire booked slot
+                                    (adjustedStartTime >= event.start && adjustedStartTime < event.end) ||  // Adjusted start overlaps
+                                    (adjustedEndTime > event.start && adjustedEndTime <= event.end) ||      // Adjusted end overlaps
+                                    (adjustedStartTime <= event.start && adjustedEndTime >= event.end)      // Adjusted time covers an entire booked slot
                                 )
                             );
 
                             if (isOverlappingBooked) {
-                                // Alert should not even trigger because interaction is prevented, but adding just in case.
                                 return;  // Prevent further action if it overlaps
                             }
 
@@ -283,8 +283,8 @@ const Bookings = () => {
 
                             // Add new selected time
                             const newEvent = {
-                                start: selectedStartTime,
-                                end: selectedEndTime,
+                                start: adjustedStartTime,
+                                end: adjustedEndTime,
                                 title: "Selected Time",
                                 available: true,
                             };
@@ -293,8 +293,9 @@ const Bookings = () => {
 
                             // Update state with new time and events
                             setAllEvents(updatedEvents);
-                            setSelectedTime({ start: selectedStartTime, end: selectedEndTime });
+                            setSelectedTime({ start: adjustedStartTime, end: adjustedEndTime });
                         }}
+
 
                         onSelectEvent={async (event) => {
                             if (event.booked && !event.mine) {

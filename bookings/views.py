@@ -4,6 +4,8 @@ from .serializers import BookingSerializer, ServiceSerializer, AvailabilitySeria
 from rest_framework.response import Response
 from datetime import timedelta
 from django.db.models import Q
+from django.utils.timezone import make_aware
+import pytz
 
 
 # View to list available services
@@ -29,7 +31,9 @@ class BookingCreateView(generics.CreateAPIView):
             total_worktime += service.worktime
 
         # Control availability based on total_worktime
-        booking_time = serializer.validated_data["date_time"]
+        booking_time = serializer.validated_data["date_time"].astimezone(
+            pytz.timezone("Europe/Dublin")
+        )
         available_slots = Availability.objects.filter(
             date=booking_time.date(), is_available=True
         )
