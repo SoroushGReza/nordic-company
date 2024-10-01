@@ -60,6 +60,7 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
+    "DATETIME_FORMAT": None,
 }
 
 
@@ -174,7 +175,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = "Europe/Dublin"
+TIME_ZONE = "Europe/Istanbul"  # During development
 
 USE_I18N = True
 

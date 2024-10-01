@@ -23,7 +23,7 @@ class BookingAdmin(admin.ModelAdmin):
     list_display = [
         "user",
         "date_time",
-        "end_time",  # Add end_time to the list
+        "end_time",
         "created_at",
         "get_services",  # Display services
     ]
@@ -32,9 +32,7 @@ class BookingAdmin(admin.ModelAdmin):
 
     # Calculate and display the end time for each booking
     def end_time(self, obj):
-        return (
-            obj.calculate_end_time()
-        )
+        return obj.calculate_end_time()
 
     end_time.short_description = "End Time"
 
@@ -53,6 +51,6 @@ class AvailabilityAdmin(admin.ModelAdmin):
         "start_time",
         "end_time",
         "is_available",
-    ]  # Display availability information
+    ]
     list_filter = ["date", "is_available"]
-    search_fields = ["date"]  # Search by date
+    search_fields = ["date"]

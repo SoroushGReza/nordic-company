@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { Container, Row, Col, Button, Form, Alert, Modal } from "react-bootstrap";
 import { Calendar, dateFnsLocalizer } from "react-big-calendar";
-import format from "date-fns/format";
+import { format } from "date-fns-tz";
 import parse from "date-fns/parse";
 import startOfWeek from "date-fns/startOfWeek";
 import getDay from "date-fns/getDay";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { axiosReq } from "../api/axiosDefaults";
 import styles from "../styles/Bookings.module.css";
+import { parseISO } from "date-fns";
 
 const locales = {
     "en-IE": require("date-fns/locale/en-IE"),
@@ -63,8 +64,8 @@ const Bookings = () => {
                     }
 
                     return {
-                        start: new Date(booking.date_time),
-                        end: new Date(booking.end_time),
+                        start: parseISO(booking.date_time),
+                        end: parseISO(booking.end_time),
                         title: "Booked (Unavailable)",
                         available: false,
                         booked: true,
@@ -80,8 +81,8 @@ const Bookings = () => {
                     }
 
                     return {
-                        start: new Date(booking.date_time),
-                        end: new Date(booking.end_time),
+                        start: parseISO(booking.date_time),
+                        end: parseISO(booking.end_time),
                         title: "My Booking",
                         available: true,
                         booked: true,
@@ -93,8 +94,13 @@ const Bookings = () => {
 
                 // Filter available times and remove those that overlap bookings
                 const availableEvents = availability.flatMap((availability) => {
-                    const start = new Date(availability.date + 'T' + availability.start_time);
-                    const end = new Date(availability.date + 'T' + availability.end_time);
+                    const [year, month, day] = availability.date.split('-').map(Number);
+                    const [startHour, startMinute, startSecond] = availability.start_time.split(':').map(Number);
+                    const [endHour, endMinute, endSecond] = availability.end_time.split(':').map(Number);
+
+                    const start = new Date(year, month - 1, day, startHour, startMinute, startSecond);
+                    const end = new Date(year, month - 1, day, endHour, endMinute, endSecond);
+
 
                     const events = [];
                     let current = start;
@@ -115,7 +121,7 @@ const Bookings = () => {
                             );
                         });
 
-                        // Only add available times that dest not overlap with bookings
+                        // Only add available times that does not overlap with bookings
                         if (!isOverlapping) {
                             events.push({
                                 start: eventStart,
@@ -140,9 +146,6 @@ const Bookings = () => {
         };
         fetchTimes();
     }, []);
-
-
-
 
     // Function to convert "HH:MM:SS" to minutes
     const parseWorktimeToMinutes = (worktime) => {
@@ -177,20 +180,20 @@ const Bookings = () => {
             alert("Please select a time and at least one service.");
             return;
         }
-
         // Chech that worktime is bigger than 0
         if (totalWorktime === 0) {
             alert("Total worktime is 0. Please select services correctly.");
             return;
         }
-
         try {
+            const dateTimeString = format(
+                selectedTime.start,
+                "yyyy-MM-dd'T'HH:mm:ssXXX"
+            );
             const bookingData = {
                 service_ids: selectedServices,
-                date_time: selectedTime.start.toISOString(),
-                end_time: selectedTime.end.toISOString(),
+                date_time: dateTimeString,
             };
-
             await axiosReq.post("/bookings/", bookingData);
             setBookingSuccess(true);
         } catch (err) {
@@ -198,8 +201,7 @@ const Bookings = () => {
         }
     };
 
-
-    // Function to show different colours for different events in the calendar
+    // Show different colours for different events in the calendar
     const eventPropGetter = (event) => {
         let className = '';
 
@@ -245,7 +247,6 @@ const Bookings = () => {
                         {isSubmitting ? "Booking..." : "Book Services"}
                     </Button>
 
-
                     <h2 className="mt-4">Choose Date / Time</h2>
 
                     <Calendar
@@ -262,8 +263,10 @@ const Bookings = () => {
                         eventPropGetter={eventPropGetter}  // Set colour and cursor for events
                         onSelectSlot={(slotInfo) => {
                             const selectedStartTime = slotInfo.start;
-                            const selectedEndTime = new Date(selectedStartTime.getTime() + totalWorktime * 60000);  // Calculate the end time based on total worktime
 
+                            const selectedEndTime = new Date(
+                                selectedStartTime.getTime() + totalWorktime * 60000
+                            );
                             // Prevent selecting any slot that overlaps with booked time slots
                             const isOverlappingBooked = allEvents.some(event =>
                                 event.booked && (

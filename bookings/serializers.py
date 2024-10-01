@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import Booking, Service, Availability
 from django.utils import timezone
+from django.utils.timezone import localtime
 from datetime import timedelta
 
 
@@ -11,7 +12,6 @@ class ServiceSerializer(serializers.ModelSerializer):
         fields = ["id", "name", "worktime", "price"]
 
 
-# Serializer for Booking to handle multiple services
 # Serializer for Booking to handle multiple services
 class BookingSerializer(serializers.ModelSerializer):
     services = ServiceSerializer(many=True, read_only=True)  # Return list of services
@@ -34,16 +34,20 @@ class BookingSerializer(serializers.ModelSerializer):
 
         end_time = start_time + total_duration
 
-        # Check if the requested booking time is within the available time slots
+        # Convert start_time and end_time to naive local time
+        local_start_time = localtime(start_time).replace(tzinfo=None)
+        local_end_time = localtime(end_time).replace(tzinfo=None)
+
+        # Check if desired time is available
         if not Availability.objects.filter(
-            date=start_time.date(),
-            start_time__lte=start_time.time(),
-            end_time__gte=(start_time + total_duration).time(),
+            date=local_start_time.date(),
+            start_time__lte=local_start_time.time(),
+            end_time__gte=local_end_time.time(),
             is_available=True,
         ).exists():
             raise serializers.ValidationError("The selected time slot is unavailable.")
 
-        # Check for overlapping bookings
+        # Check for overlaped bookings
         overlapping_bookings = Booking.objects.filter(
             date_time__lt=end_time, date_time__gte=start_time
         ).exists()
