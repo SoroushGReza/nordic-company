@@ -252,7 +252,6 @@ const Bookings = () => {
                 setTimezoneMessage("Please note that all bookings are made in Irish time (GMT+1).");
             }
         };
-
         checkTimezone();
     }, []);
 
@@ -282,6 +281,22 @@ const Bookings = () => {
     };
 
     const [isSubmitting] = useState(false);
+    const [bookingError, setBookingError] = useState("");
+    const [showAlert, setShowAlert] = useState(false);
+
+    useEffect(() => {
+        if (bookingError) {
+            setShowAlert(true); // Show the alert
+
+            // Automatically close the alert after 5 seconds
+            const timer = setTimeout(() => {
+                setShowAlert(false);
+            }, 5000);
+
+            // Cleanup the timer when the component unmounts or when bookingError changes
+            return () => clearTimeout(timer);
+        }
+    }, [bookingError]);
 
     const handleBookingSubmit = async () => {
         if (!selectedTime || selectedServices.length === 0) {
@@ -306,6 +321,7 @@ const Bookings = () => {
             setBookingSuccess(true);
         } catch (err) {
             console.error("Error creating booking:", err.response ? err.response.data : err.message);
+            setBookingError(err.response?.data?.detail || "You can only book within the available time-slots.");
         }
     };
 
@@ -337,7 +353,28 @@ const Bookings = () => {
                 <Row className="justify-content-center">
                     <Col md={12}>
                         <h2 className={`${styles["choose-services-heading"]}`}>Choose Services</h2>
-                        {bookingSuccess && <Alert variant="success">Booking Successful!</Alert>}
+
+                        {bookingSuccess && (
+                            <Alert
+                                variant="success"
+                                onClose={() => setShowAlert(false)}
+                                dismissible
+                                className={`position-fixed top-0 start-50 translate-middle-x ${styles["custom-success-alert"]}`}
+                            >
+                                <p>Booking Successful!</p>
+                            </Alert>
+                        )}
+
+                        {showAlert && (
+                            <Alert
+                                variant="danger"
+                                onClose={() => setShowAlert(false)}
+                                dismissible
+                                className={`position-fixed top-0 start-50 translate-middle-x ${styles["booking-fail-alert"]}`}
+                            >
+                                <p>{bookingError}</p>
+                            </Alert>
+                        )}
 
                         <Form className={`${styles["services-to-choose"]} ${styles["booking-form"]}`}>
                             {services.map((service) => {
@@ -392,6 +429,24 @@ const Bookings = () => {
                                             const selectedEndTime = new Date(
                                                 selectedStartTime.getTime() + totalWorktime * 60000
                                             );
+
+                                            // New Code Start
+                                            // Find the latest available time (end time) from the available events
+                                            const availableEndTimes = allEvents
+                                                .filter(event => event.available)
+                                                .map(event => event.end);
+
+                                            // Get the latest available time
+                                            const latestAvailableTime = availableEndTimes.length
+                                                ? new Date(Math.max(...availableEndTimes.map(time => new Date(time))))
+                                                : null;
+
+                                            // Check if the selected end time exceeds the latest available time
+                                            if (latestAvailableTime && selectedEndTime > latestAvailableTime) {
+                                                alert("The selected time exceeds the available time slots. Please choose an earlier time.");
+                                                return;  // Stop further actions
+                                            }
+                                            // New Code End
                                             // Prevent selecting any slot that overlaps with booked time slots
                                             const isOverlappingBooked = allEvents.some(event =>
                                                 event.booked && (
@@ -428,7 +483,7 @@ const Bookings = () => {
                                                 alert("This time is already booked!");
                                                 return;
                                             } else if (event.mine) {
-                                                // Needed to capture booking services for event selection.
+                                                // Capture booking services for event selection.
                                                 // eslint-disable-next-line no-unused-vars
                                                 const selectedServices = event.services || [];
 

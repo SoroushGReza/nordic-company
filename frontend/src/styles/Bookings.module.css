@@ -67,6 +67,60 @@ Form.booking-form {
     background-color: lightgray !important;
 }
 
+
+/* ---------- ALERTS ---------- */
+
+/* Booking Successfull Alert */
+.custom-success-alert {
+    width: 40%;
+    min-height: 50px;
+    padding: 7px;
+    z-index: 9999;
+    margin-top: 20px;
+    text-align: center;
+}
+
+.custom-success-alert p {
+    font-family: Hero-regular;
+    margin: 0;
+    font-weight: bold;
+    color: rgb(49, 49, 49);
+}
+
+/* Booking Fail Alert */
+.booking-fail-alert {
+    width: 50%;
+    min-height: 50px;
+    padding: 7px;
+    z-index: 9999;
+    margin-top: 20px;
+    text-align: center;
+}
+
+.booking-fail-alert p {
+    font-family: Hero-regular;
+    margin: 0;
+    font-weight: bold;
+    color: rgb(49, 49, 49);
+}
+
+/* Alert Media Queries */
+@media (max-width: 934px) {
+
+    .custom-success-alert p,
+    .booking-fail-alert p {
+        font-size: 0.7rem;
+    }
+}
+
+@media (max-width: 700px) {
+
+    .custom-success-alert p,
+    .booking-fail-alert p {
+        font-size: 0.5rem;
+    }
+}
+
 /* Timezone alert */
 .alert-custom {
     margin-top: 20px;
@@ -206,9 +260,6 @@ button.book-services-btn:hover {
 :global(.rbc-time-view) {
     border: none !important;
 }
-
-
-
 
 /* Hidden Elements */
 
