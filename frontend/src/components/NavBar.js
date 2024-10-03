@@ -11,7 +11,7 @@ function NavBar() {
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
 
-    // Kontrollera om användaren är inloggad
+    // Kontrollera om anvï¿½ndaren ï¿½r inloggad
     const isAuthenticated = () => {
         const token = localStorage.getItem("access");
         return token !== null;
@@ -21,7 +21,7 @@ function NavBar() {
     const handleLogout = () => {
         localStorage.removeItem("access");
         localStorage.removeItem("refresh");
-        window.location.reload(); // Ladda om sidan för att tillämpa ändringarna
+        window.location.reload(); // Ladda om sidan fï¿½r att tillï¿½mpa ï¿½ndringarna
     };
 
     return (
@@ -60,7 +60,7 @@ function NavBar() {
                                     to={isAuthenticated() ? "/bookings" : "/login"}
                                     className={styles.navLink}
                                 >
-                                    Appointment
+                                    Booking
                                 </Nav.Link>
                                 {/*Commented out to add for future development*/}
                                 {/*<Nav.Link as={Link} to="/shop" className={styles.navLink}>*/}
@@ -93,7 +93,7 @@ function NavBar() {
                                     </>
                                 )}
 
-                                {/* Visa Login/Register eller Logout beroende på inloggningsstatus */}
+                                {/* Visa Login/Register eller Logout beroende pï¿½ inloggningsstatus */}
                                 {!isAuthenticated() ? (
                                     <>
                                         <Nav.Link as={Link} to="/login" className={styles.navLink}>
@@ -203,7 +203,7 @@ function NavBar() {
                                     </>
                                 )}
 
-                                {/* Visa Login/Register eller Logout beroende på inloggningsstatus */}
+                                {/* Visa Login/Register eller Logout beroende pï¿½ inloggningsstatus */}
                                 {!isAuthenticated() ? (
                                     <>
                                         <Nav.Link as={Link} to="/login" className={styles.burgerNavLink} onClick={handleClose}>
