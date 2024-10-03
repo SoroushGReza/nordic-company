@@ -2,6 +2,31 @@
     padding-bottom: 90px;
 }
 
+/* Info List */
+.booking-info-list {
+    list-style: none;
+    padding-left: 0;
+}
+
+/* Info Alert */
+.booking-info-alert {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+    padding: 20px;
+    border-radius: 5px;
+}
+
+/* Booking info Button */
+.booking-info-button {
+    margin-bottom: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    color: rgb(40, 40, 40);
+}
+
+.booking-info-button:hover {
+    color: rgb(0, 0, 0);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+}
+
 Form.booking-form {
     background-color: rgb(157, 157, 114);
     padding: 10px;
@@ -52,6 +77,29 @@ Form.booking-form {
     max-width: fit-content;
     max-height: 40px;
     line-height: 8px;
+}
+
+@media only screen and (max-width: 768px) {
+    .alert-custom {
+        font-size: 0.6rem;
+        padding: 5px;
+        line-height: 10px;
+    }
+}
+
+@media only screen and (max-width: 477px) {
+    .alert-custom {
+        font-size: 0.5rem;
+        padding: 5px;
+    }
+}
+
+@media only screen and (max-width: 406px) {
+    .alert-custom {
+        font-size: 0.4rem;
+        padding: 5px;
+        line-height: 5px;
+    }
 }
 
 /* Choose Services Heading */
@@ -220,4 +268,3 @@ button.book-services-btn:hover {
     text-align: center;
     line-height: 2.5;
 }
-

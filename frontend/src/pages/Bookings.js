@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { Container, Row, Col, Button, Form, Alert, Modal } from "react-bootstrap";
+import React, { useState, useEffect, useRef } from "react";
+import { Container, Row, Col, Button, Form, Alert, Modal, Collapse } from "react-bootstrap";
 import { Calendar, dateFnsLocalizer } from "react-big-calendar";
 import { format } from "date-fns-tz";
 import parse from "date-fns/parse";
@@ -24,6 +24,61 @@ const localizer = dateFnsLocalizer({
     locales,
 });
 
+// Booking Instructions
+function BookingInfoDropdown() {
+    const [open, setOpen] = useState(false);
+    const infoRef = useRef(null);
+
+    // Detect click outside of dropdown to close it
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (infoRef.current && !infoRef.current.contains(event.target)) {
+                setOpen(false); // Close dropdown
+            }
+        };
+
+        if (open) {
+            document.addEventListener('mousedown', handleClickOutside);
+        } else {
+            document.removeEventListener('mousedown', handleClickOutside);
+        }
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [open]);
+
+    return (
+        <>
+            {!open && (
+                <Button
+                    onClick={() => setOpen(!open)}
+                    aria-controls="booking-info"
+                    aria-expanded={open}
+                    variant="info"
+                    className={`mt-5 ${styles["booking-info-button"]}`}
+                >
+                    Show booking instructions
+                </Button>
+            )}
+
+            <Collapse in={open}>
+                <div id="booking-info" className="mt-3" ref={infoRef}>
+                    <Alert variant="info" className={styles["booking-info-alert"]}>
+                        <strong>How to book:</strong>
+                        <ul className={styles["booking-info-list"]}>
+                            <li>1. Select one or more services by checking the boxes.</li>
+                            <li>2. Scroll down to the calendar and choose an available time slot.</li>
+                            <li>3. Once both steps are completed, click "Book Services" to finalize your booking.</li>
+                        </ul>
+                    </Alert>
+                </div>
+            </Collapse>
+        </>
+    );
+}
+
+// Show Date and day / Date based on screen size
 const CustomHeader = ({ date }) => {
     const isMobile = useMediaQuery({ query: '(max-width: 992px)' });
     const day = getDay(date);
@@ -46,7 +101,7 @@ const CustomHeader = ({ date }) => {
     );
 };
 
-
+// Calculate Duration of a bookings 
 const calculateBookingDuration = (start, end) => {
     const diffInMs = new Date(end) - new Date(start);  // Calculate difference in mili-seconds
     const totalMinutes = Math.floor(diffInMs / (1000 * 60));  // Convert to minutes
@@ -56,11 +111,13 @@ const calculateBookingDuration = (start, end) => {
     return `${hours}h ${minutes > 0 ? `${minutes}min` : ''}`;  // Return "5h 30min" etc.
 };
 
+// Convert Worktime to Readable Format 
 const convertWorktimeToReadableFormat = (worktime) => {
     const [hours, minutes] = worktime.split(':').map(Number);
     return `${hours > 0 ? `${hours}h` : ''} ${minutes > 0 ? `${minutes} minutes` : ''}`.trim();
 }
 
+// Calculate total price for chosen services
 const calculateTotalPrice = (services) => {
     return services.reduce((total, service) => total + parseFloat(service.price), 0);
 };
@@ -196,7 +253,6 @@ const Bookings = () => {
             }
         };
 
-
         checkTimezone();
     }, []);
 
@@ -206,7 +262,6 @@ const Bookings = () => {
         const totalMinutes = (hours * 60) + minutes + (seconds / 60);  // Convert to minutes
         return totalMinutes;
     };
-
 
     const handleServiceChange = (serviceId) => {
         let updatedSelectedServices;
@@ -275,6 +330,11 @@ const Bookings = () => {
         <div className={styles["page-container"]}>
             <Container>
                 <Row className="justify-content-center">
+                    <Col className="d-flex justify-content-center">
+                        <BookingInfoDropdown />
+                    </Col>
+                </Row>
+                <Row className="justify-content-center">
                     <Col md={12}>
                         <h2 className={`${styles["choose-services-heading"]}`}>Choose Services</h2>
                         {bookingSuccess && <Alert variant="success">Booking Successful!</Alert>}
@@ -305,7 +365,6 @@ const Bookings = () => {
                                 )}
                             </Col>
                         </Row>
-
 
                         <Row className="justify-content-center">
                             <Col xs={12} md={12} className="px-0">
