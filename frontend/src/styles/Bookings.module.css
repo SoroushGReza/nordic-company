@@ -1,3 +1,17 @@
+.page-container {
+    padding-bottom: 90px;
+}
+
+Form.booking-form {
+    background-color: rgb(157, 157, 114);
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid rgb(157, 157, 114);
+    margin-bottom: 40px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+}
+
+/* User's own bookings */
 .user-booking {
     background-color: navy !important;
     color: white !important;
@@ -7,6 +21,7 @@
     font-size: 10px !important;
 }
 
+/* Other users bookings */
 .booked-event {
     background-color: transparent !important;
     border: none !important;
@@ -14,6 +29,7 @@
     color: transparent !important;
 }
 
+/* Available times */
 .available-event {
     background-color: green !important;
     cursor: pointer !important;
@@ -21,6 +37,187 @@
     font-size: 10px !important;
 }
 
+/* Unavailable times */
 .unavailable-event {
     background-color: lightgray !important;
 }
+
+/* Timezone alert */
+.alert-custom {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    font-size: 15px;
+    font-family: hero-regular;
+    text-align: center;
+    max-width: fit-content;
+    max-height: 40px;
+    line-height: 8px;
+}
+
+/* Choose Services Heading */
+.choose-services-heading {
+    font-family: hero-regular;
+    font-size: 40px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+/* Choosing Services */
+.services-to-choose {
+    font-size: 17px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    color: rgb(255, 255, 255);
+}
+
+/* Custom checkbox */
+.service-checkbox input[type="checkbox"] {
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border: 2px solid #606060;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Checked */
+.service-checkbox input[type="checkbox"]:checked {
+    background-color: #313232;
+    border-color: #3b3b3b;
+}
+
+/* Choose Date/Time Heading */
+.choose-date-time-heading {
+    font-family: hero-regular;
+    font-size: 40px;
+    margin-bottom: 0;
+    text-align: center;
+}
+
+
+/* ----- Book Services Button ----- */
+
+/* Styles for the disabled state */
+button.book-services-btn:disabled {
+    background-color: #003b08;
+    color: rgb(188, 188, 188);
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+/* Styles for the active state */
+button.book-services-btn {
+    background-color: #187800;
+    color: rgb(255, 255, 255);
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-bottom: 35px;
+    display: inline-block;
+
+}
+
+button.book-services-btn:hover {
+    background-color: #006b0e;
+    color: rgb(227, 227, 227);
+}
+
+.sticky-button {
+    position: fixed;
+    bottom: -20px;
+    left: 0;
+    width: 100%;
+    padding: 10px 0;
+    text-align: center;
+    z-index: 1000;
+}
+
+/* ----- Calendar Component ----- */
+
+.calendar-container {
+    width: 100%;
+    height: auto;
+    border: none;
+    border-radius: 4px;
+}
+
+.custom-calendar {
+    width: 100%;
+    max-width: 100%;
+    background-color: white;
+    border-radius: 4px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+    border: none;
+}
+
+/* Remove border (Calendar) */
+:global(.rbc-time-view) {
+    border: none !important;
+}
+
+
+
+
+/* Hidden Elements */
+
+:global(.rbc-day-bg) {
+    display: none !important;
+}
+
+:global(.rbc-row-bg) {
+    display: none !important;
+}
+
+:global(.rbc-allday-cell) {
+    display: none !important;
+}
+
+
+/* ABOW TIME - Header Gutter Background */
+:global(.rbc-label.rbc-time-header-gutter) {
+    background-image: url('../assets/images/2.gif');
+    background-size: cover;
+    background-color: rgb(46, 46, 46);
+}
+
+/* Dates Background */
+:global(.rbc-header) {
+    background-color: #bcc0b65c;
+}
+
+/* Month */
+:global(.rbc-toolbar-label) {
+    font-family: 'Hero-Regular', sans-serif;
+    font-size: medium;
+}
+
+/* Dates text */
+
+/* Weekends (Saturday, Sunday) */
+.weekend-header span[role="columnheader"] {
+    font-size: 15px;
+    font-family: 'Sixtyfour Convergence';
+    text-align: center;
+    line-height: 1.9;
+}
+
+/* Weekday (Monday - Friday) */
+.weekday-header span[role="columnheader"] {
+    color: rgb(53, 53, 53);
+    font-size: 18px;
+    font-family: 'Poppins';
+    line-height: 1.5;
+    letter-spacing: 1px;
+}
+
+/* Time */
+:global(.rbc-label) {
+    font-family: 'Hero-Regular', sans-serif;
+    text-align: center;
+    line-height: 2.5;
+}
+
