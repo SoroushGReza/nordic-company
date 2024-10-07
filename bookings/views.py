@@ -1,21 +1,56 @@
 from rest_framework import generics, permissions, serializers
-from .models import Booking, Service, Availability
-from .serializers import BookingSerializer, ServiceSerializer, AvailabilitySerializer
 from rest_framework.response import Response
+from rest_framework.permissions import IsAdminUser
+from .models import Booking, Service, Availability
+from .serializers import (
+    BookingSerializer,
+    ServiceSerializer,
+    AvailabilitySerializer,
+    AdminAvailabilitySerializer,
+    AdminServiceSerializer,
+)
 from datetime import timedelta
 from django.db.models import Q
 from django.utils.timezone import localtime
 from datetime import datetime
 
 
-# View to list available services
+# (ADMIN) List all Services
+class AdminServiceListView(generics.ListAPIView):
+    queryset = Service.objects.all()
+    serializer_class = AdminServiceSerializer
+    permission_classes = [IsAdminUser]
+
+
+# (ADMIN) Create & List Services
+class AdminServiceListCreateView(generics.ListCreateAPIView):
+    queryset = Service.objects.all()
+    serializer_class = AdminServiceSerializer
+    permission_classes = [IsAdminUser]
+
+
+# (ADMIN) Update & Delete Service
+class AdminServiceUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Service.objects.all()
+    serializer_class = AdminServiceSerializer
+    permission_classes = [IsAdminUser]
+
+
+# (ADMIN) List ALL Availabilitys
+class AdminAvailabilityListView(generics.ListAPIView):
+    queryset = Availability.objects.all()
+    serializer_class = AdminAvailabilitySerializer
+    permission_classes = [IsAdminUser]
+
+
+# List Available Services (USER)
 class ServiceListView(generics.ListAPIView):
     queryset = Service.objects.all()
     serializer_class = ServiceSerializer
     permission_classes = [permissions.IsAuthenticated]
 
 
-# View to create a booking, now with multiple services
+# Create A Booking/wW Multiple Services (USER)
 class BookingCreateView(generics.CreateAPIView):
     queryset = Booking.objects.all()
     serializer_class = BookingSerializer
@@ -62,7 +97,7 @@ class BookingCreateView(generics.CreateAPIView):
         serializer.save(user=self.request.user)
 
 
-# View to list user bookings
+# List User Bookings (USER)
 class BookingListView(generics.ListAPIView):
     serializer_class = BookingSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -88,21 +123,21 @@ class BookingListView(generics.ListAPIView):
         return Response(user_data)
 
 
-# View to retrieve booking details
+# Retrieve Booking details (USER)
 class BookingDetailView(generics.RetrieveAPIView):
     queryset = Booking.objects.all()
     serializer_class = BookingSerializer
     permission_classes = [permissions.IsAuthenticated]
 
 
-# View to create and list availability slots
+# Create & List Availability Slots (USER)
 class AvailabilityListCreateView(generics.ListCreateAPIView):
     queryset = Availability.objects.all()
     serializer_class = AvailabilitySerializer
     permission_classes = [permissions.IsAuthenticated]
 
 
-# View to list all bookings without user details, excluding the current user's own bookings
+# List ALL Bookings w/o User Details, Excluding current user's own bookings (USER)
 class AllBookingsListView(generics.ListAPIView):
     serializer_class = BookingSerializer
     permission_classes = [permissions.IsAuthenticated]

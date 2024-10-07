@@ -1,14 +1,34 @@
 from django.urls import path
 from .views import (
+    AdminServiceUpdateDeleteView,
+    AdminAvailabilityListView,
     ServiceListView,
     BookingCreateView,
     BookingListView,
+    AllBookingsListView,
     BookingDetailView,
     AvailabilityListCreateView,
-    AllBookingsListView,
+    AdminServiceListCreateView,
 )
 
 urlpatterns = [
+    # Admin
+    path(
+        "admin/services/",
+        AdminServiceListCreateView.as_view(),
+        name="admin-service-list-create",
+    ),
+    path(
+        "admin/services/<int:pk>/",
+        AdminServiceUpdateDeleteView.as_view(),
+        name="admin-service-update-delete",
+    ),
+    path(
+        "admin/availability/",
+        AdminAvailabilityListView.as_view(),
+        name="admin-availability-list",
+    ),
+    # Public (User)
     path("services/", ServiceListView.as_view(), name="service-list"),
     path("bookings/", BookingCreateView.as_view(), name="booking-create"),
     path("bookings/mine/", BookingListView.as_view(), name="booking-list"),
