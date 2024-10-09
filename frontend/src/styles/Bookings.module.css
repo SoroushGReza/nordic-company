@@ -66,10 +66,10 @@ Form.booking-form {
 .selected-time {
     background-color: black !important;
     color: white !important;
-    width: 100% !important;  
-    left: 0 !important;      
-    z-index: 999;            
-    box-sizing: border-box;  
+    width: 100% !important;
+    left: 0 !important;
+    z-index: 999;
+    box-sizing: border-box;
     border: none;
 }
 
@@ -225,7 +225,7 @@ button.book-services-btn:disabled {
 
 /* Styles for the active state */
 button.book-services-btn {
-    background-color: #187800;
+    background-color: #197d00;
     color: rgb(255, 255, 255);
     padding: 10px 20px;
     border: none;
@@ -234,12 +234,20 @@ button.book-services-btn {
     transition: background-color 0.3s ease;
     margin-bottom: 35px;
     display: inline-block;
-
+    box-shadow: 0 0 15px rgba(30, 30, 30, 0.8),
+        0 0 30px rgba(49, 49, 49, 0.6),
+        0 0 45px rgba(99, 99, 99, 0.4),
+        0 0 60px rgba(0, 0, 0, 0.2);
 }
+
 
 button.book-services-btn:hover {
     background-color: #006b0e;
     color: rgb(227, 227, 227);
+    box-shadow: 0 0 15px rgba(153, 153, 153, 0.8),
+        0 0 30px rgba(159, 159, 159, 0.6),
+        0 0 45px rgba(99, 99, 99, 0.4),
+        0 0 60px rgba(0, 0, 0, 0.2);
 }
 
 .sticky-button {

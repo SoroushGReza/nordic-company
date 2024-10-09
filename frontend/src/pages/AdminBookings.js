@@ -11,6 +11,7 @@ import styles from "../styles/Bookings.module.css";
 import { parseISO } from "date-fns";
 import { useMediaQuery } from 'react-responsive';
 
+
 const locales = {
     "en-IE": require("date-fns/locale/en-IE"),
 };
@@ -100,15 +101,24 @@ const CustomHeader = ({ date }) => {
     );
 };
 
-// Calculate Duration of a bookings 
-const calculateBookingDuration = (start, end) => {
-    const diffInMs = new Date(end) - new Date(start);  // Calculate difference in milliseconds
-    const totalMinutes = Math.floor(diffInMs / (1000 * 60));  // Convert to minutes
-    const hours = Math.floor(totalMinutes / 60);
-    const minutes = totalMinutes % 60;
-
-    return `${hours}h ${minutes > 0 ? `${minutes}min` : ''}`;  // Return "5h 30min" etc.
+// Function to convert "HH:MM:SS" to minutes
+const parseWorktimeToMinutes = (worktime) => {
+    const [hours, minutes, seconds] = worktime.split(':').map(Number);
+    return hours * 60 + minutes + seconds / 60;
 };
+
+// Calculate total duration of selected services
+const calculateBookingDuration = (services) => {
+    const totalMinutes = services.reduce((total, service) => {
+        return total + parseWorktimeToMinutes(service.worktime);
+    }, 0);
+
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = Math.floor(totalMinutes % 60);
+
+    return `${hours}h ${minutes > 0 ? `${minutes}min` : ''}`.trim();
+};
+
 
 // Convert Worktime to Readable Format 
 const convertWorktimeToReadableFormat = (worktime) => {
@@ -128,15 +138,102 @@ const AdminBookings = () => {
     const [selectedTime, setSelectedTime] = useState(null);
     const [totalWorktime, setTotalWorktime] = useState(0); // Storing total worktime
     const [allEvents, setAllEvents] = useState([]);
-    const [selectedBooking, setSelectedBooking] = useState(null);
+    const [totalDuration, setTotalDuration] = useState('');
+    const [totalPrice, setTotalPrice] = useState(0);
     // eslint-disable-next-line no-unused-vars
     const [userTimezoneOffset, setUserTimezoneOffset] = useState(0);
     const [timezoneMessage, setTimezoneMessage] = useState("");
+    const [showBookingModal, setShowBookingModal] = useState(false);
+    const [currentBooking, setCurrentBooking] = useState(null);
+    const [users, setUsers] = useState([]);
+    const [modalSelectedServices, setModalSelectedServices] = useState([]);
+
+
+    // Open Modal
+    const openBookingModal = (booking = null) => {
+        setCurrentBooking(booking);
+        if (booking) {
+            // When editing, initialize with the services from the booking
+            setModalSelectedServices(booking.services.map(service => service.id));
+        } else {
+            // When adding, initialize with the currently selected services
+            setModalSelectedServices(selectedServices);
+        }
+        setShowBookingModal(true);
+    };
+
+
+    // Close Modal
+    const closeBookingModal = () => {
+        setCurrentBooking(null);
+        setShowBookingModal(false);
+    };
+
+    // Edit Booking
+    const handleBookingUpdate = async (bookingId, updatedData) => {
+        try {
+            await axiosReq.put(`/admin/bookings/${bookingId}/`, updatedData);
+            setAllEvents(
+                allEvents.map(event =>
+                    event.id === bookingId ? { ...event, ...updatedData } : event
+                )
+            );
+            closeBookingModal();
+        } catch (err) {
+            if (err.response) {
+                console.error("Error updating booking:", err.response.data);
+            } else {
+                console.error("Error updating booking:", err);
+            }
+        }
+    };
+
+    // Add Booking
+    const handleAddBooking = async (newBooking) => {
+        try {
+            const response = await axiosReq.post(`/admin/bookings/`, newBooking);
+            setAllEvents([...allEvents, {
+                start: parseISO(response.data.date_time),
+                end: parseISO(response.data.end_time),
+                title: "Booking",
+                booked: true,
+                available: false,
+                id: response.data.id
+            }]);
+            setBookingSuccess(true);
+            closeBookingModal();
+        } catch (err) {
+            console.error("Error adding booking:", err);
+            setBookingError("Could not add booking. Please try again.");
+        }
+    };
+
+    // Delete Booking
+    const handleDeleteBooking = async (bookingId) => {
+        try {
+            // Confirm before deleting
+            const confirmDelete = window.confirm("Are you sure you want to delete this booking?");
+            if (!confirmDelete) {
+                return; // Exit if the user cancels
+            }
+
+            await axiosReq.delete(`/admin/bookings/${bookingId}/`);
+
+            // Remove the deleted booking from the calendar events
+            setAllEvents(allEvents.filter((event) => event.id !== bookingId));
+
+            closeBookingModal();
+        } catch (err) {
+            console.error("Error deleting booking:", err);
+            setBookingError("Could not delete booking. Please try again.");
+        }
+    };
+
+
 
     useEffect(() => {
         const fetchTimes = async () => {
             try {
-                // Update API endpoints to admin variants
                 const { data: availability } = await axiosReq.get("/admin/availability/");
                 const { data: allBookings } = await axiosReq.get("/admin/bookings/");
                 const { data: servicesData } = await axiosReq.get("/admin/services/");
@@ -213,9 +310,6 @@ const AdminBookings = () => {
                             );
                         });
 
-                        console.log("Processed Booked Events:", bookedEvents);
-
-
                         // Only add available times that do not overlap with bookings
                         if (!isOverlapping) {
                             events.push({
@@ -256,14 +350,18 @@ const AdminBookings = () => {
             }
         };
         checkTimezone();
+
+        const fetchUsers = async () => {
+            try {
+                const usersRes = await axiosReq.get("/accounts/users/");
+                setUsers(usersRes.data);
+            } catch (err) {
+                console.error("Error fetching users:", err);
+            }
+        };
+        fetchUsers();
     }, []);
 
-    // Function to convert "HH:MM:SS" to minutes
-    const parseWorktimeToMinutes = (worktime) => {
-        const [hours, minutes, seconds] = worktime.split(':').map(Number);
-        const totalMinutes = (hours * 60) + minutes + (seconds / 60);
-        return totalMinutes;
-    };
 
     const handleServiceChange = (serviceId) => {
         let updatedSelectedServices;
@@ -301,42 +399,74 @@ const AdminBookings = () => {
         }
     }, [bookingError]);
 
-    const handleBookingSubmit = async () => {
-        if (!selectedTime || selectedServices.length === 0) {
-            alert("Please select a time and at least one service.");
-            return;
-        }
-        // Check that worktime is bigger than 0
-        if (totalWorktime === 0) {
-            alert("Total worktime is 0. Please select services correctly.");
-            return;
-        }
-        try {
-            const dateTimeString = format(
-                selectedTime.start,
-                "yyyy-MM-dd'T'HH:mm:ssXXX"
-            );
-            const bookingData = {
-                service_ids: selectedServices,
-                date_time: dateTimeString,
+    useEffect(() => {
+        const selectedServiceDetails = services.filter(service =>
+            modalSelectedServices.includes(service.id)
+        );
+
+        // Calculate total duration
+        const duration = calculateBookingDuration(selectedServiceDetails);
+        setTotalDuration(duration);
+
+        // Calculate total price
+        const price = calculateTotalPrice(selectedServiceDetails);
+        setTotalPrice(price);
+
+        // Update totalWorktime (in minutes)
+        const totalWorkMinutes = selectedServiceDetails.reduce((total, service) => {
+            return total + parseWorktimeToMinutes(service.worktime);
+        }, 0);
+        setTotalWorktime(totalWorkMinutes);
+
+    }, [modalSelectedServices, services]);
+
+    const handleBookingSubmit = (event) => {
+        event.preventDefault();
+        const form = event.target;
+
+        let bookingData = {};
+
+        if (currentBooking) {
+            // Editing an existing booking
+            let dateTimeValue = form.date_time.value;
+            if (dateTimeValue.length === 16) {
+                dateTimeValue += ":00";
+            }
+            bookingData = {
+                user: parseInt(form.user.value),
+                service_ids: Array.from(form.services.options)
+                    .filter((option) => option.selected)
+                    .map((option) => parseInt(option.value)),
+                date_time: dateTimeValue,
             };
-            await axiosReq.post("/admin/bookings/", bookingData);
-            setBookingSuccess(true);
-        } catch (err) {
-            console.error("Error creating booking:", err.response ? err.response.data : err.message);
-            setBookingError(err.response?.data?.detail || "You can only book within the available time-slots.");
-        }
+        } else {
+            // Adding a new booking
+            bookingData = {
+                user: parseInt(form.user.value),
+                service_ids: modalSelectedServices,
+                date_time: selectedTime.start.toISOString().slice(0, 19),
+            };
+
+
+            console.log('Booking Data:', bookingData);
+
+            if (currentBooking) {
+                handleBookingUpdate(currentBooking.id, bookingData);
+            } else {
+                handleAddBooking(bookingData);
+            }
+        };
     };
 
+
     // Show different colours for different events in the calendar
-    // Event styling function
     const eventPropGetter = (event) => {
         let className = "";
 
         if (event.booked) {
-            className = styles["user-booking"]; // Blue styling for all booked events
+            className = styles["user-booking"]; // Blue
         } else if (event.available) {
-            className = styles["available-event"];
+            className = styles["available-event"]; // Green
         } else {
             className = styles["unavailable-event"];
         }
@@ -498,34 +628,32 @@ const AdminBookings = () => {
                                         onSelectEvent={async (event) => {
                                             if (event.booked) {
                                                 if (!event.id) {
-                                                    console.error(
-                                                        "No booking ID found for this event."
-                                                    );
+                                                    console.error("No booking ID found for this event.");
                                                     return;
                                                 }
 
                                                 try {
-                                                    // Update endpoint to admin variant
-                                                    const response = await axiosReq.get(
-                                                        `/admin/bookings/${event.id}/`
-                                                    );
+                                                    // Get Booking Details to open Modal for Edit of Booking
+                                                    const response = await axiosReq.get(`/admin/bookings/${event.id}/`);
                                                     const bookingData = response.data;
 
-                                                    setSelectedBooking({
+                                                    // Open Modal to Edit Booking
+                                                    openBookingModal({
                                                         ...event,
+                                                        date_time: bookingData.date_time,
+                                                        end_time: bookingData.end_time,
                                                         services: bookingData.services,
-                                                        user: bookingData.user,
+                                                        user: bookingData.user.id,
                                                     });
                                                 } catch (error) {
-                                                    console.error(
-                                                        "Error fetching booking details:",
-                                                        error
-                                                    );
+                                                    console.error("Error fetching booking details:", error);
                                                 }
                                             } else if (event.available && event.title === "Selected Time") {
+                                                // If event is already selected, un-select it
                                                 setAllEvents(allEvents.filter(ev => ev !== event));
                                                 setSelectedTime(null);
                                             } else if (event.available && totalWorktime > 0) {
+                                                // Select a new time as selected time
                                                 const startTime = event.start;
                                                 const endTime = new Date(startTime.getTime() + totalWorktime * 60000);
                                                 const selectedRange = {
@@ -541,91 +669,134 @@ const AdminBookings = () => {
                                                 setAllEvents(newEvents);
                                             }
                                         }}
+
                                     />
                                 </div>
                             </Col>
                         </Row>
-                        {selectedBooking && (
-                            <Modal
-                                show={true}
-                                onHide={() => setSelectedBooking(null)}
-                            >
-                                <Modal.Header closeButton>
-                                    <Modal.Title>Booking Details</Modal.Title>
-                                </Modal.Header>
-                                <Modal.Body>
-                                    <p>
-                                        <strong>Date:</strong>{" "}
-                                        {new Date(selectedBooking.start).toLocaleDateString(
-                                            "en-US",
-                                            {
-                                                year: "numeric",
-                                                month: "long",
-                                                day: "numeric",
-                                            }
-                                        )}
-                                    </p>
-                                    <p>
-                                        <strong>Total Duration:</strong>{" "}
-                                        {calculateBookingDuration(
-                                            selectedBooking.start,
-                                            selectedBooking.end
-                                        )}
-                                    </p>
-                                    <p>
-                                        <strong>User:</strong>{" "}
-                                        {selectedBooking.user
-                                            ? selectedBooking.user.username
-                                            : "N/A"}
-                                    </p>
+                        {/* Modal for adding/editing bookings */}
+                        <Modal show={showBookingModal} onHide={closeBookingModal}>
+                            <Modal.Header closeButton>
+                                <Modal.Title>
+                                    {currentBooking ? "Edit Booking" : "Add Booking"}
+                                </Modal.Title>
+                            </Modal.Header>
+                            <Modal.Body>
+                                <Form onSubmit={handleBookingSubmit}>
+                                    {/* Select User */}
+                                    <Form.Group controlId="user">
+                                        <Form.Label>User</Form.Label>
+                                        <Form.Control
+                                            as="select"
+                                            name="user"
+                                            defaultValue={currentBooking?.user || ""}
+                                            required
+                                        >
+                                            <option value="">Select User</option>
+                                            {users.map((user) => (
+                                                <option key={user.id} value={user.id}>
+                                                    {user.email}
+                                                </option>
+                                            ))}
+                                        </Form.Control>
+                                    </Form.Group>
 
-                                    <p>
-                                        <strong>Services:</strong>
-                                    </p>
-                                    <ul>
-                                        {selectedBooking.services &&
-                                            selectedBooking.services.length > 0 ? (
-                                            selectedBooking.services.map((service) => (
-                                                <li key={service.id}>{service.name}</li>
-                                            ))
+                                    {/* Services */}
+                                    <Form.Group controlId="services">
+                                        <Form.Label>Services</Form.Label>
+                                        {currentBooking ? (
+                                            // Editable when editing a booking
+                                            <Form.Control
+                                                as="select"
+                                                name="services"
+                                                multiple
+                                                value={modalSelectedServices}
+                                                onChange={(e) => {
+                                                    const selectedOptions = Array.from(e.target.selectedOptions).map(option => parseInt(option.value));
+                                                    setModalSelectedServices(selectedOptions);
+                                                }}
+                                                required
+                                            >
+                                                {services.map((service) => (
+                                                    <option key={service.id} value={service.id}>
+                                                        {service.name}
+                                                    </option>
+                                                ))}
+                                            </Form.Control>
                                         ) : (
-                                            <li>No services booked.</li>
+                                            // Display selected services when adding a booking
+                                            <div>
+                                                {modalSelectedServices.map((serviceId) => {
+                                                    const service = services.find((s) => s.id === serviceId);
+                                                    return <p key={serviceId}>{service?.name}</p>;
+                                                })}
+                                            </div>
                                         )}
-                                    </ul>
+                                    </Form.Group>
 
-                                    {selectedBooking.services &&
-                                        selectedBooking.services.length > 0 && (
-                                            <p>
-                                                <strong>Price from</strong>{" "}
-                                                {calculateTotalPrice(selectedBooking.services)}{" "}
-                                                Euro
-                                            </p>
+                                    {/* Total Duration */}
+                                    <Form.Group controlId="total_duration">
+                                        <Form.Label>Total Duration</Form.Label>
+                                        <p>{totalDuration || 'N/A'}</p>
+                                    </Form.Group>
+
+                                    {/* Total Price */}
+                                    <Form.Group controlId="total_price">
+                                        <Form.Label>Total Price</Form.Label>
+                                        <p>{totalPrice ? `${totalPrice} Euro` : 'N/A'}</p>
+                                    </Form.Group>
+
+                                    {/* Date & Time */}
+                                    <Form.Group controlId="date_time">
+                                        <Form.Label>Date & Time</Form.Label>
+                                        {currentBooking ? (
+                                            // Editable when editing a booking
+                                            <Form.Control
+                                                type="datetime-local"
+                                                name="date_time"
+                                                defaultValue={new Date(currentBooking.date_time).toISOString().slice(0, 19)}
+                                                required
+                                            />
+                                        ) : (
+                                            // Display selected date & time when adding a booking
+                                            <p>{selectedTime ? new Date(selectedTime.start).toLocaleString() : 'No time selected'}</p>
                                         )}
-                                </Modal.Body>
-                                <Modal.Footer>
-                                    <Button
-                                        variant="secondary"
-                                        onClick={() => setSelectedBooking(null)}
-                                    >
-                                        Close
-                                    </Button>
-                                </Modal.Footer>
-                            </Modal>
-                        )}
+                                    </Form.Group>
+
+                                    {/* Modal Footer */}
+                                    <Modal.Footer>
+                                        <Button variant="secondary" onClick={closeBookingModal}>
+                                            Cancel
+                                        </Button>
+                                        {currentBooking && (
+                                            <Button
+                                                variant="danger"
+                                                onClick={() => handleDeleteBooking(currentBooking.id)}
+                                            >
+                                                Delete Booking
+                                            </Button>
+                                        )}
+                                        <Button type="submit" variant="primary">
+                                            {currentBooking ? "Update Booking" : "Add Booking"}
+                                        </Button>
+                                    </Modal.Footer>
+                                </Form>
+                            </Modal.Body>
+                        </Modal>
+
                     </Col>
                 </Row>
             </Container>
             <div className={styles["sticky-button"]}>
                 <Button
-                    onClick={handleBookingSubmit}
-                    disabled={
-                        isSubmitting || !selectedServices.length || !selectedTime
-                    }
+                    onClick={() => openBookingModal()}
+                    disabled={isSubmitting || !selectedServices.length || !selectedTime}
                     className={`mt-3 ${styles["book-services-btn"]}`}
                 >
                     {isSubmitting ? "Booking..." : "Book Services"}
                 </Button>
             </div>
+
         </div>
     );
 };
