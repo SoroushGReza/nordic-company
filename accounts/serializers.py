@@ -42,3 +42,9 @@ class ChangePasswordSerializer(serializers.Serializer):
 
 class DeleteAccountSerializer(serializers.Serializer):
     password = serializers.CharField(required=True)
+
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = ["id", "email", "name", "surname"]
