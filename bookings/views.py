@@ -8,6 +8,7 @@ from .serializers import (
     AvailabilitySerializer,
     AdminAvailabilitySerializer,
     AdminServiceSerializer,
+    AdminBookingSerializer
 )
 from datetime import timedelta
 from django.db.models import Q
@@ -33,6 +34,20 @@ class AdminServiceListCreateView(generics.ListCreateAPIView):
 class AdminServiceUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Service.objects.all()
     serializer_class = AdminServiceSerializer
+    permission_classes = [IsAdminUser]
+
+
+# (ADMIN) List and Create Bookings
+class AdminBookingListCreateView(generics.ListCreateAPIView):
+    queryset = Booking.objects.all()
+    serializer_class = AdminBookingSerializer
+    permission_classes = [IsAdminUser]
+
+
+# (ADMIN) Retrieve, Update, and Delete Booking
+class AdminBookingUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Booking.objects.all()
+    serializer_class = AdminBookingSerializer
     permission_classes = [IsAdminUser]
 
 

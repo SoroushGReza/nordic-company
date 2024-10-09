@@ -9,10 +9,22 @@ from .views import (
     BookingDetailView,
     AvailabilityListCreateView,
     AdminServiceListCreateView,
+    AdminBookingListCreateView,
+    AdminBookingUpdateDeleteView,
 )
 
 urlpatterns = [
     # Admin
+    path(
+        "admin/bookings/",
+        AdminBookingListCreateView.as_view(),
+        name="admin-booking-list-create",
+    ),
+    path(
+        "admin/bookings/<int:pk>/",
+        AdminBookingUpdateDeleteView.as_view(),
+        name="admin-booking-update-delete",
+    ),
     path(
         "admin/services/",
         AdminServiceListCreateView.as_view(),

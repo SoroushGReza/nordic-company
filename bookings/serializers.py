@@ -92,3 +92,65 @@ class AdminAvailabilitySerializer(serializers.ModelSerializer):
     class Meta:
         model = Availability
         fields = ["id", "date", "start_time", "end_time", "is_available"]
+
+
+class AdminBookingSerializer(serializers.ModelSerializer):
+    services = ServiceSerializer(many=True, read_only=True)
+    service_ids = serializers.PrimaryKeyRelatedField(
+        queryset=Service.objects.all(), source="services", many=True, write_only=True
+    )
+    user = serializers.PrimaryKeyRelatedField(queryset=CustomUser.objects.all())
+
+    class Meta:
+        model = Booking
+        fields = ["id", "services", "service_ids", "user", "date_time", "created_at"]
+        read_only_fields = ["created_at"]
+
+    def create(self, validated_data):
+        services = validated_data.pop("services")
+        booking = Booking.objects.create(**validated_data)
+        booking.services.set(services)
+        return booking
+
+    def update(self, instance, validated_data):
+        services = validated_data.pop("services", None)
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        if services is not None:
+            instance.services.set(services)
+        instance.save()
+        return instance
+
+    def validate(self, data):
+        services = data.get("services", [])
+        start_time = data.get("date_time")
+        total_duration = sum([service.worktime for service in services], timedelta())
+
+        if start_time < timezone.now():
+            raise serializers.ValidationError("Cannot book in the past.")
+
+        end_time = start_time + total_duration
+
+        local_start_time = localtime(start_time).replace(tzinfo=None)
+        local_end_time = localtime(end_time).replace(tzinfo=None)
+
+        if not Availability.objects.filter(
+            date=local_start_time.date(),
+            start_time__lte=local_start_time.time(),
+            end_time__gte=local_end_time.time(),
+            is_available=True,
+        ).exists():
+            raise serializers.ValidationError("The selected time slot is unavailable.")
+
+        overlapping_bookings = (
+            Booking.objects.filter(date_time__lt=end_time, date_time__gte=start_time)
+            .exclude(id=self.instance.id if self.instance else None)
+            .exists()
+        )
+
+        if overlapping_bookings:
+            raise serializers.ValidationError(
+                "The booking time overlaps with an existing booking."
+            )
+
+        return data
