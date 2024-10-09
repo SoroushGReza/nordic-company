@@ -8,7 +8,7 @@ from .serializers import (
     AvailabilitySerializer,
     AdminAvailabilitySerializer,
     AdminServiceSerializer,
-    AdminBookingSerializer
+    AdminBookingSerializer,
 )
 from datetime import timedelta
 from django.db.models import Q
@@ -65,7 +65,7 @@ class ServiceListView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
 
-# Create A Booking/wW Multiple Services (USER)
+# Create A Booking/w Multiple Services (USER)
 class BookingCreateView(generics.CreateAPIView):
     queryset = Booking.objects.all()
     serializer_class = BookingSerializer
