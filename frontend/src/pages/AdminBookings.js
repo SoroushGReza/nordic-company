@@ -251,11 +251,14 @@ const AdminBookings = () => {
                             return null;
                         }
 
+                        // Use the 'user_name' field from backend
+                        const userName = booking.user_name || 'Unknown User';
+
                         return {
                             start: parseISO(booking.date_time),
                             end: parseISO(booking.end_time),
-                            title: "Booking",
-                            available: false, // Booked events are not available
+                            title: userName,  // Name, Surname
+                            available: false,
                             booked: true,
                             id: booking.id,
                         };
@@ -433,7 +436,7 @@ const AdminBookings = () => {
                 dateTimeValue += ":00";
             }
             bookingData = {
-                user: parseInt(form.user.value),
+                user_id: parseInt(form.user.value),
                 service_ids: Array.from(form.services.options)
                     .filter((option) => option.selected)
                     .map((option) => parseInt(option.value)),
@@ -442,21 +445,18 @@ const AdminBookings = () => {
         } else {
             // Adding a new booking
             bookingData = {
-                user: parseInt(form.user.value),
+                user_id: parseInt(form.user.value),
                 service_ids: modalSelectedServices,
                 date_time: selectedTime.start.toISOString().slice(0, 19),
             };
-
-
-            console.log('Booking Data:', bookingData);
-
-            if (currentBooking) {
-                handleBookingUpdate(currentBooking.id, bookingData);
-            } else {
-                handleAddBooking(bookingData);
-            }
-        };
+        }
+        if (currentBooking) {
+            handleBookingUpdate(currentBooking.id, bookingData);
+        } else {
+            handleAddBooking(bookingData);
+        }
     };
+
 
 
     // Show different colours for different events in the calendar
