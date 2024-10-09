@@ -1,4 +1,4 @@
-from rest_framework import generics, status
+from rest_framework import generics, status, permissions
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth import authenticate, login
@@ -7,17 +7,25 @@ from django.contrib.auth import get_user_model
 import logging
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.authtoken.models import Token
+from .models import CustomUser
 from .serializers import (
     UserRegistrationSerializer,
     UserLoginSerializer,
     UserProfileSerializer,
     ChangePasswordSerializer,
     DeleteAccountSerializer,
+    UserSerializer,
 )
 
 logger = logging.getLogger(__name__)
 
 CustomUser = get_user_model()
+
+
+class UserListView(generics.ListAPIView):
+    queryset = CustomUser.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [permissions.IsAdminUser]
 
 
 class UserRegistrationView(generics.CreateAPIView):
@@ -26,14 +34,14 @@ class UserRegistrationView(generics.CreateAPIView):
 
     def perform_create(self, serializer):
         user = serializer.save()
-        login(self.request, user)  # Logga in användaren
+        login(self.request, user)  # Logga in anvï¿½ndaren
 
         # Generera en JWT-token
         refresh = RefreshToken.for_user(user)
-        # Spara eller skapa en token om du använder den också (valfritt beroende på ditt behov)
+        # Spara eller skapa en token om du anvï¿½nder den ocksï¿½ (valfritt beroende pï¿½ ditt behov)
         token, created = Token.objects.get_or_create(user=user)
 
-        # Spara JWT-token för att skicka den i post metoden
+        # Spara JWT-token fï¿½r att skicka den i post metoden
         self.jwt_refresh = refresh
 
     def post(self, request, *args, **kwargs):
@@ -61,7 +69,7 @@ class UserLoginView(APIView):
             password=serializer.validated_data["password"],
         )
         if user is not None:
-            login(request, user)  # Logga in användaren
+            login(request, user)  # Logga in anvï¿½ndaren
             # Generera en JWT-token
             refresh = RefreshToken.for_user(user)
             return Response(
