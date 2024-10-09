@@ -9,6 +9,7 @@ import About from "./pages/About";
 import PreAppointment from "./pages/PreAppointment";
 import Aftercare from "./pages/Aftercare";
 import AdminPage from "./pages/AdminPage";
+import AdminCalendar from "./pages/AdminCalendar";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 function AppContent() {
@@ -27,6 +28,7 @@ function AppContent() {
                 <Route path="/login" element={<Login />} />
                 <Route path="/admin" element={<AdminPage />} />
                 <Route path="/bookings" element={<Bookings />} />
+                <Route path="/admin/calendar" element={<AdminCalendar />} />
             </Routes>
         </>
     );
