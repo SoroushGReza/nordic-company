@@ -1,27 +1,47 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { Navbar, Nav, Offcanvas, Container, Row, Col } from "react-bootstrap";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import styles from "../styles/NavBar.module.css";
 import logo from "../assets/images/nc-logo-black.png";
+import { axiosReq } from "../api/axiosDefaults";
 
 function NavBar() {
     const [show, setShow] = useState(false);
+    const [isAdmin, setIsAdmin] = useState(false);
+    const navigate = useNavigate();
     const offcanvasRef = useRef(null);
 
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
 
-    // Kontrollera om anv�ndaren �r inloggad
+    // Check if user is logged in
     const isAuthenticated = () => {
         const token = localStorage.getItem("access");
         return token !== null;
     };
 
-    // Hantera utloggning
+    // Get user status when component loads
+    useEffect(() => {
+        const checkAdminStatus = async () => {
+            try {
+                const { data: user } = await axiosReq.get("/accounts/profile/");
+                setIsAdmin(user.is_staff || user.is_superuser);
+            } catch (err) {
+                console.error("Error fetching user status:", err);
+                setIsAdmin(false);
+            }
+        };
+
+        if (isAuthenticated()) {
+            checkAdminStatus();
+        }
+    }, []);
+
+    // Logout
     const handleLogout = () => {
         localStorage.removeItem("access");
         localStorage.removeItem("refresh");
-        window.location.reload(); // Ladda om sidan f�r att till�mpa �ndringarna
+        window.location.reload();
     };
 
     return (
@@ -54,10 +74,9 @@ function NavBar() {
                                     Services
                                 </Nav.Link>
 
-                                {/* Appointment is always visible */}
                                 <Nav.Link
                                     as={Link}
-                                    to={isAuthenticated() ? "/bookings" : "/login"}
+                                    to={isAuthenticated() ? (isAdmin ? "/admin/bookings" : "/bookings") : "/login"}
                                     className={styles.navLink}
                                 >
                                     Booking
@@ -93,7 +112,7 @@ function NavBar() {
                                     </>
                                 )}
 
-                                {/* Visa Login/Register eller Logout beroende p� inloggningsstatus */}
+                                {/* Show Login/Register or Logout based on user status */}
                                 {!isAuthenticated() ? (
                                     <>
                                         <Nav.Link as={Link} to="/login" className={styles.navLink}>
@@ -146,14 +165,13 @@ function NavBar() {
                                     Services
                                 </Nav.Link>
 
-                                {/* Book Appointment is always visible */}
                                 <Nav.Link
                                     as={Link}
-                                    to={isAuthenticated() ? "/book-appointment" : "/login"}
+                                    to={isAuthenticated() ? (isAdmin ? "/admin/bookings" : "/bookings") : "/login"}
                                     className={styles.burgerNavLink}
                                     onClick={handleClose}
                                 >
-                                    Book Appointment
+                                    Booking
                                 </Nav.Link>
 
                                 <Nav.Link
@@ -203,7 +221,7 @@ function NavBar() {
                                     </>
                                 )}
 
-                                {/* Visa Login/Register eller Logout beroende p� inloggningsstatus */}
+                                {/* Show Login/Register or Logout based on user status */}
                                 {!isAuthenticated() ? (
                                     <>
                                         <Nav.Link as={Link} to="/login" className={styles.burgerNavLink} onClick={handleClose}>
