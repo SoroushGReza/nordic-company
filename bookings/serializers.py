@@ -105,6 +105,13 @@ class AdminBookingSerializer(serializers.ModelSerializer):
         required=False,
         default=serializers.CurrentUserDefault(),
     )
+    user_id = serializers.PrimaryKeyRelatedField(
+        queryset=CustomUser.objects.all(),
+        source="user",
+        write_only=True,
+    )
+
+    user_name = serializers.SerializerMethodField()
 
     class Meta:
         model = Booking
@@ -113,11 +120,17 @@ class AdminBookingSerializer(serializers.ModelSerializer):
             "services",
             "service_ids",
             "user",
+            "user_name",
+            "user_id",
             "date_time",
             "end_time",
             "created_at",
         ]
         read_only_fields = ["created_at", "end_time"]
+
+    def get_user_name(self, obj):
+        # Return the user's full name or "Unknown User" if user is None
+        return f"{obj.user.name} {obj.user.surname}" if obj.user else "Unknown User"
 
     def create(self, validated_data):
         services = validated_data.pop("services", [])
