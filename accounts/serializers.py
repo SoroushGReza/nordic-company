@@ -29,10 +29,11 @@ class UserLoginSerializer(serializers.Serializer):
 
 class UserProfileSerializer(serializers.ModelSerializer):
     is_superuser = serializers.BooleanField(read_only=True)
+    is_staff = serializers.BooleanField(read_only=True)
 
     class Meta:
         model = CustomUser
-        fields = ("email", "name", "surname", "phone_number", "is_superuser")
+        fields = ("email", "name", "surname", "phone_number", "is_superuser", "is_staff")
 
 
 class ChangePasswordSerializer(serializers.Serializer):

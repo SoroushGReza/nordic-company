@@ -10,6 +10,7 @@ import { axiosReq } from "../api/axiosDefaults";
 import styles from "../styles/Bookings.module.css";
 import { parseISO } from "date-fns";
 import { useMediaQuery } from 'react-responsive';
+import { useNavigate } from "react-router-dom";
 
 
 const locales = {
@@ -147,7 +148,29 @@ const AdminBookings = () => {
     const [currentBooking, setCurrentBooking] = useState(null);
     const [users, setUsers] = useState([]);
     const [modalSelectedServices, setModalSelectedServices] = useState([]);
+    const navigate = useNavigate();
+    const [showConfirmModal, setShowConfirmModal] = useState(false);
 
+
+    // Check admin status of user 
+    useEffect(() => {
+        const checkAdminStatus = async () => {
+            try {
+                const { data: user } = await axiosReq.get("/accounts/profile/");
+
+                // Check id user is NOT admin, if NOT redirect
+                if (!user.is_staff && !user.is_superuser) {
+                    navigate("/bookings");
+                }
+            } catch (err) {
+                console.error("Error fetching user status:", err);
+                // Redirect in case of error
+                navigate("/login");
+            }
+        };
+
+        checkAdminStatus();
+    }, [navigate]);
 
     // Open Modal
     const openBookingModal = (booking = null) => {
@@ -161,7 +184,6 @@ const AdminBookings = () => {
         }
         setShowBookingModal(true);
     };
-
 
     // Close Modal
     const closeBookingModal = () => {
@@ -229,6 +251,42 @@ const AdminBookings = () => {
         }
     };
 
+    // Confirm availability creation
+    const handleConfirmAvailability = () => {
+        createAvailability(selectedTime.start, selectedTime.end);
+        setShowConfirmModal(false);
+    };
+
+    // Cancel availability creation
+    const handleCancelAvailability = () => {
+        setSelectedTime(null);
+        setShowConfirmModal(false);
+    };
+
+    // Create availability for a specific time slot
+    const createAvailability = async (start, end) => {
+        try {
+            const response = await axiosReq.post(`/admin/availability/`, {
+                date: start.toISOString().split('T')[0],  // Datum i YYYY-MM-DD format
+                start_time: start.toTimeString().split(' ')[0],  // Tid i HH:MM:SS format
+                end_time: end.toTimeString().split(' ')[0],  // Tid i HH:MM:SS format
+            });
+
+            // Update state to add new availabilitys
+            setAllEvents([...allEvents, {
+                start,
+                end,
+                available: true,
+                booked: false,
+                id: response.data.id
+            }]);
+
+            console.log("Availability created successfully:", response.data);
+        } catch (err) {
+            console.error("Error creating availability:", err);
+            setBookingError("Could not create availability. Please try again.");
+        }
+    };
 
 
     useEffect(() => {
@@ -239,7 +297,6 @@ const AdminBookings = () => {
                 const { data: servicesData } = await axiosReq.get("/admin/services/");
 
                 console.log("Fetched Bookings:", allBookings);
-
 
                 setServices(servicesData);
 
@@ -265,34 +322,14 @@ const AdminBookings = () => {
                     })
                     .filter((event) => event !== null);
 
-                // Generate available events
-                const availableEvents = availability.flatMap((availability) => {
-                    const [year, month, day] = availability.date
-                        .split("-")
-                        .map(Number);
-                    const [startHour, startMinute, startSecond] = availability.start_time
-                        .split(":")
-                        .map(Number);
-                    const [endHour, endMinute, endSecond] = availability.end_time
-                        .split(":")
-                        .map(Number);
+                // Generate available events split into 30-minute intervals
+                const availableEvents = availability.flatMap((avail) => {
+                    const [year, month, day] = avail.date.split("-").map(Number);
+                    const [startHour, startMinute, startSecond] = avail.start_time.split(":").map(Number);
+                    const [endHour, endMinute, endSecond] = avail.end_time.split(":").map(Number);
 
-                    const start = new Date(
-                        year,
-                        month - 1,
-                        day,
-                        startHour,
-                        startMinute,
-                        startSecond
-                    );
-                    const end = new Date(
-                        year,
-                        month - 1,
-                        day,
-                        endHour,
-                        endMinute,
-                        endSecond
-                    );
+                    const start = new Date(year, month - 1, day, startHour, startMinute, startSecond);
+                    const end = new Date(year, month - 1, day, endHour, endMinute, endSecond);
 
                     const events = [];
                     let current = start;
@@ -306,8 +343,7 @@ const AdminBookings = () => {
                         // Check if there is overlapping booked times
                         const isOverlapping = bookedEvents.some((booked) => {
                             return (
-                                (booked.start <= eventStart &&
-                                    eventStart < booked.end) ||
+                                (booked.start <= eventStart && eventStart < booked.end) ||
                                 (booked.start < eventEnd && eventEnd <= booked.end) ||
                                 (eventStart <= booked.start && eventEnd >= booked.end)
                             );
@@ -457,8 +493,6 @@ const AdminBookings = () => {
         }
     };
 
-
-
     // Show different colours for different events in the calendar
     const eventPropGetter = (event) => {
         let className = "";
@@ -575,55 +609,24 @@ const AdminBookings = () => {
                                         eventPropGetter={eventPropGetter}
                                         onSelectSlot={(slotInfo) => {
                                             const selectedStartTime = slotInfo.start;
+                                            const selectedEndTime = slotInfo.end;
 
-                                            const selectedEndTime = new Date(
-                                                selectedStartTime.getTime() + totalWorktime * 60000
-                                            );
-                                            // Find the latest available time (end time) from the available events
-                                            const availableEndTimes = allEvents
-                                                .filter(event => event.available)
-                                                .map(event => event.end);
-
-                                            // Get the latest available time
-                                            const latestAvailableTime = availableEndTimes.length
-                                                ? new Date(Math.max(...availableEndTimes.map(time => new Date(time))))
-                                                : null;
-
-                                            // Check if the selected end time exceeds the latest available time
-                                            if (latestAvailableTime && selectedEndTime > latestAvailableTime) {
-                                                alert("The selected time exceeds the available time slots. Please choose an earlier time.");
-                                                return;  // Stop further actions
-                                            }
-                                            // Prevent selecting any slot that overlaps with booked time slots
+                                            // Check if opverlapping bookings
                                             const isOverlappingBooked = allEvents.some(event =>
                                                 event.booked && (
-                                                    (selectedStartTime >= event.start && selectedStartTime < event.end) ||  // Selected start overlaps with a booked slot
-                                                    (selectedEndTime > event.start && selectedEndTime <= event.end) ||      // Selected end overlaps with a booked slot
-                                                    (selectedStartTime <= event.start && selectedEndTime >= event.end)      // Selected time covers an entire booked slot
+                                                    (selectedStartTime >= event.start && selectedStartTime < event.end) ||
+                                                    (selectedEndTime > event.start && selectedEndTime <= event.end) ||
+                                                    (selectedStartTime <= event.start && selectedEndTime >= event.end)
                                                 )
                                             );
 
                                             if (isOverlappingBooked) {
-                                                // Alert should not even trigger because interaction is prevented, but adding just in case.
-                                                return;  // Prevent further action if it overlaps
+                                                return;  // Cancel if overlap
                                             }
 
-                                            // Clear previous selected times
-                                            let updatedEvents = allEvents.filter(event => event.title !== "Selected Time");
-
-                                            // Add new selected time
-                                            const newEvent = {
-                                                start: selectedStartTime,
-                                                end: selectedEndTime,
-                                                title: "Selected Time",
-                                                available: true,
-                                            };
-
-                                            updatedEvents = [...updatedEvents, newEvent];
-
-                                            // Update state with new time and events
-                                            setAllEvents(updatedEvents);
+                                            // Store selected time and show verification modal
                                             setSelectedTime({ start: selectedStartTime, end: selectedEndTime });
+                                            setShowConfirmModal(true);
                                         }}
                                         onSelectEvent={async (event) => {
                                             if (event.booked) {
@@ -783,6 +786,23 @@ const AdminBookings = () => {
                                 </Form>
                             </Modal.Body>
                         </Modal>
+
+                        {/* Modal for adding availabilitys */}
+                        <Modal show={showConfirmModal} onHide={handleCancelAvailability}>
+                            <Modal.Header closeButton>
+                                <Modal.Title>Confirm Availability</Modal.Title>
+                            </Modal.Header>
+                            <Modal.Body>Do you want to add this area as available?</Modal.Body>
+                            <Modal.Footer>
+                                <Button variant="secondary" onClick={handleCancelAvailability}>
+                                    Cancel
+                                </Button>
+                                <Button variant="primary" onClick={handleConfirmAvailability}>
+                                    Yes
+                                </Button>
+                            </Modal.Footer>
+                        </Modal>
+
 
                     </Col>
                 </Row>
