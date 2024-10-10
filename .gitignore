@@ -12,3 +12,4 @@ cloudinary_python.txt
 staticfiles/
 .vs/
 venv/
+db.sqlite3
