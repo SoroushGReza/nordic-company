@@ -11,6 +11,7 @@ import Aftercare from "./pages/Aftercare";
 import AdminPage from "./pages/AdminPage";
 import AdminBookings from "./pages/AdminBookings";
 import "bootstrap/dist/css/bootstrap.min.css";
+import ServiceManagement from "./components/ServiceManagement";
 
 function AppContent() {
     const location = useLocation();
@@ -28,6 +29,7 @@ function AppContent() {
                 <Route path="/admin" element={<AdminPage />} />
                 <Route path="/bookings" element={<Bookings />} />
                 <Route path="/admin/bookings" element={<AdminBookings />} />
+                <Route path="/service/mana" element={<ServiceManagement />} />
             </Routes>
         </>
     );
