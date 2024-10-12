@@ -130,9 +130,11 @@ const Bookings = () => {
     const [totalWorktime, setTotalWorktime] = useState(0); // Storing total worktime
     const [allEvents, setAllEvents] = useState([]);
     const [selectedBooking, setSelectedBooking] = useState(null);
-    // eslint-disable-next-line no-unused-vars
-    const [userTimezoneOffset, setUserTimezoneOffset] = useState(0);
     const [timezoneMessage, setTimezoneMessage] = useState("");
+    const todayMin = new Date();
+    todayMin.setHours(8, 0, 0, 0);
+    const todayMax = new Date();
+    todayMax.setHours(20, 30, 0, 0);
 
 
     useEffect(() => {
@@ -418,8 +420,8 @@ const Bookings = () => {
                                             allDaySlot: false,
                                             header: CustomHeader,
                                         }}
-                                        min={new Date(2024, 9, 6, 8, 0)}
-                                        max={new Date(2024, 9, 6, 20, 30)}
+                                        min={todayMin}
+                                        max={todayMax}
                                         style={{ height: 'auto', width: '100%' }}
                                         selectable={true}
                                         eventPropGetter={eventPropGetter}  // Set colour and cursor for events
