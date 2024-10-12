@@ -4,18 +4,15 @@ import styles from "../styles/Menu.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faInstagram } from "@fortawesome/free-brands-svg-icons";
 import { Link, useNavigate } from "react-router-dom";
+import useAuthStatus from "../hooks/AuthStatus";
 
 const Menu = () => {
     const navigate = useNavigate();
-
-    const isAuthenticated = () => {
-        const token = localStorage.getItem("access");
-        return token !== null;
-    };
+    const { isAdmin, isAuthenticated } = useAuthStatus();
 
     const handleBookAppointmentClick = () => {
-        if (isAuthenticated()) {
-            navigate("/bookings");
+        if (isAuthenticated) {
+            navigate(isAdmin ? "/admin/bookings" : "/bookings");
         } else {
             navigate("/login");
         }
@@ -24,7 +21,7 @@ const Menu = () => {
     const handleLogout = () => {
         localStorage.removeItem("access");
         localStorage.removeItem("refresh");
-        window.location.reload(); // Ladda om sidan för att tillämpa ändringarna
+        window.location.reload();
     };
 
     return (
@@ -52,9 +49,10 @@ const Menu = () => {
                 className={styles.menuButton}
                 onClick={handleBookAppointmentClick}
             >
-                Book appointment
+                {isAdmin ? "Book Clients" : "Book Services"}
             </Button>
-            {isAuthenticated() && (
+
+            {isAuthenticated && (
                 <>
                     <Link to="/pre-appointment-info" className={styles.link}>
                         <Button variant="outline-dark" className={styles.menuButton}>
@@ -70,7 +68,7 @@ const Menu = () => {
             )}
 
 
-            {!isAuthenticated() && (
+            {!isAuthenticated && (
                 <>
                     <Link to="/login" className={styles.link}>
                         <Button variant="outline-dark" className={styles.menuButton}>
@@ -85,7 +83,7 @@ const Menu = () => {
                 </>
             )}
 
-            {isAuthenticated() && (
+            {isAuthenticated && (
                 <Button
                     variant="outline-dark"
                     className={styles.customMenuButton}
