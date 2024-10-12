@@ -9,13 +9,14 @@ import About from "./pages/About";
 import PreAppointment from "./pages/PreAppointment";
 import Aftercare from "./pages/Aftercare";
 import AdminPage from "./pages/AdminPage";
+import AdminBookings from "./pages/AdminBookings";
 import "bootstrap/dist/css/bootstrap.min.css";
+import ServiceManagement from "./components/ServiceManagement";
 
 function AppContent() {
     const location = useLocation();
     return (
         <>
-            {/* Rendera NavBar om den aktuella sökvägen inte är '/' */}
             {location.pathname !== "/" && <NavBar />}
             <Routes>
                 <Route path="/" element={<Home />} />
@@ -27,6 +28,8 @@ function AppContent() {
                 <Route path="/login" element={<Login />} />
                 <Route path="/admin" element={<AdminPage />} />
                 <Route path="/bookings" element={<Bookings />} />
+                <Route path="/admin/bookings" element={<AdminBookings />} />
+                <Route path="/service/mana" element={<ServiceManagement />} />
             </Routes>
         </>
     );

@@ -5,6 +5,7 @@ from .views import (
     UserProfileView,
     ChangePasswordView,
     DeleteAccountView,
+    UserListView
 )
 
 urlpatterns = [
@@ -13,4 +14,5 @@ urlpatterns = [
     path("profile/", UserProfileView.as_view(), name="profile"),
     path("change-password/", ChangePasswordView.as_view(), name="change-password"),  # noqa: E501
     path("delete-account/", DeleteAccountView.as_view(), name="delete-account"),  # noqa: E501
+    path("users/", UserListView.as_view(), name="user-list"),
 ]

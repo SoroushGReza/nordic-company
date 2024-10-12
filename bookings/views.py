@@ -1,4 +1,4 @@
-from rest_framework import generics, permissions, serializers
+from rest_framework import generics, permissions, serializers, status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAdminUser
 from .models import Booking, Service, Availability
@@ -8,6 +8,7 @@ from .serializers import (
     AvailabilitySerializer,
     AdminAvailabilitySerializer,
     AdminServiceSerializer,
+    AdminBookingSerializer,
 )
 from datetime import timedelta
 from django.db.models import Q
@@ -36,8 +37,53 @@ class AdminServiceUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAdminUser]
 
 
-# (ADMIN) List ALL Availabilitys
-class AdminAvailabilityListView(generics.ListAPIView):
+# (ADMIN) List and Create Bookings
+class AdminBookingListCreateView(generics.ListCreateAPIView):
+    queryset = Booking.objects.all()
+    serializer_class = AdminBookingSerializer
+    permission_classes = [IsAdminUser]
+
+
+# (ADMIN) Retrieve, Update, and Delete Booking
+class AdminBookingUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Booking.objects.all()
+    serializer_class = AdminBookingSerializer
+    permission_classes = [IsAdminUser]
+
+
+# (ADMIN) Create And List ALL Availabilitys
+class AdminAvailabilityListCreateView(generics.ListCreateAPIView):
+    queryset = Availability.objects.all()
+    serializer_class = AdminAvailabilitySerializer
+    permission_classes = [IsAdminUser]
+
+
+# (ADMIN) Create Availability with Overlap Check
+class AdminAvailabilityListCreateView(generics.ListCreateAPIView):
+    queryset = Availability.objects.all()
+    serializer_class = AdminAvailabilitySerializer
+    permission_classes = [IsAdminUser]
+
+    def create(self, request, *args, **kwargs):
+        # Overlap check
+        date = request.data.get("date")
+        start_time = request.data.get("start_time")
+        end_time = request.data.get("end_time")
+
+        # Check if it overlaps with existing availabilities or bookings
+        if Availability.objects.filter(
+            date=date, start_time__lt=end_time, end_time__gt=start_time
+        ).exists():
+            return Response(
+                {"detail": "Overlapping availability detected."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        return super().create(request, *args, **kwargs)
+
+
+# (ADMIN) Update, Delete Availability
+class AdminAvailabilityUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Availability.objects.all()
     serializer_class = AdminAvailabilitySerializer
     permission_classes = [IsAdminUser]
@@ -50,7 +96,7 @@ class ServiceListView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
 
-# Create A Booking/wW Multiple Services (USER)
+# Create A Booking/w Multiple Services (USER)
 class BookingCreateView(generics.CreateAPIView):
     queryset = Booking.objects.all()
     serializer_class = BookingSerializer

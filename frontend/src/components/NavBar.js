@@ -1,27 +1,24 @@
 import React, { useRef, useState } from "react";
 import { Navbar, Nav, Offcanvas, Container, Row, Col } from "react-bootstrap";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import styles from "../styles/NavBar.module.css";
 import logo from "../assets/images/nc-logo-black.png";
+import useAuthStatus from "../hooks/AuthStatus";
 
 function NavBar() {
     const [show, setShow] = useState(false);
+    const { isAdmin, isAuthenticated } = useAuthStatus();
+    const navigate = useNavigate();
     const offcanvasRef = useRef(null);
 
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
 
-    // Kontrollera om anv�ndaren �r inloggad
-    const isAuthenticated = () => {
-        const token = localStorage.getItem("access");
-        return token !== null;
-    };
-
-    // Hantera utloggning
+    // Logout
     const handleLogout = () => {
         localStorage.removeItem("access");
         localStorage.removeItem("refresh");
-        window.location.reload(); // Ladda om sidan f�r att till�mpa �ndringarna
+        navigate("/home");
     };
 
     return (
@@ -54,10 +51,9 @@ function NavBar() {
                                     Services
                                 </Nav.Link>
 
-                                {/* Appointment is always visible */}
                                 <Nav.Link
                                     as={Link}
-                                    to={isAuthenticated() ? "/bookings" : "/login"}
+                                    to={isAuthenticated ? (isAdmin ? "/admin/bookings" : "/bookings") : "/login"}
                                     className={styles.navLink}
                                 >
                                     Booking
@@ -74,7 +70,7 @@ function NavBar() {
                                 </Nav.Link>
 
                                 {/* Show Pre Appointment and Aftercare Tips only if authenticated */}
-                                {isAuthenticated() && (
+                                {isAuthenticated && (
                                     <>
                                         <Nav.Link
                                             as={Link}
@@ -93,8 +89,8 @@ function NavBar() {
                                     </>
                                 )}
 
-                                {/* Visa Login/Register eller Logout beroende p� inloggningsstatus */}
-                                {!isAuthenticated() ? (
+                                {/* Show Login/Register or Logout based on user status */}
+                                {!isAuthenticated ? (
                                     <>
                                         <Nav.Link as={Link} to="/login" className={styles.navLink}>
                                             Login
@@ -146,14 +142,13 @@ function NavBar() {
                                     Services
                                 </Nav.Link>
 
-                                {/* Book Appointment is always visible */}
                                 <Nav.Link
                                     as={Link}
-                                    to={isAuthenticated() ? "/book-appointment" : "/login"}
+                                    to={isAuthenticated ? (isAdmin ? "/admin/bookings" : "/bookings") : "/login"}
                                     className={styles.burgerNavLink}
                                     onClick={handleClose}
                                 >
-                                    Book Appointment
+                                    Booking
                                 </Nav.Link>
 
                                 <Nav.Link
@@ -182,7 +177,7 @@ function NavBar() {
                                 </Nav.Link>
 
                                 {/* Show Pre Appointment and Aftercare Tips only if authenticated */}
-                                {isAuthenticated() && (
+                                {isAuthenticated && (
                                     <>
                                         <Nav.Link
                                             as={Link}
@@ -203,8 +198,8 @@ function NavBar() {
                                     </>
                                 )}
 
-                                {/* Visa Login/Register eller Logout beroende p� inloggningsstatus */}
-                                {!isAuthenticated() ? (
+                                {/* Show Login/Register or Logout based on user status */}
+                                {!isAuthenticated ? (
                                     <>
                                         <Nav.Link as={Link} to="/login" className={styles.burgerNavLink} onClick={handleClose}>
                                             Login
