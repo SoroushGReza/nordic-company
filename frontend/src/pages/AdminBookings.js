@@ -87,8 +87,6 @@ const AdminBookings = () => {
     const [allEvents, setAllEvents] = useState([]);
     const [totalDuration, setTotalDuration] = useState('');
     const [totalPrice, setTotalPrice] = useState(0);
-    // eslint-disable-next-line no-unused-vars
-    const [userTimezoneOffset, setUserTimezoneOffset] = useState(0);
     const [timezoneMessage, setTimezoneMessage] = useState("");
     const [showBookingModal, setShowBookingModal] = useState(false);
     const [currentBooking, setCurrentBooking] = useState(null);
@@ -96,6 +94,11 @@ const AdminBookings = () => {
     const [modalSelectedServices, setModalSelectedServices] = useState([]);
     const navigate = useNavigate();
     const [showConfirmModal, setShowConfirmModal] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const todayMin = new Date();
+    todayMin.setHours(8, 0, 0, 0);
+    const todayMax = new Date();
+    todayMax.setHours(20, 30, 0, 0);
 
 
     // Check admin status of user 
@@ -171,8 +174,9 @@ const AdminBookings = () => {
             setBookingSuccess(true);
             closeBookingModal();
         } catch (err) {
-            console.error("Error adding booking:", err);
-            setBookingError("Could not add booking. Please try again.");
+            // Detailed error message
+            const errorMessages = err.response?.data?.non_field_errors || Object.values(err.response?.data || {}).flat().join(', ') || "Could not add booking. Please try again.";
+            setBookingError(errorMessages);
         }
     };
 
@@ -366,7 +370,6 @@ const AdminBookings = () => {
         setTotalWorktime(selectedServiceTimes);
     };
 
-    const [isSubmitting] = useState(false);
     const [bookingError, setBookingError] = useState("");
     const [showAlert, setShowAlert] = useState(false);
 
@@ -405,39 +408,53 @@ const AdminBookings = () => {
 
     }, [modalSelectedServices, services]);
 
-    const handleBookingSubmit = (event) => {
+    const handleBookingSubmit = async (event) => {
         event.preventDefault();
         const form = event.target;
+        setIsSubmitting(true);
 
         let bookingData = {};
 
-        if (currentBooking) {
-            // Editing an existing booking
-            let dateTimeValue = form.date_time.value;
-            if (dateTimeValue.length === 16) {
-                dateTimeValue += ":00";
+        try {
+            if (currentBooking) {
+                // Editing an existing booking
+                let dateTimeValue = form.date_time.value;
+                if (dateTimeValue.length === 16) {
+                    dateTimeValue += ":00";  // Add seconds if missing
+                }
+                bookingData = {
+                    user_id: parseInt(form.user.value),
+                    service_ids: Array.from(form.services.options)
+                        .filter((option) => option.selected)
+                        .map((option) => parseInt(option.value)),
+                    date_time: format(new Date(form.date_time.value), "yyyy-MM-dd'T'HH:mm:ssXXX"),
+                };
+
+                bookingData = {
+                    user_id: parseInt(form.user.value),
+                    service_ids: modalSelectedServices,
+                    date_time: format(selectedTime.start, "yyyy-MM-dd'T'HH:mm:ssXXX"),
+                };
+
+
+                await handleBookingUpdate(currentBooking.id, bookingData);
+            } else {
+                // Adding a new booking
+                bookingData = {
+                    user_id: parseInt(form.user.value),
+                    service_ids: modalSelectedServices,
+                    date_time: format(selectedTime.start, "yyyy-MM-dd'T'HH:mm:ssXXX"),
+                };
+
+                await handleAddBooking(bookingData);
             }
-            bookingData = {
-                user_id: parseInt(form.user.value),
-                service_ids: Array.from(form.services.options)
-                    .filter((option) => option.selected)
-                    .map((option) => parseInt(option.value)),
-                date_time: dateTimeValue,
-            };
-        } else {
-            // Adding a new booking
-            bookingData = {
-                user_id: parseInt(form.user.value),
-                service_ids: modalSelectedServices,
-                date_time: selectedTime.start.toISOString().slice(0, 19),
-            };
-        }
-        if (currentBooking) {
-            handleBookingUpdate(currentBooking.id, bookingData);
-        } else {
-            handleAddBooking(bookingData);
+        } catch (err) {
+            console.error("Error submitting booking:", err);
+        } finally {
+            setIsSubmitting(false);
         }
     };
+
 
     // Show different colours for different events in the calendar
     const eventPropGetter = (event) => {
@@ -549,8 +566,8 @@ const AdminBookings = () => {
                                             allDaySlot: false,
                                             header: CustomHeader,
                                         }}
-                                        min={new Date(2024, 9, 6, 8, 0)}
-                                        max={new Date(2024, 9, 6, 20, 30)}
+                                        min={todayMin}
+                                        max={todayMax}
                                         style={{ height: "auto", width: "100%" }}
                                         selectable={true}
                                         eventPropGetter={eventPropGetter}
