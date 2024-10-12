@@ -28,10 +28,10 @@
 }
 
 Form.booking-form {
-    background-color: rgb(157, 157, 114);
+    background-color: rgb(82 108 80);
     padding: 10px;
     border-radius: 8px;
-    border: 1px solid rgb(157, 157, 114);
+    border: 1px solid rgba(82, 108, 80, 0.543);
     margin-bottom: 40px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
 }
@@ -180,22 +180,32 @@ Form.booking-form {
 
 /* Choosing Services */
 .services-to-choose {
-    font-size: 17px;
+    font-size: 21px;
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: flex-center;
+    margin: 0 auto;
     color: rgb(255, 255, 255);
+    font-family: hero-regular;
+    width: 55%;
+    line-height: 1.5;
+    vertical-align: baseline;
+}
+
+.services-to-choose label {
+    vertical-align: baseline;
 }
 
 /* Custom checkbox */
 .service-checkbox input[type="checkbox"] {
     appearance: none;
-    width: 16px;
-    height: 16px;
-    border: 2px solid #606060;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #74896f;
     border-radius: 4px;
     cursor: pointer;
     transition: background-color 0.3s ease, border-color 0.3s ease;
+    line-height: 1.5;
 }
 
 /* Checked */

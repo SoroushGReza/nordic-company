@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from "react";
-import { Container, Row, Col, Button, Form, Alert, Modal, Collapse } from "react-bootstrap";
+import React, { useState, useEffect } from "react";
+import { Container, Row, Col, Button, Form, Alert, Modal } from "react-bootstrap";
 import { Calendar, dateFnsLocalizer } from "react-big-calendar";
 import { format } from "date-fns-tz";
 import parse from "date-fns/parse";
@@ -11,7 +11,7 @@ import styles from "../styles/Bookings.module.css";
 import { parseISO } from "date-fns";
 import { useMediaQuery } from 'react-responsive';
 import { useNavigate } from "react-router-dom";
-
+import ServiceManagement from "../components/ServiceManagement";
 
 const locales = {
     "en-IE": require("date-fns/locale/en-IE"),
@@ -24,60 +24,6 @@ const localizer = dateFnsLocalizer({
     getDay,
     locales,
 });
-
-// Booking Instructions
-function BookingInfoDropdown() {
-    const [open, setOpen] = useState(false);
-    const infoRef = useRef(null);
-
-    // Detect click outside of dropdown to close it
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (infoRef.current && !infoRef.current.contains(event.target)) {
-                setOpen(false); // Close dropdown
-            }
-        };
-
-        if (open) {
-            document.addEventListener('mousedown', handleClickOutside);
-        } else {
-            document.removeEventListener('mousedown', handleClickOutside);
-        }
-
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-        };
-    }, [open]);
-
-    return (
-        <>
-            {!open && (
-                <Button
-                    onClick={() => setOpen(!open)}
-                    aria-controls="booking-info"
-                    aria-expanded={open}
-                    variant="info"
-                    className={`mt-5 ${styles["booking-info-button"]}`}
-                >
-                    Show booking instructions
-                </Button>
-            )}
-
-            <Collapse in={open}>
-                <div id="booking-info" className="mt-3" ref={infoRef}>
-                    <Alert variant="info" className={styles["booking-info-alert"]}>
-                        <strong>How to book:</strong>
-                        <ul className={styles["booking-info-list"]}>
-                            <li>1. Select one or more services by checking the boxes.</li>
-                            <li>2. Scroll down to the calendar and choose an available time slot.</li>
-                            <li>3. Once both steps are completed, click "Book Services" to finalize your booking.</li>
-                        </ul>
-                    </Alert>
-                </div>
-            </Collapse>
-        </>
-    );
-}
 
 // Show Date and day / Date based on screen size
 const CustomHeader = ({ date }) => {
@@ -512,11 +458,6 @@ const AdminBookings = () => {
         <div className={styles["page-container"]}>
             <Container>
                 <Row className="justify-content-center">
-                    <Col className="d-flex justify-content-center">
-                        <BookingInfoDropdown />
-                    </Col>
-                </Row>
-                <Row className="justify-content-center">
                     <Col md={12}>
                         <h2 className={`${styles["choose-services-heading"]}`}>
                             Choose Services
@@ -565,6 +506,12 @@ const AdminBookings = () => {
                                 );
                             })}
                         </Form>
+
+                        <Row className="justify-content-center">
+                            <Col className="d-flex justify-content-center">
+                                <ServiceManagement />
+                            </Col>
+                        </Row>
 
                         <h2 className={`${styles["choose-date-time-heading"]}`}>
                             Choose Date / Time
@@ -813,7 +760,7 @@ const AdminBookings = () => {
                     disabled={isSubmitting || !selectedServices.length || !selectedTime}
                     className={`mt-3 ${styles["book-services-btn"]}`}
                 >
-                    {isSubmitting ? "Booking..." : "Book Services"}
+                    {isSubmitting ? "Booking..." : "Book Clients"}
                 </Button>
             </div>
 
