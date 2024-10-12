@@ -1,41 +1,18 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState } from "react";
 import { Navbar, Nav, Offcanvas, Container, Row, Col } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
 import styles from "../styles/NavBar.module.css";
 import logo from "../assets/images/nc-logo-black.png";
-import { axiosReq } from "../api/axiosDefaults";
+import useAuthStatus from "../hooks/AuthStatus";
 
 function NavBar() {
     const [show, setShow] = useState(false);
-    const [isAdmin, setIsAdmin] = useState(false);
+    const { isAdmin, isAuthenticated } = useAuthStatus();
     const navigate = useNavigate();
     const offcanvasRef = useRef(null);
 
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
-
-    // Check if user is logged in
-    const isAuthenticated = () => {
-        const token = localStorage.getItem("access");
-        return token !== null;
-    };
-
-    // Get user status when component loads
-    useEffect(() => {
-        const checkAdminStatus = async () => {
-            try {
-                const { data: user } = await axiosReq.get("/accounts/profile/");
-                setIsAdmin(user.is_staff || user.is_superuser);
-            } catch (err) {
-                console.error("Error fetching user status:", err);
-                setIsAdmin(false);
-            }
-        };
-
-        if (isAuthenticated()) {
-            checkAdminStatus();
-        }
-    }, []);
 
     // Logout
     const handleLogout = () => {
@@ -76,7 +53,7 @@ function NavBar() {
 
                                 <Nav.Link
                                     as={Link}
-                                    to={isAuthenticated() ? (isAdmin ? "/admin/bookings" : "/bookings") : "/login"}
+                                    to={isAuthenticated ? (isAdmin ? "/admin/bookings" : "/bookings") : "/login"}
                                     className={styles.navLink}
                                 >
                                     Booking
@@ -93,7 +70,7 @@ function NavBar() {
                                 </Nav.Link>
 
                                 {/* Show Pre Appointment and Aftercare Tips only if authenticated */}
-                                {isAuthenticated() && (
+                                {isAuthenticated && (
                                     <>
                                         <Nav.Link
                                             as={Link}
@@ -113,7 +90,7 @@ function NavBar() {
                                 )}
 
                                 {/* Show Login/Register or Logout based on user status */}
-                                {!isAuthenticated() ? (
+                                {!isAuthenticated ? (
                                     <>
                                         <Nav.Link as={Link} to="/login" className={styles.navLink}>
                                             Login
@@ -167,7 +144,7 @@ function NavBar() {
 
                                 <Nav.Link
                                     as={Link}
-                                    to={isAuthenticated() ? (isAdmin ? "/admin/bookings" : "/bookings") : "/login"}
+                                    to={isAuthenticated ? (isAdmin ? "/admin/bookings" : "/bookings") : "/login"}
                                     className={styles.burgerNavLink}
                                     onClick={handleClose}
                                 >
@@ -200,7 +177,7 @@ function NavBar() {
                                 </Nav.Link>
 
                                 {/* Show Pre Appointment and Aftercare Tips only if authenticated */}
-                                {isAuthenticated() && (
+                                {isAuthenticated && (
                                     <>
                                         <Nav.Link
                                             as={Link}
@@ -222,7 +199,7 @@ function NavBar() {
                                 )}
 
                                 {/* Show Login/Register or Logout based on user status */}
-                                {!isAuthenticated() ? (
+                                {!isAuthenticated ? (
                                     <>
                                         <Nav.Link as={Link} to="/login" className={styles.burgerNavLink} onClick={handleClose}>
                                             Login
