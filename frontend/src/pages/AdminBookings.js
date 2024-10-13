@@ -12,6 +12,8 @@ import { parseISO } from "date-fns";
 import { useMediaQuery } from 'react-responsive';
 import { useNavigate } from "react-router-dom";
 import ServiceManagement from "../components/ServiceManagement";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPenToSquare, faTrashCan } from '@fortawesome/free-solid-svg-icons';
 
 const locales = {
     "en-IE": require("date-fns/locale/en-IE"),
@@ -100,6 +102,9 @@ const AdminBookings = () => {
     const todayMax = new Date();
     todayMax.setHours(20, 30, 0, 0);
 
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [selectedService, setSelectedService] = useState(null);
 
     // Check admin status of user 
     useEffect(() => {
@@ -121,20 +126,41 @@ const AdminBookings = () => {
         checkAdminStatus();
     }, [navigate]);
 
-    // Open Modal
+    const handleOpenEditModal = (service) => {
+        setSelectedService(service);
+        setShowEditModal(true);
+    };
+
+    const handleOpenDeleteModal = (service) => {
+        setSelectedService(service);
+        setShowDeleteModal(true);
+    };
+
+    // Close the modals and reset selectedService
+    const closeEditModal = () => {
+        setShowEditModal(false);
+        setSelectedService(null); // Clear selected service after closing modal
+    };
+
+    const closeDeleteModal = () => {
+        setShowDeleteModal(false);
+        setSelectedService(null); // Clear selected service after closing modal
+    };
+
+    // Open Booking Modal
     const openBookingModal = (booking = null) => {
         setCurrentBooking(booking);
         if (booking) {
-            // When editing, initialize with the services from the booking
+            // When editing, initialize with services from the booking
             setModalSelectedServices(booking.services.map(service => service.id));
         } else {
-            // When adding, initialize with the currently selected services
+            // When adding, initialize with curently selected services
             setModalSelectedServices(selectedServices);
         }
         setShowBookingModal(true);
     };
 
-    // Close Modal
+    // Close Booking Modal
     const closeBookingModal = () => {
         setCurrentBooking(null);
         setShowBookingModal(false);
@@ -198,6 +224,50 @@ const AdminBookings = () => {
         } catch (err) {
             console.error("Error deleting booking:", err);
             setBookingError("Could not delete booking. Please try again.");
+        }
+    };
+
+    const handleServiceChange = (serviceId) => {
+        let updatedSelectedServices;
+        if (selectedServices.includes(serviceId)) {
+            updatedSelectedServices = selectedServices.filter((id) => id !== serviceId);
+        } else {
+            updatedSelectedServices = [...selectedServices, serviceId];
+        }
+
+        setSelectedServices(updatedSelectedServices);
+
+        // Summarize working time for all chosen services
+        const selectedServiceTimes = services
+            .filter((service) => updatedSelectedServices.includes(service.id))
+            .reduce((total, service) => total + parseWorktimeToMinutes(service.worktime), 0);
+
+        setTotalWorktime(selectedServiceTimes);
+    };
+
+    // Edit a service in the list of services
+    const handleEditService = async (serviceId, updatedServiceData) => {
+        try {
+            const response = await axiosReq.put(`/admin/services/${serviceId}/`, updatedServiceData);
+            setServices((prevServices) =>
+                prevServices.map((service) =>
+                    service.id === serviceId ? response.data : service
+                )
+            );
+            setShowEditModal(false); // Close the edit modal
+        } catch (err) {
+            console.error("Error updating service:", err);
+        }
+    };
+
+    // Delete a service from the list of services
+    const handleDeleteService = async (serviceId) => {
+        try {
+            await axiosReq.delete(`/admin/services/${serviceId}/`);
+            setServices((prevServices) => prevServices.filter((service) => service.id !== serviceId));
+            setShowDeleteModal(false); // Close the delete modal
+        } catch (err) {
+            console.error("Error deleting service:", err);
         }
     };
 
@@ -352,24 +422,6 @@ const AdminBookings = () => {
     }, []);
 
 
-    const handleServiceChange = (serviceId) => {
-        let updatedSelectedServices;
-        if (selectedServices.includes(serviceId)) {
-            updatedSelectedServices = selectedServices.filter((id) => id !== serviceId);
-        } else {
-            updatedSelectedServices = [...selectedServices, serviceId];
-        }
-
-        setSelectedServices(updatedSelectedServices);
-
-        // Summarize working time for all chosen services
-        const selectedServiceTimes = services
-            .filter((service) => updatedSelectedServices.includes(service.id))
-            .reduce((total, service) => total + parseWorktimeToMinutes(service.worktime), 0);
-
-        setTotalWorktime(selectedServiceTimes);
-    };
-
     const [bookingError, setBookingError] = useState("");
     const [showAlert, setShowAlert] = useState(false);
 
@@ -392,7 +444,7 @@ const AdminBookings = () => {
             modalSelectedServices.includes(service.id)
         );
 
-        // Calculate total duration
+        // Calculate total duration of booking
         const duration = calculateBookingDuration(selectedServiceDetails);
         setTotalDuration(duration);
 
@@ -422,14 +474,7 @@ const AdminBookings = () => {
                 if (dateTimeValue.length === 16) {
                     dateTimeValue += ":00";  // Add seconds if missing
                 }
-                bookingData = {
-                    user_id: parseInt(form.user.value),
-                    service_ids: Array.from(form.services.options)
-                        .filter((option) => option.selected)
-                        .map((option) => parseInt(option.value)),
-                    date_time: format(new Date(form.date_time.value), "yyyy-MM-dd'T'HH:mm:ssXXX"),
-                };
-
+                
                 bookingData = {
                     user_id: parseInt(form.user.value),
                     service_ids: modalSelectedServices,
@@ -476,10 +521,71 @@ const AdminBookings = () => {
             <Container>
                 <Row className="justify-content-center">
                     <Col md={12}>
-                        <h2 className={`${styles["choose-services-heading"]}`}>
+                        <h2 className={`${styles["choose-services-heading"]} mt-4`}>
                             Choose Services
                         </h2>
 
+                        <Row className="justify-content-center mb-4">
+                            <Col md={8} className={`${styles["services-to-choose"]} ${styles["services-forms"]}`}>
+                                <Form className="mb-2">
+                                    {services.map((service) => (
+                                        <div key={service.id} className="d-flex justify-content-between align-items-center">
+                                            <Form.Check
+                                                className={styles["service-checkbox"]}
+                                                type="checkbox"
+                                                label={`${service.name} (${convertWorktimeToReadableFormat(service.worktime)})`}
+                                                checked={selectedServices.includes(service.id)}
+                                                onChange={() => handleServiceChange(service.id)}
+                                            />
+                                            <div className="d-flex justify-content-start align-items-center">
+                                                <Button className={`${styles["edit-service-button"]}`} onClick={() => handleOpenEditModal(service)}>
+                                                    <FontAwesomeIcon icon={faPenToSquare} />
+                                                </Button>
+                                                <Button className={`${styles["delete-service-button"]}`} onClick={() => handleOpenDeleteModal(service)}>
+                                                    <FontAwesomeIcon icon={faTrashCan} />
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </Form>
+
+                                {/* Add Service Button */}
+                                <div className="mt-3 text-center">
+                                    {/* ServiceManagement Component */}
+                                    <ServiceManagement
+                                        services={services}
+                                        setServices={setServices}
+                                        onEditService={handleEditService}
+                                        onDeleteService={handleDeleteService}
+                                    />
+                                </div>
+
+                            </Col>
+                        </Row>
+
+
+                        <h2 className={`${styles["choose-date-time-heading"]} mt-2`}>
+                            Choose Date / Time
+                        </h2>
+
+                        <Row className="justify-content-center">
+                            <Col
+                                xs={12}
+                                md={12}
+                                className="px-0 d-flex justify-content-center"
+                            >
+                                {timezoneMessage && (
+                                    <Alert
+                                        variant="warning"
+                                        className={`mt-3 ${styles["alert-custom"]}`}
+                                    >
+                                        {timezoneMessage}
+                                    </Alert>
+                                )}
+                            </Col>
+                        </Row>
+
+                        {/* ALERTS */}
                         {bookingSuccess && (
                             <Alert
                                 variant="success"
@@ -501,55 +607,6 @@ const AdminBookings = () => {
                                 <p>{bookingError}</p>
                             </Alert>
                         )}
-
-                        <Form
-                            className={`${styles["services-to-choose"]} ${styles["booking-form"]}`}
-                        >
-                            {services.map((service) => {
-                                return (
-                                    <div
-                                        key={service.id}
-                                        className={styles["service-checkbox"]}
-                                    >
-                                        <Form.Check
-                                            type="checkbox"
-                                            label={`${service.name} (${convertWorktimeToReadableFormat(
-                                                service.worktime
-                                            )})`}
-                                            checked={selectedServices.includes(service.id)}
-                                            onChange={() => handleServiceChange(service.id)}
-                                        />
-                                    </div>
-                                );
-                            })}
-                        </Form>
-
-                        <Row className="justify-content-center">
-                            <Col className="d-flex justify-content-center">
-                                <ServiceManagement />
-                            </Col>
-                        </Row>
-
-                        <h2 className={`${styles["choose-date-time-heading"]}`}>
-                            Choose Date / Time
-                        </h2>
-
-                        <Row className="justify-content-center">
-                            <Col
-                                xs={12}
-                                md={12}
-                                className="px-0 d-flex justify-content-center"
-                            >
-                                {timezoneMessage && (
-                                    <Alert
-                                        variant="warning"
-                                        className={`mt-3 ${styles["alert-custom"]}`}
-                                    >
-                                        {timezoneMessage}
-                                    </Alert>
-                                )}
-                            </Col>
-                        </Row>
 
                         <Row className="justify-content-center">
                             <Col xs={12} md={12} className="px-0">
@@ -780,7 +837,75 @@ const AdminBookings = () => {
                     {isSubmitting ? "Booking..." : "Book Clients"}
                 </Button>
             </div>
+            {/* Edit Service Modal */}
+            <Modal show={showEditModal} onHide={() => setShowEditModal(false)}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Edit Service</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Form
+                        onSubmit={(e) => {
+                            e.preventDefault();
+                            handleEditService(selectedService.id, {
+                                name: e.target.name.value,
+                                worktime: e.target.worktime.value,
+                                price: parseFloat(e.target.price.value),
+                            });
+                            setShowEditModal(false); // Close modal after submitting
+                        }}
+                    >
+                        <Form.Group controlId="name">
+                            <Form.Label>Service Name</Form.Label>
+                            <Form.Control
+                                type="text"
+                                defaultValue={selectedService?.name}
+                                required
+                            />
+                        </Form.Group>
+                        <Form.Group controlId="worktime">
+                            <Form.Label>Work Time (HH:MM:SS)</Form.Label>
+                            <Form.Control
+                                type="text"
+                                defaultValue={selectedService?.worktime}
+                                required
+                            />
+                        </Form.Group>
+                        <Form.Group controlId="price">
+                            <Form.Label>Price</Form.Label>
+                            <Form.Control
+                                type="number"
+                                step="0.01"
+                                defaultValue={selectedService?.price}
+                                required
+                            />
+                        </Form.Group>
+                        <Button type="submit">Save Changes</Button>
+                    </Form>
+                </Modal.Body>
+            </Modal>
 
+            <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Delete Service</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    Are you sure you want to delete the service: {selectedService?.name}?
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>
+                        Cancel
+                    </Button>
+                    <Button
+                        variant="danger"
+                        onClick={() => {
+                            handleDeleteService(selectedService.id);
+                            setShowDeleteModal(false); // Close modal after deleting
+                        }}
+                    >
+                        Delete
+                    </Button>
+                </Modal.Footer>
+            </Modal>
         </div>
     );
 };
