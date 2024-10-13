@@ -378,7 +378,7 @@ const Bookings = () => {
                             </Alert>
                         )}
 
-                        <Form className={`${styles["services-to-choose"]} ${styles["booking-form"]}`}>
+                        <Form className={`${styles["services-to-choose"]} ${styles["services-forms"]}`}>
                             {services.map((service) => {
                                 return (
                                     <div key={service.id} className={styles["service-checkbox"]}>
