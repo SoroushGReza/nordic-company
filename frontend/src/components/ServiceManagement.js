@@ -1,56 +1,52 @@
-import React, { useState } from "react";
-import {
-    Dropdown,
-    DropdownButton,
-    Button,
-    Form,
-    Alert,
-    Row,
-    Col,
-} from "react-bootstrap";
+import React, { useState, useEffect } from "react";
+import { Button, Form, Alert, Row, Col } from "react-bootstrap";
 import { axiosReq } from "../api/axiosDefaults";
+import styles from "../styles/ServiceManagement.module.css";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCaretDown } from '@fortawesome/free-solid-svg-icons';
 
-const ServiceManagement = ({ services = [], setServices }) => {
+const ServiceManagement = ({ services = [], setServices, onEditService, onDeleteService }) => {
     const [error, setError] = useState(null);
-    const [currentService, setCurrentService] = useState(null);
+    const [showForm, setShowForm] = useState(false); // Form visibility state
 
-    // Form state
-    const [showForm, setShowForm] = useState(false);
+    // Handle clicks outside the form to hide it and show "Add Service" button again
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            const formElement = document.getElementById("service-form");
+            if (formElement && !formElement.contains(event.target)) {
+                closeServiceForm();
+            }
+        };
 
-    const handleServiceUpdate = async (serviceId, updatedData) => {
-        try {
-            const response = await axiosReq.put(
-                `/admin/services/${serviceId}/`,
-                updatedData
-            );
-            setServices(
-                services.map((service) =>
-                    service.id === serviceId ? response.data : service
-                )
-            );
-            setCurrentService(null);
-            setShowForm(false);
-        } catch (err) {
-            setError("Error updating service");
+        if (showForm) {
+            document.addEventListener("mousedown", handleClickOutside);
+        } else {
+            document.removeEventListener("mousedown", handleClickOutside);
         }
-    };
 
-    const handleDeleteService = async (serviceId) => {
-        try {
-            await axiosReq.delete(`/admin/services/${serviceId}/`);
-            setServices(
-                services.filter((service) => service.id !== serviceId)
-            );
-        } catch (err) {
-            setError("Error deleting service");
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, [showForm]);
+
+    // Clear error after 5 seconds
+    useEffect(() => {
+        if (error) {
+            const timer = setTimeout(() => {
+                setError(null); // Clear the error after 5 seconds
+            }, 5000);
+
+            return () => clearTimeout(timer); // Cleanup timer on unmount
         }
-    };
+    }, [error]);
 
+    // ADD SERVICE FUNCTION
     const handleAddService = async (newService) => {
         try {
             const response = await axiosReq.post(`/admin/services/`, newService);
-            setServices([...services, response.data]);
-            setShowForm(false);
+            setServices((prevServices) => [...prevServices, response.data]); // Append new service
+            setShowForm(false); // Close form after adding
+            setError(null); // Clear error if successful
         } catch (err) {
             setError("Error adding service");
         }
@@ -65,100 +61,51 @@ const ServiceManagement = ({ services = [], setServices }) => {
             price: parseFloat(form.price.value),
         };
 
-        if (currentService) {
-            handleServiceUpdate(currentService.id, serviceData);
-        } else {
-            handleAddService(serviceData);
-        }
+        handleAddService(serviceData); // Add service directly
     };
 
-    const openServiceForm = (service = null) => {
-        setCurrentService(service);
-        setShowForm(true);
+    const openServiceForm = () => {
+        setShowForm(true); // Show form
     };
 
     const closeServiceForm = () => {
-        setCurrentService(null);
-        setShowForm(false);
+        setShowForm(false); // Hide form and reset state
     };
 
     return (
         <div>
-            <DropdownButton id="dropdown-basic-button" title="Manage Services">
-                <Dropdown.Item onClick={() => openServiceForm()}>
-                    Add Service
-                </Dropdown.Item>
-                {services && services.length > 0 ? (
-                    services.map((service) => (
-                        <Dropdown.Item key={service.id}>
-                            {service.name}{" "}
-                            <Button
-                                variant="link"
-                                onClick={() => openServiceForm(service)}
-                            >
-                                Edit
-                            </Button>{" "}
-                            <Button
-                                variant="link"
-                                className="text-danger"
-                                onClick={() => handleDeleteService(service.id)}
-                            >
-                                Delete
-                            </Button>
-                        </Dropdown.Item>
-                    ))
-                ) : (
-                    <Dropdown.Item>No services available</Dropdown.Item>
-                )}
-            </DropdownButton>
+            {!showForm && ( // Show "Add Service" button when form is not visible
+                <Button onClick={openServiceForm} className={`${styles["add-service-btn"]}`}>
+                    Add Service <FontAwesomeIcon icon={faCaretDown} />
+                </Button>
+            )}
 
             {showForm && (
-                <Form onSubmit={handleServiceSubmit}>
+                <Form id="service-form" onSubmit={handleServiceSubmit}>
                     {error && <Alert variant="danger">{error}</Alert>}
-                    <Row>
-                        <Col>
+                    <Row className="justify-content-center">
+                        <Col md={4} className="d-flex justify-content-center">
                             <Form.Group controlId="name">
-                                <Form.Label>Service Name</Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    name="name"
-                                    defaultValue={currentService?.name || ""}
-                                    required
-                                />
+                                <Form.Label className={styles["form-label"]}>Service Name</Form.Label>
+                                <Form.Control className={styles["form-input"]} type="text" name="name" required />
                             </Form.Group>
                         </Col>
-                        <Col>
+                        <Col md={4} className="d-flex justify-content-center">
                             <Form.Group controlId="worktime">
-                                <Form.Label>Work Time (HH:MM:SS)</Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    name="worktime"
-                                    defaultValue={currentService?.worktime || ""}
-                                    required
-                                />
+                                <Form.Label className={styles["form-label"]}>Work Time <span className={styles["label-span"]}>(HH:MM:SS)</span></Form.Label>
+                                <Form.Control className={styles["form-input"]} type="text" name="worktime" required />
                             </Form.Group>
                         </Col>
-                        <Col>
+                        <Col md={4} className="d-flex justify-content-center">
                             <Form.Group controlId="price">
-                                <Form.Label>Price</Form.Label>
-                                <Form.Control
-                                    type="number"
-                                    step="0.01"
-                                    name="price"
-                                    defaultValue={currentService?.price || ""}
-                                    required
-                                />
+                                <Form.Label className={styles["form-label"]}>Price</Form.Label>
+                                <Form.Control className={styles["form-input"]} type="number" step="0.01" name="price" required />
                             </Form.Group>
                         </Col>
                     </Row>
-                    <Button type="submit" variant="primary">
-                        {currentService ? "Update Service" : "Add Service"}
-                    </Button>{" "}
-                    <Button
-                        variant="secondary"
-                        onClick={closeServiceForm}
-                    >
-                        Cancel
+
+                    <Button type="submit" className={`${styles["add-service-btn"]} mt-3`}>
+                        Add Service
                     </Button>
                 </Form>
             )}

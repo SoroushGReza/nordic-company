@@ -1,0 +1,41 @@
+/*  ---- Add Service Button ----  */
+.add-service-btn {
+    background-color: rgba(127, 181, 0, 0.395) !important;
+    border: 1px solid rgba(128, 128, 128, 0.32) !important;
+    color: white !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    font-family: Hero-light !important;
+    margin-top: 16px !important;
+    margin-bottom: 5px !important;
+}
+
+.add-service-btn:hover{
+    background-color: rgba(0, 0, 255, 0) !important;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+}
+
+/*  ---- Form Label ----  */
+.form-label {
+    font-size: 15px;
+    margin: 0 auto !important;
+
+}
+
+/*  ---- Form Input ----  */
+.form-input {
+    background-color: rgba(137, 137, 137, 0.429) !important;
+    border: 2px solid #bcc0b63c !important;
+    color: white !important;
+    font-family: Hero-Regular !important;
+}
+
+.form-input:focus {
+    border-color: #7fb5008c !important;
+    box-shadow: 0 0 5px #7fb500 !important;
+    outline: none !important;
+}
+
+.label-span {
+    font-size: 8px !important;
+}
+
