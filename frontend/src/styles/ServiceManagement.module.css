@@ -35,6 +35,30 @@
     outline: none !important;
 }
 
+/*  ---- Information Input ----  */
+.information-input {
+    width: 100% !important;
+    margin: 0 auto !important;
+}
+
+/* More Button */
+.more-fields-btn {
+    background-color: transparent !important;
+    border: none !important;
+    font-size: 20px !important;
+    color: rgb(47, 47, 47) !important;
+    padding: 0 !important;
+    font-family: 'Poppins' !important;
+}
+
+.more-fields-btn:hover {
+    background-color: transparent !important;
+    border: none !important;
+    color: black !important;
+}
+
+
+/* --- HH:MM:SS in Label --- */
 .label-span {
     font-size: 8px !important;
 }

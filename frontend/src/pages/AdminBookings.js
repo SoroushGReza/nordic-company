@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Container, Row, Col, Button, Form, Alert, Modal } from "react-bootstrap";
+import { Container, Row, Col, Button, Form, Alert, Modal, OverlayTrigger, Tooltip } from "react-bootstrap";
 import { Calendar, dateFnsLocalizer } from "react-big-calendar";
 import { format } from "date-fns-tz";
 import parse from "date-fns/parse";
@@ -14,6 +14,7 @@ import { useNavigate } from "react-router-dom";
 import ServiceManagement from "../components/ServiceManagement";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPenToSquare, faTrashCan } from '@fortawesome/free-solid-svg-icons';
+import { faInfoCircle } from "@fortawesome/free-solid-svg-icons";
 
 const locales = {
     "en-IE": require("date-fns/locale/en-IE"),
@@ -80,6 +81,20 @@ const calculateTotalPrice = (services) => {
     return services.reduce((total, service) => total + parseFloat(service.price), 0);
 };
 
+const renderTooltip = (service) => (
+    <Tooltip id={`tooltip-${service.id}`}>
+        <div>
+            <strong>Price:</strong> {service.price} EUR <br />
+            {service.information && (
+                <>
+                    <strong>Information:</strong> <br /> {/* Radbrytning här */}
+                    <span>{service.information}</span> {/* Omslut information i en span eller p */}
+                </>
+            )}
+        </div>
+    </Tooltip>
+);
+
 const AdminBookings = () => {
     const [services, setServices] = useState([]);
     const [selectedServices, setSelectedServices] = useState([]);
@@ -134,17 +149,6 @@ const AdminBookings = () => {
     const handleOpenDeleteModal = (service) => {
         setSelectedService(service);
         setShowDeleteModal(true);
-    };
-
-    // Close the modals and reset selectedService
-    const closeEditModal = () => {
-        setShowEditModal(false);
-        setSelectedService(null); // Clear selected service after closing modal
-    };
-
-    const closeDeleteModal = () => {
-        setShowDeleteModal(false);
-        setSelectedService(null); // Clear selected service after closing modal
     };
 
     // Open Booking Modal
@@ -474,7 +478,7 @@ const AdminBookings = () => {
                 if (dateTimeValue.length === 16) {
                     dateTimeValue += ":00";  // Add seconds if missing
                 }
-                
+
                 bookingData = {
                     user_id: parseInt(form.user.value),
                     service_ids: modalSelectedServices,
@@ -538,6 +542,17 @@ const AdminBookings = () => {
                                                 onChange={() => handleServiceChange(service.id)}
                                             />
                                             <div className="d-flex justify-content-start align-items-center">
+                                                {/* Info-ikon med Tooltip */}
+                                                <OverlayTrigger
+                                                    placement="top"
+                                                    overlay={renderTooltip(service)} // Använd Tooltip-funktion
+                                                >
+                                                    <FontAwesomeIcon
+                                                        icon={faInfoCircle}
+                                                        className="mx-2"
+                                                        style={{ cursor: 'pointer' }}
+                                                    />
+                                                </OverlayTrigger>
                                                 <Button className={`${styles["edit-service-button"]}`} onClick={() => handleOpenEditModal(service)}>
                                                     <FontAwesomeIcon icon={faPenToSquare} />
                                                 </Button>
@@ -850,6 +865,7 @@ const AdminBookings = () => {
                                 name: e.target.name.value,
                                 worktime: e.target.worktime.value,
                                 price: parseFloat(e.target.price.value),
+                                information: e.target.information.value || "",  // Uppdatera information fältet
                             });
                             setShowEditModal(false); // Close modal after submitting
                         }}
@@ -879,10 +895,21 @@ const AdminBookings = () => {
                                 required
                             />
                         </Form.Group>
+                        {/* Nytt Form.Group för Information */}
+                        <Form.Group controlId="information">
+                            <Form.Label>Information</Form.Label>
+                            <Form.Control
+                                as="textarea"
+                                rows={3}
+                                defaultValue={selectedService?.information || ""}  // Standardvärde till befintlig information eller tomt
+                                placeholder="Optional service information"
+                            />
+                        </Form.Group>
                         <Button type="submit">Save Changes</Button>
                     </Form>
                 </Modal.Body>
             </Modal>
+
 
             <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
                 <Modal.Header closeButton>

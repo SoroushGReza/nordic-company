@@ -5,12 +5,12 @@ from .models import Service, Booking, Availability
 # Admin panel for the Service model
 @admin.register(Service)
 class ServiceAdmin(admin.ModelAdmin):
-    list_display = ["name", "worktime", "price"]
+    list_display = ["name", "worktime", "price", "information"]
     fieldsets = (
         (
             None,
             {
-                "fields": ("name", "worktime", "price"),
+                "fields": ("name", "worktime", "price", "information"),
                 "description": "For worktime, use the format: HH:MM:SS (e.g., 4:00:00 for 4 hours)",
             },
         ),

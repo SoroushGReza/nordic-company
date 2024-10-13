@@ -8,9 +8,11 @@ class Service(models.Model):
     name = models.CharField(max_length=100)
     worktime = models.DurationField()
     price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    information = models.TextField(blank=True, null=True)  # New field
 
     def __str__(self):
-        return f"{self.name} ({self.worktime}, {self.price} EUR)"
+        info = f" - {self.information}" if self.information else ""
+        return f"{self.name} ({self.worktime}, {self.price} EUR){info}"
 
 
 class Booking(models.Model):

@@ -85,7 +85,7 @@ class AvailabilitySerializer(serializers.ModelSerializer):
 class AdminServiceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Service
-        fields = ["id", "name", "worktime", "price"]
+        fields = ["id", "name", "worktime", "price", "information"]
 
 
 class AdminAvailabilitySerializer(serializers.ModelSerializer):
