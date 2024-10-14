@@ -10,7 +10,7 @@ from accounts.models import CustomUser
 class ServiceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Service
-        fields = ["id", "name", "worktime", "price"]
+        fields = ["id", "name", "worktime", "price", "information"]
 
 
 # Serializer for Booking to handle multiple services
