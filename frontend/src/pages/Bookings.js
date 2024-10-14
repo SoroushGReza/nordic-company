@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Container, Row, Col, Button, Form, Alert, Modal, Collapse } from "react-bootstrap";
+import { Container, Row, Col, Button, Form, Alert, Modal, Collapse, Tooltip } from "react-bootstrap";
 import { Calendar, dateFnsLocalizer } from "react-big-calendar";
 import { format } from "date-fns-tz";
 import parse from "date-fns/parse";
@@ -10,6 +10,7 @@ import { axiosReq } from "../api/axiosDefaults";
 import styles from "../styles/Bookings.module.css";
 import { parseISO } from "date-fns";
 import { useMediaQuery } from 'react-responsive';
+import ServiceInfo from "../components/ServiceInfo";
 
 
 const locales = {
@@ -121,6 +122,21 @@ const convertWorktimeToReadableFormat = (worktime) => {
 const calculateTotalPrice = (services) => {
     return services.reduce((total, service) => total + parseFloat(service.price), 0);
 };
+
+// Info Tooltip
+const renderTooltip = (service) => (
+    <Tooltip id={`tooltip-${service.id}`}>
+        <div>
+            <strong>Price:</strong> {service.price} EUR <br />
+            {service.information && (
+                <>
+                    <strong>Information:</strong> <br />
+                    <span className="text-start">{service.information}</span>
+                </>
+            )}
+        </div>
+    </Tooltip>
+);
 
 const Bookings = () => {
     const [services, setServices] = useState([]);
@@ -379,18 +395,21 @@ const Bookings = () => {
                         )}
 
                         <Form className={`${styles["services-to-choose"]} ${styles["services-forms"]}`}>
-                            {services.map((service) => {
-                                return (
-                                    <div key={service.id} className={styles["service-checkbox"]}>
+                            {services.map((service) => (
+                                <div key={service.id} className="d-flex justify-content-between align-items-center mb-2">
+                                    <div className="d-flex align-items-center">
                                         <Form.Check
                                             type="checkbox"
                                             label={`${service.name} (${convertWorktimeToReadableFormat(service.worktime)})`}
                                             checked={selectedServices.includes(service.id)}
                                             onChange={() => handleServiceChange(service.id)}
+                                            className="me-2"
                                         />
                                     </div>
-                                );
-                            })}
+                                    {/* Info-ikon med Tooltip */}
+                                    <ServiceInfo service={service} renderTooltip={renderTooltip} />
+                                </div>
+                            ))}
                         </Form>
 
                         <h2 className={`${styles["choose-date-time-heading"]}`}>Choose Date / Time</h2>
