@@ -801,9 +801,9 @@ const AdminBookings = () => {
                                         ) : (
                                             // Display selected date & time when adding a booking
                                             <p>
-                                                {bookingDateTime
-                                                    ? DateTime.fromJSDate(bookingDateTime)
-                                                        .setZone('Europe/Dublin')
+                                                {selectedTime
+                                                    ? DateTime.fromJSDate(selectedTime.start)
+                                                        .setZone('Europe/Dublin', { keepLocalTime: true }) // Convert to Irish time
                                                         .toFormat('yyyy-MM-dd HH:mm')
                                                     : 'No time selected'}
                                             </p>
