@@ -1,37 +1,26 @@
 import React, { useState, useEffect } from "react";
 import { Container, Row, Col, Button, Form, Alert, Modal, Tooltip } from "react-bootstrap";
-import { Calendar, dateFnsLocalizer } from "react-big-calendar";
-import { format } from "date-fns-tz";
-import parse from "date-fns/parse";
-import startOfWeek from "date-fns/startOfWeek";
-import getDay from "date-fns/getDay";
+import { Calendar, luxonLocalizer } from "react-big-calendar";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { axiosReq } from "../api/axiosDefaults";
 import styles from "../styles/Bookings.module.css";
-import { parseISO } from "date-fns";
 import { useMediaQuery } from 'react-responsive';
 import { useNavigate } from "react-router-dom";
 import ServiceManagement from "../components/ServiceManagement";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPenToSquare, faTrashCan } from '@fortawesome/free-solid-svg-icons';
 import ServiceInfo from "../components/ServiceInfo";
+import { DateTime } from 'luxon';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 
-const locales = {
-    "en-IE": require("date-fns/locale/en-IE"),
-};
 
-const localizer = dateFnsLocalizer({
-    format,
-    parse,
-    startOfWeek,
-    getDay,
-    locales,
-});
+const localizer = luxonLocalizer(DateTime);
 
 // Show Date and day / Date based on screen size
 const CustomHeader = ({ date }) => {
     const isMobile = useMediaQuery({ query: '(max-width: 992px)' });
-    const day = getDay(date);
+    const day = date.getDay();
 
     // Determine the class based on the day
     const headerClass =
@@ -39,14 +28,14 @@ const CustomHeader = ({ date }) => {
             ? styles['weekend-header']
             : styles['weekday-header'];
 
-    // Format date based on screen size
-    const formattedDate = isMobile ? format(date, 'dd') : format(date, 'dd EEE'); // Show only day for mobile
+    // Format date based on screen size using Luxon
+    const formattedDate = isMobile
+        ? DateTime.fromJSDate(date).toFormat('dd')
+        : DateTime.fromJSDate(date).toFormat('dd EEE'); // Show only day for mobile
 
     return (
-        <div className={headerClass}>
-            <button type="button" className="rbc-button-link">
-                <span role="columnheader" aria-sort="none">{formattedDate}</span>
-            </button>
+        <div className={`${headerClass} rbc-button-link`}>
+            <span role="columnheader" aria-sort="none">{formattedDate}</span>
         </div>
     );
 };
@@ -88,7 +77,7 @@ const renderTooltip = (service) => (
             <strong>Price:</strong> {service.price} EUR <br />
             {service.information && (
                 <>
-                    <strong>Information:</strong> <br /> 
+                    <strong>Information:</strong> <br />
                     <span>{service.information}</span>
                 </>
             )}
@@ -113,10 +102,11 @@ const AdminBookings = () => {
     const navigate = useNavigate();
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const todayMin = new Date();
+    const todayMin = DateTime.local().setZone('Europe/Dublin').set({ hour: 8, minute: 0, second: 0, millisecond: 0 }).toJSDate();
     todayMin.setHours(8, 0, 0, 0);
-    const todayMax = new Date();
+    const todayMax = DateTime.local().setZone('Europe/Dublin').set({ hour: 20, minute: 30, second: 0, millisecond: 0 }).toJSDate();
     todayMax.setHours(20, 30, 0, 0);
+    const [bookingDateTime, setBookingDateTime] = useState(null);
 
     const [showEditModal, setShowEditModal] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -156,11 +146,17 @@ const AdminBookings = () => {
     const openBookingModal = (booking = null) => {
         setCurrentBooking(booking);
         if (booking) {
-            // When editing, initialize with services from the booking
+            // When editing, initialize with services and date_time from the booking
             setModalSelectedServices(booking.services.map(service => service.id));
+            const dateTime = DateTime.fromISO(booking.date_time, { zone: 'Europe/Dublin' }).toJSDate();
+            setBookingDateTime(dateTime);
         } else {
-            // When adding, initialize with curently selected services
+            // When adding, initialize with currently selected services and time
             setModalSelectedServices(selectedServices);
+            if (selectedTime) {
+                const dateTime = DateTime.fromJSDate(selectedTime.start).setZone('Europe/Dublin').toJSDate();
+                setBookingDateTime(dateTime);
+            }
         }
         setShowBookingModal(true);
     };
@@ -195,8 +191,8 @@ const AdminBookings = () => {
         try {
             const response = await axiosReq.post(`/admin/bookings/`, newBooking);
             setAllEvents([...allEvents, {
-                start: parseISO(response.data.date_time),
-                end: parseISO(response.data.end_time),
+                start: DateTime.fromISO(response.data.date_time, { zone: 'Europe/Dublin' }).toJSDate(),
+                end: DateTime.fromISO(response.data.end_time, { zone: 'Europe/Dublin' }).toJSDate(),
                 title: "Booking",
                 booked: true,
                 available: false,
@@ -337,8 +333,8 @@ const AdminBookings = () => {
                         const userName = booking.user_name || 'Unknown User';
 
                         return {
-                            start: parseISO(booking.date_time),
-                            end: parseISO(booking.end_time),
+                            start: DateTime.fromISO(booking.date_time, { zone: 'Europe/Dublin' }).toJSDate(),
+                            end: DateTime.fromISO(booking.end_time, { zone: 'Europe/Dublin' }).toJSDate(),
                             title: userName,  // Name, Surname
                             available: false,
                             booked: true,
@@ -398,19 +394,22 @@ const AdminBookings = () => {
         fetchTimes();
 
         const checkTimezone = () => {
-            const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
             const irelandTimezone = 'Europe/Dublin';
-            const currentIrelandTime = new Date().toLocaleString("en-US", { timeZone: irelandTimezone });
-            const irelandDate = new Date(currentIrelandTime);
-            const currentUserDate = new Date();
 
-            // Calculate the timezone difference and round it to the nearest whole number
-            const timezoneDifference = Math.round((currentUserDate - irelandDate) / (1000 * 60 * 60));
+            const irelandDate = DateTime.now().setZone(irelandTimezone);
+            const currentUserDate = DateTime.local();
 
-            if (userTimezone !== irelandTimezone) {
-                setTimezoneMessage(<>You are currently in the <strong>{userTimezone}</strong> timezone, which is <strong>{timezoneDifference > 0 ? "+" : ""}{timezoneDifference} hours </strong>{timezoneDifference > 0 ? "ahead" : "behind"} of Ireland's time.</>);
+            // Calculate timezone difference in hours 
+            const timezoneDifference = Math.round((currentUserDate.offset - irelandDate.offset) / 60);
+
+            if (currentUserDate.zoneName !== irelandTimezone) {
+                setTimezoneMessage(
+                    <>
+                        You are currently in timezone <strong>{currentUserDate.zoneName}</strong>, which is <strong>{timezoneDifference > 0 ? "+" : ""}{timezoneDifference} hours</strong> {timezoneDifference > 0 ? "ahead" : "behind"} Ireland time.
+                    </>
+                );
             } else {
-                setTimezoneMessage("Please note that all bookings are made in Irish time (GMT+1).");
+                setTimezoneMessage("Please note that all bookings are made in Irish time. (GMT+1).");
             }
         };
         checkTimezone();
@@ -467,35 +466,32 @@ const AdminBookings = () => {
 
     const handleBookingSubmit = async (event) => {
         event.preventDefault();
-        const form = event.target;
         setIsSubmitting(true);
 
-        let bookingData = {};
-
         try {
+            if (!bookingDateTime) {
+                console.error("No date and time selected.");
+                setIsSubmitting(false);
+                return;
+            }
+
+            // Convert bookingDateTime to UTC before sending to backend
+            const dateTimeUTC = DateTime.fromJSDate(bookingDateTime)
+                .setZone('Europe/Dublin')
+                .toUTC()
+                .toISO();
+
+            const bookingData = {
+                user_id: parseInt(event.target.user.value),
+                service_ids: modalSelectedServices,
+                date_time: dateTimeUTC,
+            };
+
             if (currentBooking) {
                 // Editing an existing booking
-                let dateTimeValue = form.date_time.value;
-                if (dateTimeValue.length === 16) {
-                    dateTimeValue += ":00";  // Add seconds if missing
-                }
-
-                bookingData = {
-                    user_id: parseInt(form.user.value),
-                    service_ids: modalSelectedServices,
-                    date_time: format(selectedTime.start, "yyyy-MM-dd'T'HH:mm:ssXXX"),
-                };
-
-
                 await handleBookingUpdate(currentBooking.id, bookingData);
             } else {
                 // Adding a new booking
-                bookingData = {
-                    user_id: parseInt(form.user.value),
-                    service_ids: modalSelectedServices,
-                    date_time: format(selectedTime.start, "yyyy-MM-dd'T'HH:mm:ssXXX"),
-                };
-
                 await handleAddBooking(bookingData);
             }
         } catch (err) {
@@ -787,15 +783,30 @@ const AdminBookings = () => {
                                         <Form.Label>Date & Time</Form.Label>
                                         {currentBooking ? (
                                             // Editable when editing a booking
-                                            <Form.Control
-                                                type="datetime-local"
-                                                name="date_time"
-                                                defaultValue={new Date(currentBooking.date_time).toISOString().slice(0, 19)}
+                                            <DatePicker
+                                                selected={bookingDateTime}
+                                                onChange={(date) => setBookingDateTime(date)}
+                                                showTimeSelect
+                                                timeFormat="HH:mm"
+                                                timeIntervals={15}
+                                                dateFormat="yyyy-MM-dd HH:mm"
+                                                timeCaption="Time"
                                                 required
+                                                className="form-control"
+                                                timeZone="Europe/Dublin"
+                                                placeholderText="Select date and time"
+                                                minDate={new Date()}
+                                                maxDate={DateTime.local().plus({ months: 6 }).toJSDate()} // Example: limit booking to 6 months ahead
                                             />
                                         ) : (
                                             // Display selected date & time when adding a booking
-                                            <p>{selectedTime ? new Date(selectedTime.start).toLocaleString() : 'No time selected'}</p>
+                                            <p>
+                                                {bookingDateTime
+                                                    ? DateTime.fromJSDate(bookingDateTime)
+                                                        .setZone('Europe/Dublin')
+                                                        .toFormat('yyyy-MM-dd HH:mm')
+                                                    : 'No time selected'}
+                                            </p>
                                         )}
                                     </Form.Group>
 
