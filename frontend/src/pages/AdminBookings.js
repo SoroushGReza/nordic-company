@@ -13,6 +13,7 @@ import ServiceInfo from "../components/ServiceInfo";
 import { DateTime } from 'luxon';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+import useBookingEvents from "../hooks/useBookingEvents";
 
 
 const localizer = luxonLocalizer(DateTime);
@@ -58,7 +59,6 @@ const calculateBookingDuration = (services) => {
     return `${hours}h ${minutes > 0 ? `${minutes}min` : ''}`.trim();
 };
 
-
 // Convert Worktime to Readable Format 
 const convertWorktimeToReadableFormat = (worktime) => {
     const [hours, minutes] = worktime.split(':').map(Number);
@@ -86,12 +86,12 @@ const renderTooltip = (service) => (
 );
 
 const AdminBookings = () => {
+    const { events, refreshEvents } = useBookingEvents(true);
     const [services, setServices] = useState([]);
     const [selectedServices, setSelectedServices] = useState([]);
     const [bookingSuccess, setBookingSuccess] = useState(false);
     const [selectedTime, setSelectedTime] = useState(null);
     const [totalWorktime, setTotalWorktime] = useState(0); // Storing total worktime
-    const [allEvents, setAllEvents] = useState([]);
     const [totalDuration, setTotalDuration] = useState('');
     const [totalPrice, setTotalPrice] = useState(0);
     const [timezoneMessage, setTimezoneMessage] = useState("");
@@ -171,11 +171,7 @@ const AdminBookings = () => {
     const handleBookingUpdate = async (bookingId, updatedData) => {
         try {
             await axiosReq.put(`/admin/bookings/${bookingId}/`, updatedData);
-            setAllEvents(
-                allEvents.map(event =>
-                    event.id === bookingId ? { ...event, ...updatedData } : event
-                )
-            );
+            refreshEvents();
             closeBookingModal();
         } catch (err) {
             if (err.response) {
@@ -189,15 +185,9 @@ const AdminBookings = () => {
     // Add Booking
     const handleAddBooking = async (newBooking) => {
         try {
-            const response = await axiosReq.post(`/admin/bookings/`, newBooking);
-            setAllEvents([...allEvents, {
-                start: DateTime.fromISO(response.data.date_time, { zone: 'Europe/Dublin' }).toJSDate(),
-                end: DateTime.fromISO(response.data.end_time, { zone: 'Europe/Dublin' }).toJSDate(),
-                title: "Booking",
-                booked: true,
-                available: false,
-                id: response.data.id
-            }]);
+            await axiosReq.post(`/admin/bookings/`, newBooking);
+
+            refreshEvents();
             setBookingSuccess(true);
             closeBookingModal();
         } catch (err) {
@@ -219,7 +209,7 @@ const AdminBookings = () => {
             await axiosReq.delete(`/admin/bookings/${bookingId}/`);
 
             // Remove the deleted booking from the calendar events
-            setAllEvents(allEvents.filter((event) => event.id !== bookingId));
+            refreshEvents();
 
             closeBookingModal();
         } catch (err) {
@@ -293,14 +283,7 @@ const AdminBookings = () => {
                 end_time: end.toTimeString().split(' ')[0],  // Tid i HH:MM:SS format
             });
 
-            // Update state to add new availabilitys
-            setAllEvents([...allEvents, {
-                start,
-                end,
-                available: true,
-                booked: false,
-                id: response.data.id
-            }]);
+            refreshEvents();
 
             console.log("Availability created successfully:", response.data);
         } catch (err) {
@@ -386,7 +369,6 @@ const AdminBookings = () => {
                     return events;
                 });
 
-                setAllEvents([...availableEvents, ...bookedEvents]);
             } catch (err) {
                 console.error("Error fetching times:", err);
             }
@@ -622,7 +604,7 @@ const AdminBookings = () => {
                                     <Calendar
                                         className={`${styles["custom-calendar"]}`}
                                         localizer={localizer}
-                                        events={allEvents}
+                                        events={events}
                                         step={30}
                                         timeslots={2}
                                         defaultView="week"
@@ -641,7 +623,7 @@ const AdminBookings = () => {
                                             const selectedEndTime = slotInfo.end;
 
                                             // Check if opverlapping bookings
-                                            const isOverlappingBooked = allEvents.some(event =>
+                                            const isOverlappingBooked = events.some(event =>
                                                 event.booked && (
                                                     (selectedStartTime >= event.start && selectedStartTime < event.end) ||
                                                     (selectedEndTime > event.start && selectedEndTime <= event.end) ||
@@ -682,7 +664,7 @@ const AdminBookings = () => {
                                                 }
                                             } else if (event.available && event.title === "Selected Time") {
                                                 // If event is already selected, un-select it
-                                                setAllEvents(allEvents.filter(ev => ev !== event));
+                                                refreshEvents();
                                                 setSelectedTime(null);
                                             } else if (event.available && totalWorktime > 0) {
                                                 // Select a new time as selected time
@@ -697,8 +679,8 @@ const AdminBookings = () => {
 
                                                 setSelectedTime(selectedRange);
 
-                                                const newEvents = [...allEvents.filter(ev => ev.title !== "Selected Time"), selectedRange];
-                                                setAllEvents(newEvents);
+                                                const newEvents = [...events.filter(ev => ev.title !== "Selected Time"), selectedRange];
+                                                refreshEvents();
                                             }
                                         }}
 
