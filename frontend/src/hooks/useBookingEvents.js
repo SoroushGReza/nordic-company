@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { axiosReq } from "../api/axiosDefaults";
 import { DateTime } from "luxon";
 
@@ -8,7 +8,7 @@ const useBookingEvents = (isAdmin = false) => {
     const [bookingError, setBookingError] = useState("");
     const [loading, setLoading] = useState(true);
 
-    const fetchEvents = async () => {
+    const fetchEvents = useCallback(async () => {
         setLoading(true);
         try {
             const availabilityUrl = isAdmin ? "/admin/availability/" : "/availability/";
@@ -26,7 +26,7 @@ const useBookingEvents = (isAdmin = false) => {
                 return {
                     start: DateTime.fromISO(booking.date_time).toJSDate(),
                     end: DateTime.fromISO(booking.end_time).toJSDate(),
-                    title: "Booked",
+                    title: booking.user_name || "Unknown User",
                     booked: true,
                     id: booking.id,
                 };
@@ -79,11 +79,11 @@ const useBookingEvents = (isAdmin = false) => {
             setBookingError("Could not fetch events. Please try again.");
             setLoading(false);
         }
-    };
+    }, [isAdmin]);
 
     useEffect(() => {
         fetchEvents();
-    }, [isAdmin]);
+    }, [fetchEvents]);
 
     const refreshEvents = () => {
         fetchEvents();
