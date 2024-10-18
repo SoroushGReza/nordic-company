@@ -63,6 +63,7 @@ const useBookingEvents = (isAdmin = false) => {
                             end: eventEnd,
                             available: true,
                             booked: false,
+                            availabilityId: avail.id,
                         });
                     }
 

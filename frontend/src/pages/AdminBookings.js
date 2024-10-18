@@ -107,10 +107,11 @@ const AdminBookings = () => {
     const todayMax = DateTime.local().setZone('Europe/Dublin').set({ hour: 20, minute: 30, second: 0, millisecond: 0 }).toJSDate();
     todayMax.setHours(20, 30, 0, 0);
     const [bookingDateTime, setBookingDateTime] = useState(null);
-
     const [showEditModal, setShowEditModal] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [selectedService, setSelectedService] = useState(null);
+    const [overlappingAvailableEvents, setOverlappingAvailableEvents] = useState([]);
+    const [showDeleteAvailabilityModal, setShowDeleteAvailabilityModal] = useState(false);
 
     // Check admin status of user 
     useEffect(() => {
@@ -270,6 +271,26 @@ const AdminBookings = () => {
         setShowConfirmModal(false);
     };
 
+    // Confirm availability deletion
+    const deleteAvailability = async (availabilityIds) => {
+        try {
+            // Remove duplicate IDs
+            const uniqueIds = [...new Set(availabilityIds)];
+
+            await Promise.all(uniqueIds.map(id =>
+                axiosReq.delete(`/admin/availability/${id}/`)
+            ));
+
+            refreshEvents();
+            setSelectedTime(null);
+            setOverlappingAvailableEvents([]);
+            setShowDeleteAvailabilityModal(false);
+        } catch (err) {
+            console.error("Error deleting availability:", err);
+            setBookingError("Could not delete availability. Please try again.");
+        }
+    };
+
     // Cancel availability creation
     const handleCancelAvailability = () => {
         setSelectedTime(null);
@@ -424,6 +445,18 @@ const AdminBookings = () => {
     const eventPropGetter = (event) => {
         let className = "";
 
+        if (event.title === "Selected Time") {
+            // Selected time slot
+            className = styles["selected-time"];
+            return {
+                className,
+                children: (
+                    <div>
+                        <span>Selected Time</span>
+                    </div>
+                ),
+            };
+        }
         if (event.booked) {
             className = styles["user-booking"]; // Blue
         } else if (event.available) {
@@ -576,9 +609,30 @@ const AdminBookings = () => {
                                                 return;  // Cancel if overlap
                                             }
 
-                                            // Store selected time and show verification modal
-                                            setSelectedTime({ start: selectedStartTime, end: selectedEndTime });
-                                            setShowConfirmModal(true);
+                                            // Calculate overlapping available events
+                                            const overlappingAvailableEvents = events.filter(event =>
+                                                event.available && (
+                                                    (selectedStartTime >= event.start && selectedStartTime < event.end) ||
+                                                    (selectedEndTime > event.start && selectedEndTime <= event.end) ||
+                                                    (selectedStartTime <= event.start && selectedEndTime >= event.end)
+                                                )
+                                            );
+
+                                            if (overlappingAvailableEvents.length > 0) {
+                                                if (selectedServices.length === 0) {
+                                                    // Prompt for deletion
+                                                    setSelectedTime({ start: selectedStartTime, end: selectedEndTime });
+                                                    setOverlappingAvailableEvents(overlappingAvailableEvents);
+                                                    setShowDeleteAvailabilityModal(true);
+                                                    return;
+                                                } else {
+                                                    // Proceed to booking creation (if applicable)
+                                                }
+                                            } else {
+                                                // Proceed to create new availability
+                                                setSelectedTime({ start: selectedStartTime, end: selectedEndTime });
+                                                setShowConfirmModal(true);
+                                            }
                                         }}
                                         onSelectEvent={async (event) => {
                                             if (event.booked) {
@@ -607,14 +661,16 @@ const AdminBookings = () => {
                                                 // Deselect the time slot
                                                 setSelectedTime(null);
                                             } else if (event.available) {
-                                                // Select the time slot
-                                                const startTime = event.start;
-
-                                                if (totalWorktime > 0) {
-                                                    const endTime = new Date(startTime.getTime() + totalWorktime * 60000); // totalWorktime is in minutes
-                                                    setSelectedTime({ start: startTime, end: endTime });
+                                                if (selectedServices.length === 0) {
+                                                    // Prompt for deletion
+                                                    setSelectedTime({ start: event.start, end: event.end });
+                                                    setOverlappingAvailableEvents([event]);
+                                                    setShowDeleteAvailabilityModal(true);
                                                 } else {
-                                                    alert("Please select services to determine booking duration.");
+                                                    // Proceed to booking creation
+                                                    const startTime = event.start;
+                                                    const endTime = new Date(startTime.getTime() + totalWorktime * 60000);
+                                                    setSelectedTime({ start: startTime, end: endTime });
                                                 }
                                             }
                                         }}
@@ -763,7 +819,35 @@ const AdminBookings = () => {
                             </Modal.Footer>
                         </Modal>
 
-
+                        {/* Modal for deleting availability */}
+                        <Modal show={showDeleteAvailabilityModal} onHide={() => setShowDeleteAvailabilityModal(false)}>
+                            <Modal.Header closeButton>
+                                <Modal.Title>Delete Availability</Modal.Title>
+                            </Modal.Header>
+                            <Modal.Body>
+                                Do you want to delete the selected available times?
+                                {overlappingAvailableEvents.length > 0 && (
+                                    <ul>
+                                        {overlappingAvailableEvents.map((event, index) => (
+                                            <li key={index}>
+                                                {DateTime.fromJSDate(event.start).toFormat('yyyy-MM-dd HH:mm')} - {DateTime.fromJSDate(event.end).toFormat('HH:mm')}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                )}
+                            </Modal.Body>
+                            <Modal.Footer>
+                                <Button variant="secondary" onClick={() => setShowDeleteAvailabilityModal(false)}>
+                                    Cancel
+                                </Button>
+                                <Button variant="danger" onClick={() => {
+                                    const availabilityIds = overlappingAvailableEvents.map(event => event.availabilityId);
+                                    deleteAvailability(availabilityIds);
+                                }}>
+                                    Delete
+                                </Button>
+                            </Modal.Footer>
+                        </Modal>
                     </Col>
                 </Row>
             </Container>

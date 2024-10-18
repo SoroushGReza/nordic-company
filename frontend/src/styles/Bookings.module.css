@@ -234,13 +234,14 @@ button.book-services-btn:hover {
 
 /* Selected Time */
 .selected-time {
-    background-color: black !important;
-    color: white !important;
+    background-color: lightblue !important;  
+    color: black !important;
     width: 100% !important;
     left: 0 !important;
     z-index: 999;
     box-sizing: border-box;
     border: none;
+    font-size: 12px;
 }
 
 /* Unavailable times */
