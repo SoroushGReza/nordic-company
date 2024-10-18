@@ -4,6 +4,7 @@ import { Calendar, luxonLocalizer } from "react-big-calendar";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { axiosReq } from "../api/axiosDefaults";
 import styles from "../styles/Bookings.module.css";
+import modalStyles from "../styles/Modals.module.css"
 import { useMediaQuery } from 'react-responsive';
 import { useNavigate } from "react-router-dom";
 import ServiceManagement from "../components/ServiceManagement";
@@ -364,7 +365,6 @@ const AdminBookings = () => {
         fetchUsers();
     }, []);
 
-
     const [bookingError, setBookingError] = useState("");
     const [showAlert, setShowAlert] = useState(false);
 
@@ -439,7 +439,6 @@ const AdminBookings = () => {
             setIsSubmitting(false);
         }
     };
-
 
     // Show different colours for different events in the calendar
     const eventPropGetter = (event) => {
@@ -678,19 +677,20 @@ const AdminBookings = () => {
                                 </div>
                             </Col>
                         </Row>
-                        {/* Modal for adding/editing bookings */}
-                        <Modal show={showBookingModal} onHide={closeBookingModal}>
-                            <Modal.Header closeButton>
-                                <Modal.Title>
+                        {/* Add/Edit Bookings Modal */}
+                        <Modal className={`${modalStyles["addEditDeleteModal"]}`} show={showBookingModal} onHide={closeBookingModal}>
+                            <Modal.Header className={`${modalStyles["modalHeader"]}`} closeButton>
+                                <Modal.Title className={`${modalStyles["modalTitle"]}`}>
                                     {currentBooking ? "Edit Booking" : "Add Booking"}
                                 </Modal.Title>
                             </Modal.Header>
-                            <Modal.Body>
+                            <Modal.Body className={`${modalStyles["modalBody"]}`}>
                                 <Form onSubmit={handleBookingSubmit}>
                                     {/* Select User */}
                                     <Form.Group controlId="user">
-                                        <Form.Label>User</Form.Label>
+                                        <Form.Label className={`${modalStyles["formLabel"]}`}>User</Form.Label>
                                         <Form.Control
+                                            className={`${modalStyles["formControl"]}`}
                                             as="select"
                                             name="user"
                                             defaultValue={currentBooking?.user || ""}
@@ -706,11 +706,12 @@ const AdminBookings = () => {
                                     </Form.Group>
 
                                     {/* Services */}
-                                    <Form.Group controlId="services">
-                                        <Form.Label>Services</Form.Label>
+                                    <Form.Group controlId="services" className={`${modalStyles["servicesForUpdate"]}`}>
+                                        <Form.Label className={`${modalStyles["formLabel"]}`}>Services</Form.Label>
                                         {currentBooking ? (
                                             // Editable when editing a booking
                                             <Form.Control
+                                                className={`${modalStyles["formControl"]}`}
                                                 as="select"
                                                 name="services"
                                                 multiple
@@ -729,30 +730,24 @@ const AdminBookings = () => {
                                             </Form.Control>
                                         ) : (
                                             // Display selected services when adding a booking
-                                            <div>
-                                                {modalSelectedServices.map((serviceId) => {
-                                                    const service = services.find((s) => s.id === serviceId);
-                                                    return <p key={serviceId}>{service?.name}</p>;
-                                                })}
+                                            <div className={`${modalStyles["fieldValueServices"]}`}>
+                                                {modalSelectedServices
+                                                    .map((serviceId) => services.find((s) => s.id === serviceId)?.name)
+                                                    .filter(Boolean)
+                                                    .join(", ")}
                                             </div>
                                         )}
                                     </Form.Group>
 
                                     {/* Total Duration */}
                                     <Form.Group controlId="total_duration">
-                                        <Form.Label>Total Duration</Form.Label>
-                                        <p>{totalDuration || 'N/A'}</p>
-                                    </Form.Group>
-
-                                    {/* Total Price */}
-                                    <Form.Group controlId="total_price">
-                                        <Form.Label>Total Price</Form.Label>
-                                        <p>{totalPrice ? `${totalPrice} Euro` : 'N/A'}</p>
+                                        <Form.Label className={`${modalStyles["formLabel"]}`}>Total Duration</Form.Label>
+                                        <p className={`${modalStyles["fieldValues"]}`}>{totalDuration || 'N/A'}</p>
                                     </Form.Group>
 
                                     {/* Date & Time */}
                                     <Form.Group controlId="date_time">
-                                        <Form.Label>Date & Time</Form.Label>
+                                        <Form.Label className={`${modalStyles["formLabel"]}`}>Date & Start Time</Form.Label>
                                         {currentBooking ? (
                                             // Editable when editing a booking
                                             <DatePicker
@@ -764,7 +759,7 @@ const AdminBookings = () => {
                                                 dateFormat="yyyy-MM-dd HH:mm"
                                                 timeCaption="Time"
                                                 required
-                                                className="form-control"
+                                                className={`${modalStyles["datePicker"]} form-control`}
                                                 timeZone="Europe/Dublin"
                                                 placeholderText="Select date and time"
                                                 minDate={new Date()}
@@ -772,7 +767,7 @@ const AdminBookings = () => {
                                             />
                                         ) : (
                                             // Display selected date & time when adding a booking
-                                            <p>
+                                            <p className={`${modalStyles["fieldValues"]}`}>
                                                 {selectedTime
                                                     ? DateTime.fromJSDate(selectedTime.start)
                                                         .setZone('Europe/Dublin', { keepLocalTime: true }) // Convert to Irish time
@@ -782,20 +777,30 @@ const AdminBookings = () => {
                                         )}
                                     </Form.Group>
 
+                                    {/* Total Price */}
+                                    <Form.Group controlId="total_price" className={`${modalStyles["lastFormGroup"]}`}>
+                                        <Form.Label className={`${modalStyles["formLabel"]}`}>Total Price</Form.Label>
+                                        <div className={`${modalStyles["priceContainer"]}`}>
+                                            <span className={`${modalStyles["priceFrom"]}`}>from</span>
+                                            <p className={`${modalStyles["fieldValues"]}`}>{totalPrice ? `${totalPrice} Euro` : 'N/A'}</p>
+                                        </div>
+                                    </Form.Group>
+
                                     {/* Modal Footer */}
-                                    <Modal.Footer>
-                                        <Button variant="secondary" onClick={closeBookingModal}>
+                                    <Modal.Footer className={`${modalStyles["modalFooter"]}`}>
+                                        <Button variant="secondary" onClick={closeBookingModal} className={`${modalStyles["modalCancelBtn"]}`}>
                                             Cancel
                                         </Button>
                                         {currentBooking && (
                                             <Button
                                                 variant="danger"
                                                 onClick={() => handleDeleteBooking(currentBooking.id)}
+                                                className={`${modalStyles["deleteBookingBtn"]}`}
                                             >
                                                 Delete Booking
                                             </Button>
                                         )}
-                                        <Button type="submit" variant="primary">
+                                        <Button type="submit" variant="primary" className={`${modalStyles["addUpdateBtn"]}`}>
                                             {currentBooking ? "Update Booking" : "Add Booking"}
                                         </Button>
                                     </Modal.Footer>
@@ -803,44 +808,45 @@ const AdminBookings = () => {
                             </Modal.Body>
                         </Modal>
 
-                        {/* Modal for adding availabilitys */}
-                        <Modal show={showConfirmModal} onHide={handleCancelAvailability}>
-                            <Modal.Header closeButton>
-                                <Modal.Title>Confirm Availability</Modal.Title>
+                        {/* Add Availabilitys Modal */}
+                        <Modal className={`${modalStyles["addEditDeleteModal"]}`} show={showConfirmModal} onHide={handleCancelAvailability}>
+                            <Modal.Header className={`${modalStyles["modalHeader"]}`} closeButton>
+                                <Modal.Title className={`${modalStyles["modalTitle"]}`}>Add Availability</Modal.Title>
                             </Modal.Header>
-                            <Modal.Body>Do you want to add this area as available?</Modal.Body>
-                            <Modal.Footer>
-                                <Button variant="secondary" onClick={handleCancelAvailability}>
-                                    Cancel
-                                </Button>
-                                <Button variant="primary" onClick={handleConfirmAvailability}>
-                                    Yes
-                                </Button>
-                            </Modal.Footer>
+                            <Modal.Body className={`${modalStyles["modalBody"]}`}>
+                                <p className={`${modalStyles["corfirmAddingAvailability"]}`}>Do you want to add this area as available?</p>
+                                <Modal.Footer className={`${modalStyles["modalFooter"]}`}>
+                                    <Button
+                                        variant="secondary"
+                                        onClick={handleCancelAvailability}
+                                        className={`${modalStyles["modalCancelBtn"]}`}
+                                    >
+                                        Cancel
+                                    </Button>
+                                    <Button
+                                        variant="primary"
+                                        onClick={handleConfirmAvailability}
+                                        className={`${modalStyles["addUpdateBtn"]}`}
+                                    >
+                                        Yes
+                                    </Button>
+                                </Modal.Footer>
+                            </Modal.Body>
                         </Modal>
 
-                        {/* Modal for deleting availability */}
-                        <Modal show={showDeleteAvailabilityModal} onHide={() => setShowDeleteAvailabilityModal(false)}>
-                            <Modal.Header closeButton>
-                                <Modal.Title>Delete Availability</Modal.Title>
+                        {/* Delete Availability Modal */}
+                        <Modal className={`${modalStyles["deleteModal"]}`} show={showDeleteAvailabilityModal} onHide={() => setShowDeleteAvailabilityModal(false)}>
+                            <Modal.Header className={`${modalStyles["deleteModalHeader"]}`} closeButton>
+                                <Modal.Title className={`${modalStyles["deleteModalTitle"]}`}>Delete Availability</Modal.Title>
                             </Modal.Header>
-                            <Modal.Body>
+                            <Modal.Body className={`${modalStyles["corfirmDeleteAvailability"]}`}>
                                 Do you want to delete the selected available times?
-                                {overlappingAvailableEvents.length > 0 && (
-                                    <ul>
-                                        {overlappingAvailableEvents.map((event, index) => (
-                                            <li key={index}>
-                                                {DateTime.fromJSDate(event.start).toFormat('yyyy-MM-dd HH:mm')} - {DateTime.fromJSDate(event.end).toFormat('HH:mm')}
-                                            </li>
-                                        ))}
-                                    </ul>
-                                )}
                             </Modal.Body>
-                            <Modal.Footer>
-                                <Button variant="secondary" onClick={() => setShowDeleteAvailabilityModal(false)}>
+                            <Modal.Footer className={`${modalStyles["deleteModalFooter"]}`}>
+                                <Button className={`${modalStyles["modalCancelBtn"]}`} variant="secondary" onClick={() => setShowDeleteAvailabilityModal(false)}>
                                     Cancel
                                 </Button>
-                                <Button variant="danger" onClick={() => {
+                                <Button className={`${modalStyles["deleteBookingBtn"]}`} variant="danger" onClick={() => {
                                     const availabilityIds = overlappingAvailableEvents.map(event => event.availabilityId);
                                     deleteAvailability(availabilityIds);
                                 }}>
@@ -918,7 +924,7 @@ const AdminBookings = () => {
                 </Modal.Body>
             </Modal>
 
-
+            {/* Delete Service Modal */}
             <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
                 <Modal.Header closeButton>
                     <Modal.Title>Delete Service</Modal.Title>
