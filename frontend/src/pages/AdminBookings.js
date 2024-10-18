@@ -165,6 +165,7 @@ const AdminBookings = () => {
     const closeBookingModal = () => {
         setCurrentBooking(null);
         setShowBookingModal(false);
+        setSelectedTime(null);
     };
 
     // Edit Booking
@@ -190,6 +191,7 @@ const AdminBookings = () => {
             refreshEvents();
             setBookingSuccess(true);
             closeBookingModal();
+            setSelectedTime(null);
         } catch (err) {
             // Detailed error message
             const errorMessages = err.response?.data?.non_field_errors || Object.values(err.response?.data || {}).flat().join(', ') || "Could not add booking. Please try again.";
@@ -296,78 +298,12 @@ const AdminBookings = () => {
     useEffect(() => {
         const fetchTimes = async () => {
             try {
-                const { data: availability } = await axiosReq.get("/admin/availability/");
                 const { data: allBookings } = await axiosReq.get("/admin/bookings/");
                 const { data: servicesData } = await axiosReq.get("/admin/services/");
 
                 console.log("Fetched Bookings:", allBookings);
 
                 setServices(servicesData);
-
-                // Create events for all bookings and style them as blue events
-                const bookedEvents = allBookings
-                    .map((booking) => {
-                        if (!booking.date_time || !booking.end_time) {
-                            console.warn("Skipping invalid booking entry:", booking);
-                            return null;
-                        }
-
-                        // Use the 'user_name' field from backend
-                        const userName = booking.user_name || 'Unknown User';
-
-                        return {
-                            start: DateTime.fromISO(booking.date_time, { zone: 'Europe/Dublin' }).toJSDate(),
-                            end: DateTime.fromISO(booking.end_time, { zone: 'Europe/Dublin' }).toJSDate(),
-                            title: userName,  // Name, Surname
-                            available: false,
-                            booked: true,
-                            id: booking.id,
-                        };
-                    })
-                    .filter((event) => event !== null);
-
-                // Generate available events split into 30-minute intervals
-                const availableEvents = availability.flatMap((avail) => {
-                    const [year, month, day] = avail.date.split("-").map(Number);
-                    const [startHour, startMinute, startSecond] = avail.start_time.split(":").map(Number);
-                    const [endHour, endMinute, endSecond] = avail.end_time.split(":").map(Number);
-
-                    const start = new Date(year, month - 1, day, startHour, startMinute, startSecond);
-                    const end = new Date(year, month - 1, day, endHour, endMinute, endSecond);
-
-                    const events = [];
-                    let current = start;
-
-                    while (current < end) {
-                        const next = new Date(current.getTime() + 30 * 60 * 1000); // 30 minutes forward
-
-                        const eventStart = new Date(current);
-                        const eventEnd = new Date(next);
-
-                        // Check if there is overlapping booked times
-                        const isOverlapping = bookedEvents.some((booked) => {
-                            return (
-                                (booked.start <= eventStart && eventStart < booked.end) ||
-                                (booked.start < eventEnd && eventEnd <= booked.end) ||
-                                (eventStart <= booked.start && eventEnd >= booked.end)
-                            );
-                        });
-
-                        // Only add available times that do not overlap with bookings
-                        if (!isOverlapping) {
-                            events.push({
-                                start: eventStart,
-                                end: eventEnd,
-                                available: true,
-                                booked: false,
-                            });
-                        }
-
-                        current = next;
-                    }
-
-                    return events;
-                });
 
             } catch (err) {
                 console.error("Error fetching times:", err);
@@ -604,7 +540,12 @@ const AdminBookings = () => {
                                     <Calendar
                                         className={`${styles["custom-calendar"]}`}
                                         localizer={localizer}
-                                        events={events}
+                                        events={selectedTime ? events.concat([{
+                                            start: selectedTime.start,
+                                            end: selectedTime.end,
+                                            title: "Selected Time",
+                                            available: true,
+                                        }]) : events}
                                         step={30}
                                         timeslots={2}
                                         defaultView="week"
@@ -662,28 +603,21 @@ const AdminBookings = () => {
                                                 } catch (error) {
                                                     console.error("Error fetching booking details:", error);
                                                 }
-                                            } else if (event.available && event.title === "Selected Time") {
-                                                // If event is already selected, un-select it
-                                                refreshEvents();
+                                            } else if (event.title === "Selected Time") {
+                                                // Deselect the time slot
                                                 setSelectedTime(null);
-                                            } else if (event.available && totalWorktime > 0) {
-                                                // Select a new time as selected time
+                                            } else if (event.available) {
+                                                // Select the time slot
                                                 const startTime = event.start;
-                                                const endTime = new Date(startTime.getTime() + totalWorktime * 60000);
-                                                const selectedRange = {
-                                                    start: startTime,
-                                                    end: endTime,
-                                                    title: "Selected Time",
-                                                    available: true,
-                                                };
 
-                                                setSelectedTime(selectedRange);
-
-                                                const newEvents = [...events.filter(ev => ev.title !== "Selected Time"), selectedRange];
-                                                refreshEvents();
+                                                if (totalWorktime > 0) {
+                                                    const endTime = new Date(startTime.getTime() + totalWorktime * 60000); // totalWorktime is in minutes
+                                                    setSelectedTime({ start: startTime, end: endTime });
+                                                } else {
+                                                    alert("Please select services to determine booking duration.");
+                                                }
                                             }
                                         }}
-
                                     />
                                 </div>
                             </Col>
