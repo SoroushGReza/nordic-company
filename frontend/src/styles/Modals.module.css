@@ -117,7 +117,7 @@
     color: rgb(211, 211, 211) !important;
 }
 
-
+/* --- Choose Date and Time --- */
 .datePicker{
     margin-left: 3px !important;
     font-family: "Poppins";
@@ -135,7 +135,6 @@
 }
 
 /* --- Delete Availability Modal --- */
-
 .deleteModal {
     background-color: rgba(187, 103, 103, 0.178) !important;
 }
