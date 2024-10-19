@@ -41,10 +41,10 @@
 
 .fieldValueServices {
     font-family: hero-regular !important;
-    color: rgb(133, 71, 0);
-    font-size: 16px;
+    color: rgb(0, 107, 28) !important;
+    font-size: 16px !important;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
-    word-spacing: 5px;
+    word-spacing: 1px !important;
     font-weight: bold;
 }
 
@@ -127,14 +127,17 @@
     border: 1px solid rgba(69, 114, 69, 0.322) !important;
 }
 
-/* ---- Add / Edit / Delete Availability Modal ---- */
+
+
+/* ---------- Add / Edit / Delete Availability Modal ---------- */
 
 /* --- Add Availability Modal --- */
 .corfirmAddingAvailability {
     font-family: "Poppins" !important;
 }
 
-/* --- Delete Availability Modal --- */
+
+/* --------- Delete Modal --------- */
 .deleteModal {
     background-color: rgba(187, 103, 103, 0.178) !important;
 }
@@ -158,8 +161,25 @@
     padding-right: 10px !important;
 }
 
-.corfirmDeleteAvailability {
+.corfirmDeleteModalBody {
     font-family: "Poppins" !important;
     background-color: rgb(226, 177, 177) !important;
     padding: 20px !important;
 }
+
+/* "(HH:MM:SS)" */
+.labelSpan{
+    font-size: 11px !important;
+    font-family: hero-regular;
+}
+
+/* --- Service Name in Delete Service Modal ---*/
+.deleteModalServiceName {
+    font-family: hero-regular !important;
+    color: rgb(133, 71, 0);
+    font-size: 22px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+    word-spacing: 5px;
+    font-weight: bold;
+}
+
