@@ -8,6 +8,7 @@ import getDay from "date-fns/getDay";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { axiosReq } from "../api/axiosDefaults";
 import styles from "../styles/Bookings.module.css";
+import modalStyles from "../styles/Modals.module.css";
 import { parseISO } from "date-fns";
 import { useMediaQuery } from 'react-responsive';
 import ServiceInfo from "../components/ServiceInfo";
@@ -97,9 +98,9 @@ const CustomHeader = ({ date }) => {
 
     return (
         <div className={headerClass}>
-            <button type="button" className="rbc-button-link">
+            <div className="rbc-button-link" role="button">
                 <span role="columnheader" aria-sort="none">{formattedDate}</span>
-            </button>
+            </div>
         </div>
     );
 };
@@ -151,6 +152,9 @@ const Bookings = () => {
     const [timezoneMessage, setTimezoneMessage] = useState("");
     const [modalSelectedServices, setModalSelectedServices] = useState([]);
     const [bookingDateTime, setBookingDateTime] = useState(new Date());
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false); // Delete confirmation modal
+    const [bookingIdToDelete, setBookingIdToDelete] = useState(null);  // Store the booking ID to delete
+
 
     const todayMin = new Date();
     todayMin.setHours(8, 0, 0, 0);
@@ -384,22 +388,16 @@ const Bookings = () => {
         }
     };
 
-
     // Delete Booking
     const handleDeleteBooking = async (bookingId) => {
         try {
-            const confirmDelete = window.confirm("Are you sure you want to delete this booking?");
-            if (!confirmDelete) return; // Exit if the user cancels
-
             await axiosReq.delete(`/bookings/${bookingId}/edit/`);
-            // refreshEvents(); // Refresh events after deletion
-            setSelectedBooking(null); // Close the modal after deletion
+            setSelectedBooking(null); // Close the edit modal after deletion
         } catch (err) {
             console.error("Error deleting booking:", err);
             setBookingError("Could not delete booking. Please try again.");
         }
     };
-
 
     return (
         <div className={styles["page-container"]}>
@@ -602,29 +600,33 @@ const Bookings = () => {
                             </Col>
                         </Row>
                         {selectedBooking && (
-                            <Modal show={true} onHide={() => setSelectedBooking(null)}>
-                                <Modal.Header closeButton>
-                                    <Modal.Title>Edit Booking</Modal.Title>
+                            <Modal className={`${modalStyles["addEditDeleteModal"]}`} show={true} onHide={() => setSelectedBooking(null)}>
+                                <Modal.Header className={`${modalStyles["modalHeader"]}`} closeButton>
+                                    <Modal.Title className={`${modalStyles["modalTitle"]}`}>Edit Booking</Modal.Title>
                                 </Modal.Header>
-                                <Modal.Body>
+                                <Modal.Body className={`${modalStyles["modalBody"]}`}>
                                     {/* Display booking duration */}
-                                    <p>
-                                        <strong>Duration:</strong> {calculateBookingDuration(selectedBooking.start, selectedBooking.end)}
+                                    <p className={`${modalStyles["durationValue"]}`}>
+                                        <strong className={`${modalStyles["formLabel"]}`}>Duration:</strong>
+                                        <br />
+                                        <span>{calculateBookingDuration(selectedBooking.start, selectedBooking.end)}</span>
                                     </p>
+
 
                                     {/* Form for editing booking */}
                                     <Form onSubmit={(e) => {
                                         e.preventDefault();
                                         const updatedData = {
                                             service_ids: modalSelectedServices,
-                                            date_time: bookingDateTime.toISOString(), // Convert to ISO format
+                                            date_time: bookingDateTime.toISOString(),
                                         };
                                         handleBookingUpdate(selectedBooking.id, updatedData);
                                     }}>
                                         {/* Services Selection */}
                                         <Form.Group controlId="services">
-                                            <Form.Label>Services</Form.Label>
+                                            <Form.Label className={`${modalStyles["formLabel"]}`}>Services</Form.Label>
                                             <Form.Control
+                                                className={`${modalStyles["formControl"]}`}
                                                 as="select"
                                                 multiple
                                                 value={modalSelectedServices}
@@ -644,7 +646,7 @@ const Bookings = () => {
 
                                         {/* Date & Time Picker */}
                                         <Form.Group controlId="date_time">
-                                            <Form.Label>Date & Time</Form.Label>
+                                            <Form.Label className={`${modalStyles["formLabel"]}`}>Date & Time</Form.Label>
                                             <DatePicker
                                                 selected={bookingDateTime}
                                                 onChange={(date) => setBookingDateTime(date)}
@@ -654,35 +656,49 @@ const Bookings = () => {
                                                 dateFormat="yyyy-MM-dd HH:mm"
                                                 timeCaption="Time"
                                                 required
-                                                className="form-control"
+                                                className={`${modalStyles["datePicker"]} form-control`}
                                             />
                                         </Form.Group>
                                     </Form>
+
+                                    <Modal.Footer className={`${modalStyles["modalFooter"]}`}>
+                                        <Button className={`${modalStyles["modalCancelBtn"]}`} variant="secondary" onClick={() => setSelectedBooking(null)}>
+                                            Cancel
+                                        </Button>
+                                        <Button
+                                            className={`${modalStyles["deleteBookingBtn"]}`}
+                                            variant="danger"
+                                            onClick={() => {
+                                                setBookingIdToDelete(selectedBooking.id); // Set the booking ID to delete
+                                                setShowDeleteConfirm(true); // Show the confirmation modal
+                                            }}
+                                        >
+                                            Delete Booking
+                                        </Button>
+                                        <Button
+                                            className={`${modalStyles["addUpdateBtn"]}`}
+                                            type="submit"
+                                            variant="primary"
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                const updatedData = {
+                                                    service_ids: modalSelectedServices,
+                                                    date_time: bookingDateTime.toISOString(),
+                                                };
+                                                handleBookingUpdate(selectedBooking.id, updatedData);
+                                            }}>
+                                            Update Booking
+                                        </Button>
+                                    </Modal.Footer>
                                 </Modal.Body>
-                                <Modal.Footer>
-                                    <Button variant="secondary" onClick={() => setSelectedBooking(null)}>
-                                        Cancel
-                                    </Button>
-                                    <Button variant="danger" onClick={() => handleDeleteBooking(selectedBooking.id)}>
-                                        Delete Booking
-                                    </Button>
-                                    <Button type="submit" variant="primary" onClick={(e) => {
-                                        e.preventDefault();
-                                        const updatedData = {
-                                            service_ids: modalSelectedServices,
-                                            date_time: bookingDateTime.toISOString(),
-                                        };
-                                        handleBookingUpdate(selectedBooking.id, updatedData);
-                                    }}>
-                                        Update Booking
-                                    </Button>
-                                </Modal.Footer>
                             </Modal>
                         )}
 
                     </Col>
                 </Row>
             </Container>
+
+            {/* Book Services Button */}
             <div className={styles["sticky-button"]}>
                 <Button
                     onClick={handleBookingSubmit}
@@ -692,6 +708,36 @@ const Bookings = () => {
                     {isSubmitting ? "Booking..." : "Book Services"}
                 </Button>
             </div>
+
+            {/* Delete Booking  */}
+            <Modal
+                className={`${modalStyles["deleteModal"]}`}
+                show={showDeleteConfirm}
+                onHide={() => setShowDeleteConfirm(false)} centered
+            >
+                <Modal.Header className={`${modalStyles["deleteModalHeader"]}`} closeButton>
+                    <Modal.Title className={`${modalStyles["deleteModalTitle"]}`}>Confirm Deletion</Modal.Title>
+                </Modal.Header>
+                <Modal.Body className={`${modalStyles["corfirmDeleteModalBody"]}`}>
+                    Are you sure you want to delete this booking?
+                </Modal.Body>
+                <Modal.Footer className={`${modalStyles["deleteModalFooter"]}`}>
+                    <Button className={`${modalStyles["modalCancelBtn"]}`} variant="secondary" onClick={() => setShowDeleteConfirm(false)}>
+                        Cancel
+                    </Button>
+                    <Button
+                        className={`${modalStyles["deleteBookingBtn"]}`}
+                        variant="danger"
+                        onClick={async () => {
+                            await handleDeleteBooking(bookingIdToDelete);  // Delete the booking
+                            setShowDeleteConfirm(false);  // Close the confirmation modal
+                        }}
+                    >
+                        Delete
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+
         </div>
     );
 };
