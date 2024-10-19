@@ -76,7 +76,7 @@
 
 /* Focused and CHECKED */
 .service-checkbox input[type="checkbox"]:checked:focus {
-    box-shadow: 0 0 7px 2px #639d54c3 !important; 
+    box-shadow: 0 0 7px 2px #639d54c3 !important;
     border-color: #74896f !important;
 }
 
@@ -112,11 +112,11 @@
 .delete-service-button {
     background-color: #720d0d9d !important;
     color: whitesmoke;
-    height: 25px;  
-    width: 40px; 
+    height: 25px;
+    width: 40px;
     display: flex !important;
     justify-content: center !important;
-    align-items: center !important;    
+    align-items: center !important;
     border-radius: 5px;
     padding: 0;
     border: none !important;
@@ -127,6 +127,19 @@
     font-size: 18px !important;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
+
+/* --- Total price in service form --- */
+.totalPriceInServiceForm {
+    font-family: 'Poppins';
+    font-size: 18px;
+    color: #242424;
+}
+
+.priceSpan{
+    font-size: 13px;
+    color: #c5c0c0;
+}
+
 
 /* Choose Date/Time Heading */
 .choose-date-time-heading {
@@ -234,7 +247,7 @@ button.book-services-btn:hover {
 
 /* Selected Time */
 .selected-time {
-    background-color: lightblue !important;  
+    background-color: lightblue !important;
     color: black !important;
     width: 100% !important;
     left: 0 !important;

@@ -4,7 +4,7 @@ import { Calendar, luxonLocalizer } from "react-big-calendar";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { axiosReq } from "../api/axiosDefaults";
 import styles from "../styles/Bookings.module.css";
-import modalStyles from "../styles/Modals.module.css"
+import modalStyles from "../styles/Modals.module.css";
 import { useMediaQuery } from 'react-responsive';
 import { useNavigate } from "react-router-dom";
 import ServiceManagement from "../components/ServiceManagement";
