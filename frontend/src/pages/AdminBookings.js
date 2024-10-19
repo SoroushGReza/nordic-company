@@ -113,6 +113,8 @@ const AdminBookings = () => {
     const [selectedService, setSelectedService] = useState(null);
     const [overlappingAvailableEvents, setOverlappingAvailableEvents] = useState([]);
     const [showDeleteAvailabilityModal, setShowDeleteAvailabilityModal] = useState(false);
+    const [bookingError, setBookingError] = useState("");
+    const [showAlert, setShowAlert] = useState(false);
 
     // Check admin status of user 
     useEffect(() => {
@@ -367,9 +369,6 @@ const AdminBookings = () => {
         };
         fetchUsers();
     }, []);
-
-    const [bookingError, setBookingError] = useState("");
-    const [showAlert, setShowAlert] = useState(false);
 
     // Error Alert
     useEffect(() => {

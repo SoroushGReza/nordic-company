@@ -6,6 +6,7 @@
 
 .modalHeader {
     background: linear-gradient(to right, rgba(0, 128, 0, 0.368), rgba(255, 255, 0, 0.386)) !important;
+    border: none !important;
 }
 
 .modalTitle {
@@ -21,6 +22,7 @@
     border-bottom-left-radius: 7px !important;
     border-bottom-right-radius: 7px !important;
     padding: 10px !important;
+
 }
 
 .formLabel{
@@ -76,6 +78,7 @@
     padding-top: 10px !important;
     padding-bottom: 0 !important;
     padding-right: 0 !important;
+    border: none !important;
 }
 
 /* --- Add / Update / Booking Button --- */
@@ -125,6 +128,12 @@
     background-color: rgba(181, 205, 174, 0.888) !important;
     color: rgba(45, 45, 45, 0.865);
     border: 1px solid rgba(69, 114, 69, 0.322) !important;
+    margin-top: 8px !important;
+}
+
+.durationValue {
+    font-family: hero-regular !important;
+    margin-bottom: 0 !important;
 }
 
 
@@ -144,6 +153,7 @@
 
 .deleteModalHeader {
     background: linear-gradient(to right, rgba(170, 5, 5, 0.868), rgba(236, 89, 26, 0.511)) !important;
+    border: none !important;
 }
 
 .deleteModalTitle {
@@ -159,12 +169,14 @@
     padding-top: 10px !important;
     padding-bottom: 10px !important;
     padding-right: 10px !important;
+    border: none !important;
 }
 
 .corfirmDeleteModalBody {
     font-family: "Poppins" !important;
     background-color: rgb(226, 177, 177) !important;
     padding: 20px !important;
+    border: none !important;
 }
 
 /* "(HH:MM:SS)" */
