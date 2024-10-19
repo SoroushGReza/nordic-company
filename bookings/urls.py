@@ -12,6 +12,7 @@ from .views import (
     AdminBookingListCreateView,
     AdminBookingUpdateDeleteView,
     AvailabilityListCreateView,
+    BookingUpdateDeleteView
 )
 
 urlpatterns = [
@@ -52,6 +53,7 @@ urlpatterns = [
     path("bookings/mine/", BookingListView.as_view(), name="booking-list"),
     path("bookings/all/", AllBookingsListView.as_view(), name="booking-list-all"),
     path("bookings/<int:pk>/", BookingDetailView.as_view(), name="booking-detail"),
+    path("bookings/<int:pk>/edit/", BookingUpdateDeleteView.as_view(), name="booking-edit"),
     path(
         "availability/",
         AvailabilityListCreateView.as_view(),

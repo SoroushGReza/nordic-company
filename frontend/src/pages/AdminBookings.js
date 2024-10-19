@@ -4,7 +4,7 @@ import { Calendar, luxonLocalizer } from "react-big-calendar";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { axiosReq } from "../api/axiosDefaults";
 import styles from "../styles/Bookings.module.css";
-import modalStyles from "../styles/Modals.module.css"
+import modalStyles from "../styles/Modals.module.css";
 import { useMediaQuery } from 'react-responsive';
 import { useNavigate } from "react-router-dom";
 import ServiceManagement from "../components/ServiceManagement";
@@ -134,6 +134,53 @@ const AdminBookings = () => {
         checkAdminStatus();
     }, [navigate]);
 
+    // Handle selection/deselection of a service and update the total work time
+    const handleServiceChange = (serviceId) => {
+        let updatedSelectedServices;
+        if (selectedServices.includes(serviceId)) {
+            // Remove the service if it is already selected
+            updatedSelectedServices = selectedServices.filter((id) => id !== serviceId);
+        } else {
+            // Add the service if it is not already selected
+            updatedSelectedServices = [...selectedServices, serviceId];
+        }
+
+        setSelectedServices(updatedSelectedServices);
+
+        // Summarize working time for all chosen services
+        const selectedServiceTimes = services
+            .filter((service) => updatedSelectedServices.includes(service.id))
+            .reduce((total, service) => total + parseWorktimeToMinutes(service.worktime), 0);
+
+        setTotalWorktime(selectedServiceTimes);
+    };
+
+    // Edit a service in the list of services
+    const handleEditService = async (serviceId, updatedServiceData) => {
+        try {
+            const response = await axiosReq.put(`/admin/services/${serviceId}/`, updatedServiceData);
+            setServices((prevServices) =>
+                prevServices.map((service) =>
+                    service.id === serviceId ? response.data : service
+                )
+            );
+            setShowEditModal(false); // Close the edit modal
+        } catch (err) {
+            console.error("Error updating service:", err);
+        }
+    };
+
+    // Delete a service from the list of services
+    const handleDeleteService = async (serviceId) => {
+        try {
+            await axiosReq.delete(`/admin/services/${serviceId}/`);
+            setServices((prevServices) => prevServices.filter((service) => service.id !== serviceId));
+            setShowDeleteModal(false); // Close the delete modal
+        } catch (err) {
+            console.error("Error deleting service:", err);
+        }
+    };
+
     const handleOpenEditModal = (service) => {
         setSelectedService(service);
         setShowEditModal(true);
@@ -219,50 +266,6 @@ const AdminBookings = () => {
         } catch (err) {
             console.error("Error deleting booking:", err);
             setBookingError("Could not delete booking. Please try again.");
-        }
-    };
-
-    const handleServiceChange = (serviceId) => {
-        let updatedSelectedServices;
-        if (selectedServices.includes(serviceId)) {
-            updatedSelectedServices = selectedServices.filter((id) => id !== serviceId);
-        } else {
-            updatedSelectedServices = [...selectedServices, serviceId];
-        }
-
-        setSelectedServices(updatedSelectedServices);
-
-        // Summarize working time for all chosen services
-        const selectedServiceTimes = services
-            .filter((service) => updatedSelectedServices.includes(service.id))
-            .reduce((total, service) => total + parseWorktimeToMinutes(service.worktime), 0);
-
-        setTotalWorktime(selectedServiceTimes);
-    };
-
-    // Edit a service in the list of services
-    const handleEditService = async (serviceId, updatedServiceData) => {
-        try {
-            const response = await axiosReq.put(`/admin/services/${serviceId}/`, updatedServiceData);
-            setServices((prevServices) =>
-                prevServices.map((service) =>
-                    service.id === serviceId ? response.data : service
-                )
-            );
-            setShowEditModal(false); // Close the edit modal
-        } catch (err) {
-            console.error("Error updating service:", err);
-        }
-    };
-
-    // Delete a service from the list of services
-    const handleDeleteService = async (serviceId) => {
-        try {
-            await axiosReq.delete(`/admin/services/${serviceId}/`);
-            setServices((prevServices) => prevServices.filter((service) => service.id !== serviceId));
-            setShowDeleteModal(false); // Close the delete modal
-        } catch (err) {
-            console.error("Error deleting service:", err);
         }
     };
 
@@ -368,6 +371,7 @@ const AdminBookings = () => {
     const [bookingError, setBookingError] = useState("");
     const [showAlert, setShowAlert] = useState(false);
 
+    // Error Alert
     useEffect(() => {
         if (bookingError) {
             setShowAlert(true); // Show the alert
@@ -381,6 +385,16 @@ const AdminBookings = () => {
             return () => clearTimeout(timer);
         }
     }, [bookingError]);
+
+    // Bookings SUccess Alert 
+    useEffect(() => {
+        if (bookingSuccess) {
+            const timer = setTimeout(() => {
+                setBookingSuccess(false);
+            }, 5000);
+            return () => clearTimeout(timer);
+        }
+    }, [bookingSuccess]);
 
     useEffect(() => {
         const selectedServiceDetails = services.filter(service =>
@@ -839,7 +853,7 @@ const AdminBookings = () => {
                             <Modal.Header className={`${modalStyles["deleteModalHeader"]}`} closeButton>
                                 <Modal.Title className={`${modalStyles["deleteModalTitle"]}`}>Delete Availability</Modal.Title>
                             </Modal.Header>
-                            <Modal.Body className={`${modalStyles["corfirmDeleteAvailability"]}`}>
+                            <Modal.Body className={`${modalStyles["corfirmDeleteModalBody"]}`}>
                                 Do you want to delete the selected available times?
                             </Modal.Body>
                             <Modal.Footer className={`${modalStyles["deleteModalFooter"]}`}>
@@ -867,11 +881,11 @@ const AdminBookings = () => {
                 </Button>
             </div>
             {/* Edit Service Modal */}
-            <Modal show={showEditModal} onHide={() => setShowEditModal(false)}>
-                <Modal.Header closeButton>
-                    <Modal.Title>Edit Service</Modal.Title>
+            <Modal className={`${modalStyles["addEditDeleteModal"]}`} show={showEditModal} onHide={() => setShowEditModal(false)}>
+                <Modal.Header className={`${modalStyles["modalHeader"]}`} closeButton>
+                    <Modal.Title className={`${modalStyles["modalTitle"]}`}>Edit Service</Modal.Title>
                 </Modal.Header>
-                <Modal.Body>
+                <Modal.Body className={`${modalStyles["modalBody"]}`}>
                     <Form
                         onSubmit={(e) => {
                             e.preventDefault();
@@ -879,64 +893,75 @@ const AdminBookings = () => {
                                 name: e.target.name.value,
                                 worktime: e.target.worktime.value,
                                 price: parseFloat(e.target.price.value),
-                                information: e.target.information.value || "",  // Uppdatera information fältet
+                                information: e.target.information.value || "",
                             });
                             setShowEditModal(false); // Close modal after submitting
                         }}
                     >
                         <Form.Group controlId="name">
-                            <Form.Label>Service Name</Form.Label>
+                            <Form.Label className={`${modalStyles["formLabel"]}`}>Service Name</Form.Label>
                             <Form.Control
+                                className={`${modalStyles["formControl"]}`}
                                 type="text"
                                 defaultValue={selectedService?.name}
                                 required
                             />
                         </Form.Group>
                         <Form.Group controlId="worktime">
-                            <Form.Label>Work Time (HH:MM:SS)</Form.Label>
+                            <Form.Label className={`${modalStyles["formLabel"]}`}>Work Time <span className={`${modalStyles["labelSpan"]}`}>(HH:MM:SS)</span></Form.Label>
                             <Form.Control
+                                className={`${modalStyles["formControl"]}`}
                                 type="text"
                                 defaultValue={selectedService?.worktime}
                                 required
                             />
                         </Form.Group>
                         <Form.Group controlId="price">
-                            <Form.Label>Price</Form.Label>
+                            <Form.Label className={`${modalStyles["formLabel"]}`}>Price</Form.Label>
                             <Form.Control
+                                className={`${modalStyles["formControl"]}`}
                                 type="number"
                                 step="0.01"
                                 defaultValue={selectedService?.price}
                                 required
                             />
                         </Form.Group>
-                        {/* Nytt Form.Group för Information */}
+                        {/* Information Field*/}
                         <Form.Group controlId="information">
-                            <Form.Label>Information</Form.Label>
+                            <Form.Label className={`${modalStyles["formLabel"]}`}>Information</Form.Label>
                             <Form.Control
+                                className={`${modalStyles["formControl"]}`}
                                 as="textarea"
                                 rows={3}
                                 defaultValue={selectedService?.information || ""}
                                 placeholder="Optional service information"
                             />
                         </Form.Group>
-                        <Button type="submit">Save Changes</Button>
+                        <div className="text-end mt-3">
+                            <Button className={`${modalStyles["addUpdateBtn"]}`} type="submit">Save Changes</Button>
+                        </div>
                     </Form>
                 </Modal.Body>
             </Modal>
 
             {/* Delete Service Modal */}
-            <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
-                <Modal.Header closeButton>
-                    <Modal.Title>Delete Service</Modal.Title>
+            <Modal className={`${modalStyles["deleteModal"]}`} show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
+                <Modal.Header className={`${modalStyles["deleteModalHeader"]}`} closeButton>
+                    <Modal.Title className={`${modalStyles["deleteModalTitle"]}`}>Delete Service</Modal.Title>
                 </Modal.Header>
-                <Modal.Body>
-                    Are you sure you want to delete the service: {selectedService?.name}?
+                <Modal.Body className={`${modalStyles["corfirmDeleteModalBody"]}`}>
+                    Are you sure you want to delete this service?
+                    <br />
+                    <span className={`${modalStyles["deleteModalServiceName"]}`}>
+                        {selectedService?.name}
+                    </span>
                 </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>
+                <Modal.Footer className={`${modalStyles["deleteModalFooter"]}`}>
+                    <Button className={`${modalStyles["modalCancelBtn"]}`} variant="secondary" onClick={() => setShowDeleteModal(false)}>
                         Cancel
                     </Button>
                     <Button
+                        className={`${modalStyles["deleteBookingBtn"]}`}
                         variant="danger"
                         onClick={() => {
                             handleDeleteService(selectedService.id);

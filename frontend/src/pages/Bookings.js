@@ -11,6 +11,8 @@ import styles from "../styles/Bookings.module.css";
 import { parseISO } from "date-fns";
 import { useMediaQuery } from 'react-responsive';
 import ServiceInfo from "../components/ServiceInfo";
+import "react-datepicker/dist/react-datepicker.css";
+import DatePicker from "react-datepicker";
 
 
 const locales = {
@@ -147,6 +149,9 @@ const Bookings = () => {
     const [allEvents, setAllEvents] = useState([]);
     const [selectedBooking, setSelectedBooking] = useState(null);
     const [timezoneMessage, setTimezoneMessage] = useState("");
+    const [modalSelectedServices, setModalSelectedServices] = useState([]);
+    const [bookingDateTime, setBookingDateTime] = useState(new Date());
+
     const todayMin = new Date();
     todayMin.setHours(8, 0, 0, 0);
     const todayMax = new Date();
@@ -360,6 +365,42 @@ const Bookings = () => {
         return { className };
     };
 
+    // Edit Booking
+    const handleBookingUpdate = async (bookingId, updatedData) => {
+        try {
+            const requestData = {
+                ...updatedData,
+                booking_id: bookingId, // Include booking ID to help identify current booking
+            };
+
+            await axiosReq.put(`/bookings/${bookingId}/edit/`, requestData);
+            setSelectedBooking(null); // Close the modal after update
+        } catch (err) {
+            console.error("Error updating booking:", err.response ? err.response.data : err.message);
+            const errorMessage = err.response?.data?.non_field_errors
+                ? err.response.data.non_field_errors.join(', ')
+                : "Could not update booking. Please try again.";
+            setBookingError(errorMessage);
+        }
+    };
+
+
+    // Delete Booking
+    const handleDeleteBooking = async (bookingId) => {
+        try {
+            const confirmDelete = window.confirm("Are you sure you want to delete this booking?");
+            if (!confirmDelete) return; // Exit if the user cancels
+
+            await axiosReq.delete(`/bookings/${bookingId}/edit/`);
+            // refreshEvents(); // Refresh events after deletion
+            setSelectedBooking(null); // Close the modal after deletion
+        } catch (err) {
+            console.error("Error deleting booking:", err);
+            setBookingError("Could not delete booking. Please try again.");
+        }
+    };
+
+
     return (
         <div className={styles["page-container"]}>
             <Container>
@@ -410,6 +451,12 @@ const Bookings = () => {
                                     <ServiceInfo service={service} renderTooltip={renderTooltip} />
                                 </div>
                             ))}
+                            {/* Display total price for selected services */}
+                            <h3 className={`${styles["totalPriceInServiceForm"]} text-center mt-3`}>
+                                Total Price <span className={`${styles["priceSpan"]}`}>from </span>{calculateTotalPrice(
+                                    selectedServices.map(serviceId => services.find(service => service.id === serviceId))
+                                )} EUR
+                            </h3>
                         </Form>
 
                         <h2 className={`${styles["choose-date-time-heading"]}`}>Choose Date / Time</h2>
@@ -443,7 +490,7 @@ const Bookings = () => {
                                         max={todayMax}
                                         style={{ height: 'auto', width: '100%' }}
                                         selectable={true}
-                                        eventPropGetter={eventPropGetter}  // Set colour and cursor for events
+                                        eventPropGetter={eventPropGetter}
                                         onSelectSlot={(slotInfo) => {
                                             const selectedStartTime = slotInfo.start;
 
@@ -501,36 +548,43 @@ const Bookings = () => {
                                         }}
                                         onSelectEvent={async (event) => {
                                             if (event.booked && !event.mine) {
+                                                // If the event is booked but not owned by the user
                                                 alert("This time is already booked!");
                                                 return;
                                             } else if (event.mine) {
-                                                // Capture booking services for event selection.
-                                                // eslint-disable-next-line no-unused-vars
-                                                const selectedServices = event.services || [];
-
-                                                // Check if event has an id to get details 
+                                                // If the event is a user's own booking
                                                 if (!event.id) {
                                                     console.error("No booking ID found for this event.");
-                                                    return; // Abort if missing id
+                                                    return; // Abort if missing ID
                                                 }
 
                                                 try {
-                                                    // Get full booking details
-                                                    const response = await axiosReq.get(`/bookings/${event.id}/`);
+                                                    // Get full booking details for editing
+                                                    const response = await axiosReq.get(`/bookings/${event.id}/edit/`);
                                                     const bookingData = response.data;
 
-                                                    // Set booking and add services from backend
-                                                    setSelectedBooking({ ...event, services: bookingData.services });
+                                                    // Set modal states for editing
+                                                    setSelectedBooking({
+                                                        ...event,
+                                                        date_time: parseISO(bookingData.date_time),
+                                                        services: bookingData.services.map(service => service.id),
+                                                    });
+                                                    setBookingDateTime(parseISO(bookingData.date_time)); // Set selected date and time
+                                                    setModalSelectedServices(bookingData.services.map(service => service.id)); // Set selected services
                                                 } catch (error) {
                                                     console.error("Error fetching booking details:", error);
+                                                    return;
                                                 }
-
                                             } else if (event.available && event.title === "Selected Time") {
-                                                setAllEvents(allEvents.filter(ev => ev !== event));
-                                                setSelectedTime(null);
+                                                // If the event is an available time slot that is currently selected
+                                                setAllEvents(allEvents.filter(ev => ev !== event)); // Remove from events
+                                                setSelectedTime(null); // Deselect the time slot
                                             } else if (event.available && totalWorktime > 0) {
+                                                // If the event is an available time slot and a valid total worktime is set
                                                 const startTime = event.start;
                                                 const endTime = new Date(startTime.getTime() + totalWorktime * 60000);
+
+                                                // Create the selected time range event
                                                 const selectedRange = {
                                                     start: startTime,
                                                     end: endTime,
@@ -538,10 +592,9 @@ const Bookings = () => {
                                                     available: true,
                                                 };
 
-                                                setSelectedTime(selectedRange);
-
+                                                setSelectedTime(selectedRange); // Set the selected time
                                                 const newEvents = [...allEvents.filter(ev => ev.title !== "Selected Time"), selectedRange];
-                                                setAllEvents(newEvents);
+                                                setAllEvents(newEvents); // Update the events with the new selection
                                             }
                                         }}
                                     />
@@ -551,37 +604,82 @@ const Bookings = () => {
                         {selectedBooking && (
                             <Modal show={true} onHide={() => setSelectedBooking(null)}>
                                 <Modal.Header closeButton>
-                                    <Modal.Title>Booking Details</Modal.Title>
+                                    <Modal.Title>Edit Booking</Modal.Title>
                                 </Modal.Header>
                                 <Modal.Body>
-                                    <p><strong>Date:</strong> {new Date(selectedBooking.start).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
-                                    <p><strong>Total Duration:</strong> {calculateBookingDuration(selectedBooking.start, selectedBooking.end)}</p>
+                                    {/* Display booking duration */}
+                                    <p>
+                                        <strong>Duration:</strong> {calculateBookingDuration(selectedBooking.start, selectedBooking.end)}
+                                    </p>
 
-                                    <p><strong>Services:</strong></p>
-                                    <ul>
-                                        {selectedBooking.services && selectedBooking.services.length > 0 ? (
-                                            selectedBooking.services.map((service) => (
-                                                <li key={service.id}>
-                                                    {service.name}
-                                                </li>
-                                            ))
-                                        ) : (
-                                            <li>No services booked.</li>
-                                        )}
-                                    </ul>
+                                    {/* Form for editing booking */}
+                                    <Form onSubmit={(e) => {
+                                        e.preventDefault();
+                                        const updatedData = {
+                                            service_ids: modalSelectedServices,
+                                            date_time: bookingDateTime.toISOString(), // Convert to ISO format
+                                        };
+                                        handleBookingUpdate(selectedBooking.id, updatedData);
+                                    }}>
+                                        {/* Services Selection */}
+                                        <Form.Group controlId="services">
+                                            <Form.Label>Services</Form.Label>
+                                            <Form.Control
+                                                as="select"
+                                                multiple
+                                                value={modalSelectedServices}
+                                                onChange={(e) => {
+                                                    const selectedOptions = Array.from(e.target.selectedOptions).map(option => parseInt(option.value));
+                                                    setModalSelectedServices(selectedOptions);
+                                                }}
+                                                required
+                                            >
+                                                {services.map((service) => (
+                                                    <option key={service.id} value={service.id}>
+                                                        {service.name}
+                                                    </option>
+                                                ))}
+                                            </Form.Control>
+                                        </Form.Group>
 
-                                    {/* Show total price */}
-                                    {selectedBooking.services && selectedBooking.services.length > 0 && (
-                                        <p><strong>Price from</strong> {calculateTotalPrice(selectedBooking.services)} Euro</p>
-                                    )}
+                                        {/* Date & Time Picker */}
+                                        <Form.Group controlId="date_time">
+                                            <Form.Label>Date & Time</Form.Label>
+                                            <DatePicker
+                                                selected={bookingDateTime}
+                                                onChange={(date) => setBookingDateTime(date)}
+                                                showTimeSelect
+                                                timeFormat="HH:mm"
+                                                timeIntervals={15}
+                                                dateFormat="yyyy-MM-dd HH:mm"
+                                                timeCaption="Time"
+                                                required
+                                                className="form-control"
+                                            />
+                                        </Form.Group>
+                                    </Form>
                                 </Modal.Body>
                                 <Modal.Footer>
                                     <Button variant="secondary" onClick={() => setSelectedBooking(null)}>
-                                        Close
+                                        Cancel
+                                    </Button>
+                                    <Button variant="danger" onClick={() => handleDeleteBooking(selectedBooking.id)}>
+                                        Delete Booking
+                                    </Button>
+                                    <Button type="submit" variant="primary" onClick={(e) => {
+                                        e.preventDefault();
+                                        const updatedData = {
+                                            service_ids: modalSelectedServices,
+                                            date_time: bookingDateTime.toISOString(),
+                                        };
+                                        handleBookingUpdate(selectedBooking.id, updatedData);
+                                    }}>
+                                        Update Booking
                                     </Button>
                                 </Modal.Footer>
                             </Modal>
                         )}
+
                     </Col>
                 </Row>
             </Container>

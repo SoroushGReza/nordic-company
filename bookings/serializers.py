@@ -13,7 +13,7 @@ class ServiceSerializer(serializers.ModelSerializer):
         fields = ["id", "name", "worktime", "price", "information"]
 
 
-# Serializer for Booking to handle multiple services
+# Serializer for Booking to handle multiple services and support update
 class BookingSerializer(serializers.ModelSerializer):
     services = ServiceSerializer(many=True, read_only=True)  # Return list of services
     service_ids = serializers.PrimaryKeyRelatedField(
@@ -34,7 +34,7 @@ class BookingSerializer(serializers.ModelSerializer):
         )  # Summing worktimes
 
         # Prevent booking in the past
-        if start_time < timezone.now():
+        if start_time and start_time < timezone.now():
             raise serializers.ValidationError("Cannot book in the past.")
 
         end_time = start_time + total_duration
@@ -52,12 +52,17 @@ class BookingSerializer(serializers.ModelSerializer):
         ).exists():
             raise serializers.ValidationError("The selected time slot is unavailable.")
 
-        # Check for overlapping bookings
+        # Check for overlapping bookings, excluding the current one if updating
         overlapping_bookings = Booking.objects.filter(
             date_time__lt=end_time, date_time__gte=start_time
-        ).exists()
+        )
 
-        if overlapping_bookings:
+        if self.instance:
+            overlapping_bookings = overlapping_bookings.exclude(
+                id=self.instance.id
+            )  # Exclude current booking
+
+        if overlapping_bookings.exists():
             raise serializers.ValidationError(
                 "The booking time overlaps with an existing booking."
             )
@@ -66,10 +71,18 @@ class BookingSerializer(serializers.ModelSerializer):
 
     # Create booking
     def create(self, validated_data):
-        services = validated_data.pop("services")  # Extracting services from the data
+        services = validated_data.pop("services", [])
         booking = Booking.objects.create(**validated_data)  # Creating the booking
         booking.services.set(services)  # Setting the services for the booking
         return booking
+
+    # Edit booking
+    def update(self, instance, validated_data):
+        services = validated_data.pop("services", None)
+        instance = super().update(instance, validated_data)
+        if services is not None:
+            instance.services.set(services)  # Update services
+        return instance
 
 
 # Serializer for Availability
