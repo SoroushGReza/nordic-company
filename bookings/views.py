@@ -96,7 +96,7 @@ class ServiceListView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
 
-# Create A Booking/w Multiple Services (USER)
+# Create A New Booking (USER)
 class BookingCreateView(generics.CreateAPIView):
     queryset = Booking.objects.all()
     serializer_class = BookingSerializer
@@ -141,6 +141,27 @@ class BookingCreateView(generics.CreateAPIView):
 
         # Save booking if its within available times
         serializer.save(user=self.request.user)
+
+
+# Edit / Delete Booking (USER)
+class BookingUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = BookingSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        # Ensure users can only access their own bookings
+        return Booking.objects.filter(user=self.request.user)
+
+    def perform_destroy(self, instance):
+        # Ensure that the booking can be deleted only if it is cancellable
+        if instance.is_cancellable():
+            instance.delete()
+        else:
+            raise serializers.ValidationError(
+                {
+                    "error": "Booking cannot be canceled less than 8 hours before the start time."
+                }
+            )
 
 
 # List User Bookings (USER)
