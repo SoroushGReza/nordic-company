@@ -11,27 +11,39 @@ const useBookingEvents = (isAdmin = false) => {
     const fetchEvents = useCallback(async () => {
         setLoading(true);
         try {
+            // Deside endpoint based on user status
             const availabilityUrl = isAdmin ? "/admin/availability/" : "/availability/";
-            const bookingsUrl = isAdmin ? "/admin/bookings/" : "/bookings/all/";
+            const allBookingsUrl = isAdmin ? "/admin/bookings/" : "/bookings/all/";
+            const myBookingsUrl = "/bookings/mine/";
             const servicesUrl = isAdmin ? "/admin/services/" : "/services/";
 
             const { data: availability } = await axiosReq.get(availabilityUrl);
-            const { data: allBookings } = await axiosReq.get(bookingsUrl);
+            const { data: allBookings } = await axiosReq.get(allBookingsUrl);
+            const { data: myBookings } = await axiosReq.get(myBookingsUrl);
             const { data: servicesData } = await axiosReq.get(servicesUrl);
 
             setServices(servicesData);
 
-            const bookedEvents = allBookings.map((booking) => {
-                if (!booking.date_time || !booking.end_time) return null;
-                return {
+            const bookedEvents = [
+                ...allBookings.map((booking) => ({
                     start: DateTime.fromISO(booking.date_time).toJSDate(),
                     end: DateTime.fromISO(booking.end_time).toJSDate(),
                     title: booking.user_name || "Unknown User",
                     booked: true,
                     id: booking.id,
-                };
-            }).filter(event => event !== null);
+                    mine: false,
+                })),
+                ...myBookings.map((booking) => ({
+                    start: DateTime.fromISO(booking.date_time).toJSDate(),
+                    end: DateTime.fromISO(booking.end_time).toJSDate(),
+                    title: "My Booking",
+                    booked: true,
+                    id: booking.id,
+                    mine: true, // User's own bookings
+                }))
+            ];
 
+            // handle available slots based on `availability`
             const availableEvents = availability.flatMap((avail) => {
                 const [year, month, day] = avail.date.split("-").map(Number);
                 const [startHour, startMinute] = avail.start_time.split(":").map(Number);
@@ -92,8 +104,9 @@ const useBookingEvents = (isAdmin = false) => {
 
     const updateBooking = async (bookingId, updatedData) => {
         try {
-            await axiosReq.put(`/admin/bookings/${bookingId}/`, updatedData);
-            refreshEvents(); // Update event after update
+            const updateUrl = isAdmin ? `/admin/bookings/${bookingId}/` : `/bookings/${bookingId}/edit/`;
+            await axiosReq.put(updateUrl, updatedData);
+            refreshEvents();
         } catch (err) {
             console.error("Error updating booking:", err);
         }

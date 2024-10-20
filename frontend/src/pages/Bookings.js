@@ -1,32 +1,18 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Container, Row, Col, Button, Form, Alert, Modal, Collapse, Tooltip } from "react-bootstrap";
-import { Calendar, dateFnsLocalizer } from "react-big-calendar";
-import { format } from "date-fns-tz";
-import parse from "date-fns/parse";
-import startOfWeek from "date-fns/startOfWeek";
-import getDay from "date-fns/getDay";
+import { Calendar, luxonLocalizer } from "react-big-calendar";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { axiosReq } from "../api/axiosDefaults";
 import styles from "../styles/Bookings.module.css";
 import modalStyles from "../styles/Modals.module.css";
-import { parseISO } from "date-fns";
 import { useMediaQuery } from 'react-responsive';
 import ServiceInfo from "../components/ServiceInfo";
 import "react-datepicker/dist/react-datepicker.css";
 import DatePicker from "react-datepicker";
+import useBookingEvents from "../hooks/useBookingEvents";
+import { DateTime } from 'luxon';
 
-
-const locales = {
-    "en-IE": require("date-fns/locale/en-IE"),
-};
-
-const localizer = dateFnsLocalizer({
-    format,
-    parse,
-    startOfWeek,
-    getDay,
-    locales,
-});
+const localizer = luxonLocalizer(DateTime);
 
 // Booking Instructions
 function BookingInfoDropdown() {
@@ -85,16 +71,15 @@ function BookingInfoDropdown() {
 // Show Date and day / Date based on screen size
 const CustomHeader = ({ date }) => {
     const isMobile = useMediaQuery({ query: '(max-width: 992px)' });
-    const day = getDay(date);
+    const day = DateTime.fromJSDate(date).weekday;
 
     // Determine the class based on the day
-    const headerClass =
-        day === 0 || day === 6 // Sunday or Saturday
-            ? styles['weekend-header']
-            : styles['weekday-header'];
+    const headerClass = day === 7 || day === 6 ? styles['weekend-header'] : styles['weekday-header'];
 
     // Format date based on screen size
-    const formattedDate = isMobile ? format(date, 'dd') : format(date, 'dd EEE'); // Show only day for mobile
+    const formattedDate = isMobile
+        ? DateTime.fromJSDate(date).toFormat('dd')  // Only day
+        : DateTime.fromJSDate(date).toFormat('dd EEE'); // Full day with name
 
     return (
         <div className={headerClass}>
@@ -107,8 +92,9 @@ const CustomHeader = ({ date }) => {
 
 // Calculate Duration of a bookings 
 const calculateBookingDuration = (start, end) => {
-    const diffInMs = new Date(end) - new Date(start);  // Calculate difference in mili-seconds
-    const totalMinutes = Math.floor(diffInMs / (1000 * 60));  // Convert to minutes
+    const startTime = DateTime.fromJSDate(start);
+    const endTime = DateTime.fromJSDate(end);
+    const totalMinutes = Math.round(endTime.diff(startTime, 'minutes').minutes);
     const hours = Math.floor(totalMinutes / 60);
     const minutes = totalMinutes % 60;
 
@@ -142,14 +128,12 @@ const renderTooltip = (service) => (
 );
 
 const Bookings = () => {
-    const [services, setServices] = useState([]);
+    const { events, services, bookingError, refreshEvents } = useBookingEvents(false);
     const [selectedServices, setSelectedServices] = useState([]);
     const [bookingSuccess, setBookingSuccess] = useState(false);
     const [selectedTime, setSelectedTime] = useState(null);
     const [totalWorktime, setTotalWorktime] = useState(0); // Storing total worktime
-    const [allEvents, setAllEvents] = useState([]);
     const [selectedBooking, setSelectedBooking] = useState(null);
-    const [timezoneMessage, setTimezoneMessage] = useState("");
     const [modalSelectedServices, setModalSelectedServices] = useState([]);
     const [bookingDateTime, setBookingDateTime] = useState(new Date());
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false); // Delete confirmation modal
@@ -160,127 +144,6 @@ const Bookings = () => {
     todayMin.setHours(8, 0, 0, 0);
     const todayMax = new Date();
     todayMax.setHours(20, 30, 0, 0);
-
-
-    useEffect(() => {
-        const fetchTimes = async () => {
-            try {
-                // Get availability, all bookings, user's own bookings, services
-                const { data: availability } = await axiosReq.get("/availability/");
-                const { data: allBookings } = await axiosReq.get("/bookings/all/");
-                const { data: myBookings } = await axiosReq.get("/bookings/mine/");
-                const { data: servicesData } = await axiosReq.get("/services/");
-
-                setServices(servicesData);
-
-                // create events for ALL booked times
-                const bookedEvents = allBookings.map((booking) => {
-                    if (!booking.date_time || !booking.end_time) {
-                        console.warn("Skipping invalid booking entry (all bookings):", booking);
-                        return null;
-                    }
-
-                    return {
-                        start: parseISO(booking.date_time),
-                        end: parseISO(booking.end_time),
-                        title: "Booked (Unavailable)",
-                        available: false,
-                        booked: true,
-                        mine: false // NOT user's own booking
-                    };
-                }).filter(event => event !== null);
-
-                // User's own bookings (interactive)
-                const myBookedEvents = myBookings.map((booking) => {
-                    if (!booking.date_time || !booking.end_time) {
-                        console.warn("Skipping invalid user booking entry (missing date_time or end_time):", booking);
-                        return null;
-                    }
-
-                    return {
-                        start: parseISO(booking.date_time),
-                        end: parseISO(booking.end_time),
-                        title: "My Booking",
-                        available: true,
-                        booked: true,
-                        id: booking.id,
-                        mine: true, // User's own booking
-                        className: "user-booking"
-                    };
-                }).filter(event => event !== null);
-
-                // Filter available times and remove those that overlap bookings
-                const availableEvents = availability.flatMap((availability) => {
-                    const [year, month, day] = availability.date.split('-').map(Number);
-                    const [startHour, startMinute, startSecond] = availability.start_time.split(':').map(Number);
-                    const [endHour, endMinute, endSecond] = availability.end_time.split(':').map(Number);
-
-                    const start = new Date(year, month - 1, day, startHour, startMinute, startSecond);
-                    const end = new Date(year, month - 1, day, endHour, endMinute, endSecond);
-
-
-                    const events = [];
-                    let current = start;
-
-                    while (current < end) {
-                        const next = new Date(current.getTime() + 30 * 60 * 1000); // 30 minutes forward
-
-                        // Create a copy of current and next to avoid ESLint-warning
-                        const eventStart = new Date(current);
-                        const eventEnd = new Date(next);
-
-                        // Check if there is overlaping booked times
-                        const isOverlapping = [...bookedEvents, ...myBookedEvents].some(booked => {
-                            return (
-                                (booked.start <= eventStart && eventStart < booked.end) ||
-                                (booked.start < eventEnd && eventEnd <= booked.end) ||
-                                (eventStart <= booked.start && eventEnd >= booked.end)
-                            );
-                        });
-
-                        // Only add available times that does not overlap with bookings
-                        if (!isOverlapping) {
-                            events.push({
-                                start: eventStart,
-                                end: eventEnd,
-                                available: true,
-                                booked: false,
-                                mine: false // NOT User's own booking
-                            });
-                        }
-
-                        current = next;
-                    }
-
-                    return events;
-                });
-
-                setAllEvents([...availableEvents, ...bookedEvents, ...myBookedEvents]);
-
-            } catch (err) {
-                console.error("Error fetching times:", err);
-            }
-        };
-        fetchTimes();
-
-        const checkTimezone = () => {
-            const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-            const irelandTimezone = 'Europe/Dublin';
-            const currentIrelandTime = new Date().toLocaleString("en-US", { timeZone: irelandTimezone });
-            const irelandDate = new Date(currentIrelandTime);
-            const currentUserDate = new Date();
-
-            // Calculate the timezone difference and round it to the nearest whole number
-            const timezoneDifference = Math.round((currentUserDate - irelandDate) / (1000 * 60 * 60));
-
-            if (userTimezone !== irelandTimezone) {
-                setTimezoneMessage(<>You are currently in the <strong>{userTimezone}</strong> timezone, which is <strong>{timezoneDifference > 0 ? "+" : ""}{timezoneDifference} hours </strong>{timezoneDifference > 0 ? "ahead" : "behind"} of Ireland's time.</>);
-            } else {
-                setTimezoneMessage("Please note that all bookings are made in Irish time (GMT+1).");
-            }
-        };
-        checkTimezone();
-    }, []);
 
     // Function to convert "HH:MM:SS" to minutes
     const parseWorktimeToMinutes = (worktime) => {
@@ -308,7 +171,6 @@ const Bookings = () => {
     };
 
     const [isSubmitting] = useState(false);
-    const [bookingError, setBookingError] = useState("");
     const [showAlert, setShowAlert] = useState(false);
 
     useEffect(() => {
@@ -336,19 +198,18 @@ const Bookings = () => {
             return;
         }
         try {
-            const dateTimeString = format(
-                selectedTime.start,
-                "yyyy-MM-dd'T'HH:mm:ssXXX"
-            );
+            const dateTimeString = DateTime.fromJSDate(selectedTime.start)
+                .setZone('Europe/Dublin')
+                .toISO();
             const bookingData = {
                 service_ids: selectedServices,
                 date_time: dateTimeString,
             };
             await axiosReq.post("/bookings/", bookingData);
+            refreshEvents();
             setBookingSuccess(true);
         } catch (err) {
             console.error("Error creating booking:", err.response ? err.response.data : err.message);
-            setBookingError(err.response?.data?.detail || "You can only book within the available time-slots.");
         }
     };
 
@@ -378,13 +239,10 @@ const Bookings = () => {
             };
 
             await axiosReq.put(`/bookings/${bookingId}/edit/`, requestData);
+            refreshEvents();
             setSelectedBooking(null); // Close the modal after update
         } catch (err) {
             console.error("Error updating booking:", err.response ? err.response.data : err.message);
-            const errorMessage = err.response?.data?.non_field_errors
-                ? err.response.data.non_field_errors.join(', ')
-                : "Could not update booking. Please try again.";
-            setBookingError(errorMessage);
         }
     };
 
@@ -392,10 +250,10 @@ const Bookings = () => {
     const handleDeleteBooking = async (bookingId) => {
         try {
             await axiosReq.delete(`/bookings/${bookingId}/edit/`);
+            refreshEvents();
             setSelectedBooking(null); // Close the edit modal after deletion
         } catch (err) {
             console.error("Error deleting booking:", err);
-            setBookingError("Could not delete booking. Please try again.");
         }
     };
 
@@ -459,15 +317,6 @@ const Bookings = () => {
 
                         <h2 className={`${styles["choose-date-time-heading"]}`}>Choose Date / Time</h2>
 
-                        <Row className="justify-content-center">
-                            <Col xs={12} md={12} className="px-0 d-flex justify-content-center">
-                                {timezoneMessage && (
-                                    <Alert variant="warning" className={`mt-3 ${styles["alert-custom"]}`}>
-                                        {timezoneMessage}
-                                    </Alert>
-                                )}
-                            </Col>
-                        </Row>
 
                         <Row className="justify-content-center">
                             <Col xs={12} md={12} className="px-0">
@@ -475,7 +324,7 @@ const Bookings = () => {
                                     <Calendar
                                         className={`${styles["custom-calendar"]}`}
                                         localizer={localizer}
-                                        events={allEvents}
+                                        events={events}
                                         step={30}
                                         timeslots={2}
                                         defaultView="week"
@@ -492,13 +341,10 @@ const Bookings = () => {
                                         onSelectSlot={(slotInfo) => {
                                             const selectedStartTime = slotInfo.start;
 
-                                            const selectedEndTime = new Date(
-                                                selectedStartTime.getTime() + totalWorktime * 60000
-                                            );
+                                            const selectedEndTime = DateTime.fromJSDate(selectedStartTime).plus({ minutes: totalWorktime }).toJSDate();
 
-                                            // New Code Start
                                             // Find the latest available time (end time) from the available events
-                                            const availableEndTimes = allEvents
+                                            const availableEndTimes = events
                                                 .filter(event => event.available)
                                                 .map(event => event.end);
 
@@ -512,36 +358,23 @@ const Bookings = () => {
                                                 alert("The selected time exceeds the available time slots. Please choose an earlier time.");
                                                 return;  // Stop further actions
                                             }
-                                            // New Code End
                                             // Prevent selecting any slot that overlaps with booked time slots
-                                            const isOverlappingBooked = allEvents.some(event =>
+                                            const isOverlappingBooked = events.some(event =>
                                                 event.booked && (
-                                                    (selectedStartTime >= event.start && selectedStartTime < event.end) ||  // Selected start overlaps with a booked slot
-                                                    (selectedEndTime > event.start && selectedEndTime <= event.end) ||      // Selected end overlaps with a booked slot
-                                                    (selectedStartTime <= event.start && selectedEndTime >= event.end)      // Selected time covers an entire booked slot
+                                                    (DateTime.fromJSDate(selectedStartTime) >= DateTime.fromJSDate(event.start) &&
+                                                        DateTime.fromJSDate(selectedStartTime) < DateTime.fromJSDate(event.end)) ||
+                                                    (DateTime.fromJSDate(selectedEndTime) > DateTime.fromJSDate(event.start) &&
+                                                        DateTime.fromJSDate(selectedEndTime) <= DateTime.fromJSDate(event.end)) ||
+                                                    (DateTime.fromJSDate(selectedStartTime) <= DateTime.fromJSDate(event.start) &&
+                                                        DateTime.fromJSDate(selectedEndTime) >= DateTime.fromJSDate(event.end))
                                                 )
                                             );
 
                                             if (isOverlappingBooked) {
-                                                // Alert should not even trigger because interaction is prevented, but adding just in case.
-                                                return;  // Prevent further action if it overlaps
+                                                return;
                                             }
-
-                                            // Clear previous selected times
-                                            let updatedEvents = allEvents.filter(event => event.title !== "Selected Time");
-
-                                            // Add new selected time
-                                            const newEvent = {
-                                                start: selectedStartTime,
-                                                end: selectedEndTime,
-                                                title: "Selected Time",
-                                                available: true,
-                                            };
-
-                                            updatedEvents = [...updatedEvents, newEvent];
-
                                             // Update state with new time and events
-                                            setAllEvents(updatedEvents);
+                                            refreshEvents();
                                             setSelectedTime({ start: selectedStartTime, end: selectedEndTime });
                                         }}
                                         onSelectEvent={async (event) => {
@@ -564,19 +397,20 @@ const Bookings = () => {
                                                     // Set modal states for editing
                                                     setSelectedBooking({
                                                         ...event,
-                                                        date_time: parseISO(bookingData.date_time),
+                                                        date_time: DateTime.fromISO(bookingData.date_time).toJSDate(),
                                                         services: bookingData.services.map(service => service.id),
                                                     });
-                                                    setBookingDateTime(parseISO(bookingData.date_time)); // Set selected date and time
-                                                    setModalSelectedServices(bookingData.services.map(service => service.id)); // Set selected services
+                                                    setBookingDateTime(DateTime.fromISO(bookingData.date_time).toJSDate());
+                                                    setModalSelectedServices(bookingData.services.map(service => service.id));
+
                                                 } catch (error) {
                                                     console.error("Error fetching booking details:", error);
                                                     return;
                                                 }
                                             } else if (event.available && event.title === "Selected Time") {
                                                 // If the event is an available time slot that is currently selected
-                                                setAllEvents(allEvents.filter(ev => ev !== event)); // Remove from events
                                                 setSelectedTime(null); // Deselect the time slot
+                                                refreshEvents();
                                             } else if (event.available && totalWorktime > 0) {
                                                 // If the event is an available time slot and a valid total worktime is set
                                                 const startTime = event.start;
@@ -591,8 +425,7 @@ const Bookings = () => {
                                                 };
 
                                                 setSelectedTime(selectedRange); // Set the selected time
-                                                const newEvents = [...allEvents.filter(ev => ev.title !== "Selected Time"), selectedRange];
-                                                setAllEvents(newEvents); // Update the events with the new selection
+                                                refreshEvents();
                                             }
                                         }}
                                     />
@@ -633,6 +466,22 @@ const Bookings = () => {
                                                 onChange={(e) => {
                                                     const selectedOptions = Array.from(e.target.selectedOptions).map(option => parseInt(option.value));
                                                     setModalSelectedServices(selectedOptions);
+
+                                                    // Calculate total worktime for selected services
+                                                    const selectedServiceTimes = services
+                                                        .filter(service => selectedOptions.includes(service.id))
+                                                        .reduce((total, service) => total + parseWorktimeToMinutes(service.worktime), 0);
+
+                                                    setTotalWorktime(selectedServiceTimes);
+
+                                                    // Calculate new end time based on updated total worktime
+                                                    const newEndTime = DateTime.fromJSDate(selectedBooking.start).plus({ minutes: selectedServiceTimes }).toJSDate();
+
+                                                    // Update the selectedBooking state with new end time for duration calculation
+                                                    setSelectedBooking(prev => ({
+                                                        ...prev,
+                                                        end: newEndTime
+                                                    }));
                                                 }}
                                                 required
                                             >
@@ -659,6 +508,17 @@ const Bookings = () => {
                                                 className={`${modalStyles["datePicker"]} form-control`}
                                             />
                                         </Form.Group>
+                                        {/* Display total price for selected services */}
+                                        <p className={`${modalStyles["totalPriceDisplay"]} mt-3`}>
+                                            <strong className={`${modalStyles["formLabel"]}`}>Total Price:</strong>
+                                            <br />
+                                            <span>
+                                                {calculateTotalPrice(
+                                                    modalSelectedServices.map(serviceId => services.find(service => service.id === serviceId))
+                                                )} EUR
+                                            </span>
+                                        </p>
+
                                     </Form>
 
                                     <Modal.Footer className={`${modalStyles["modalFooter"]}`}>
@@ -743,4 +603,3 @@ const Bookings = () => {
 };
 
 export default Bookings;
-
