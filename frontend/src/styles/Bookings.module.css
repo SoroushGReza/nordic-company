@@ -34,7 +34,8 @@
 .choose-services-heading {
     font-family: hero-regular;
     font-size: 40px;
-    margin-bottom: 20px;
+    margin-top: 20px !important;
+    margin-bottom: 10px;
     text-align: center;
 }
 
@@ -132,20 +133,22 @@
 .totalPriceInServiceForm {
     font-family: 'Poppins';
     font-size: 18px;
-    color: #242424;
+    color: #1a281e;
 }
 
 .priceSpan{
     font-size: 13px;
-    color: #c5c0c0;
+    color: #1a281e;
+    font-family: 'hero-regular';
 }
 
 
 /* Choose Date/Time Heading */
 .choose-date-time-heading {
-    font-family: hero-regular;
+    font-family: hero-regular !important;
     font-size: 40px;
-    margin-bottom: 0;
+    margin-top: 40px !important;
+    margin-bottom: 10px;
     text-align: center;
 }
 
@@ -368,8 +371,8 @@ button.book-services-btn:hover {
 /* Booking Successfull Alert */
 .custom-success-alert {
     width: 40%;
-    min-height: 50px;
-    padding: 7px;
+    min-height: 40px;
+    padding: 5px;
     z-index: 9999;
     margin-top: 20px;
     text-align: center;
@@ -384,8 +387,8 @@ button.book-services-btn:hover {
 
 /* Booking Fail Alert */
 .booking-fail-alert {
-    width: 50%;
-    min-height: 50px;
+    width: 40%;
+    min-height: 40px;
     padding: 7px;
     z-index: 9999;
     margin-top: 20px;
