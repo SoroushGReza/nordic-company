@@ -102,13 +102,53 @@ const useBookingEvents = (isAdmin = false) => {
         fetchEvents();
     };
 
+    // Update Booking Function
     const updateBooking = async (bookingId, updatedData) => {
+        const booking = events.find(event => event.id === bookingId);
+        if (booking) {
+            const startTime = DateTime.fromJSDate(booking.start);
+            const now = DateTime.now();
+
+            if (startTime.diff(now, 'hours').hours < 8) {
+                setBookingError("Cannot update. Less than 8 hours left.");
+                return false; // Prevent update
+            }
+        }
+
         try {
             const updateUrl = isAdmin ? `/admin/bookings/${bookingId}/` : `/bookings/${bookingId}/edit/`;
             await axiosReq.put(updateUrl, updatedData);
             refreshEvents();
+            return true; // Indicate success
         } catch (err) {
             console.error("Error updating booking:", err);
+            setBookingError("Error updating booking. Please try again.");
+            return false; // Indicate failure
+        }
+    };
+
+    // Delete Booking Function
+    const deleteBooking = async (bookingId) => {
+        const booking = events.find(event => event.id === bookingId);
+        if (booking) {
+            const startTime = DateTime.fromJSDate(booking.start);
+            const now = DateTime.now();
+
+            if (startTime.diff(now, 'hours').hours < 8) {
+                setBookingError("Cannot delete. Less than 8 hours left.");
+                return false; // Prevent deletion
+            }
+        }
+
+        try {
+            const deleteUrl = isAdmin ? `/admin/bookings/${bookingId}/` : `/bookings/${bookingId}/edit/`;
+            await axiosReq.delete(deleteUrl);
+            refreshEvents();
+            return true; // Indicate success
+        } catch (err) {
+            console.error("Error deleting booking:", err);
+            setBookingError("Error deleting booking. Please try again.");
+            return false; // Indicate failure
         }
     };
 
@@ -119,6 +159,7 @@ const useBookingEvents = (isAdmin = false) => {
         loading,
         refreshEvents,
         updateBooking,
+        deleteBooking,
     };
 };
 
