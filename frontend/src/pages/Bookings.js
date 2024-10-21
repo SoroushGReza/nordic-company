@@ -128,16 +128,16 @@ const renderTooltip = (service) => (
 );
 
 const Bookings = () => {
-    const { events, services, bookingError, refreshEvents } = useBookingEvents(false);
+    const { events, services, bookingError, refreshEvents, updateBooking, deleteBooking } = useBookingEvents(false);
     const [selectedServices, setSelectedServices] = useState([]);
     const [bookingSuccess, setBookingSuccess] = useState(false);
     const [selectedTime, setSelectedTime] = useState(null);
-    const [totalWorktime, setTotalWorktime] = useState(0); // Storing total worktime
+    const [totalWorktime, setTotalWorktime] = useState(0);
     const [selectedBooking, setSelectedBooking] = useState(null);
     const [modalSelectedServices, setModalSelectedServices] = useState([]);
     const [bookingDateTime, setBookingDateTime] = useState(new Date());
-    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false); // Delete confirmation modal
-    const [bookingIdToDelete, setBookingIdToDelete] = useState(null);  // Store the booking ID to delete
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    const [bookingIdToDelete, setBookingIdToDelete] = useState(null);
 
 
     const todayMin = new Date();
@@ -230,33 +230,6 @@ const Bookings = () => {
         return { className };
     };
 
-    // Edit Booking
-    const handleBookingUpdate = async (bookingId, updatedData) => {
-        try {
-            const requestData = {
-                ...updatedData,
-                booking_id: bookingId, // Include booking ID to help identify current booking
-            };
-
-            await axiosReq.put(`/bookings/${bookingId}/edit/`, requestData);
-            refreshEvents();
-            setSelectedBooking(null); // Close the modal after update
-        } catch (err) {
-            console.error("Error updating booking:", err.response ? err.response.data : err.message);
-        }
-    };
-
-    // Delete Booking
-    const handleDeleteBooking = async (bookingId) => {
-        try {
-            await axiosReq.delete(`/bookings/${bookingId}/edit/`);
-            refreshEvents();
-            setSelectedBooking(null); // Close the edit modal after deletion
-        } catch (err) {
-            console.error("Error deleting booking:", err);
-        }
-    };
-
     return (
         <div className={styles["page-container"]}>
             <Container>
@@ -309,9 +282,9 @@ const Bookings = () => {
                             ))}
                             {/* Display total price for selected services */}
                             <h3 className={`${styles["totalPriceInServiceForm"]} text-center mt-3`}>
-                                Total Price <span className={`${styles["priceSpan"]}`}>from </span>{calculateTotalPrice(
+                                Total Price: € {calculateTotalPrice(
                                     selectedServices.map(serviceId => services.find(service => service.id === serviceId))
-                                )} EUR
+                                )}
                             </h3>
                         </Form>
 
@@ -442,7 +415,7 @@ const Bookings = () => {
                                     <p className={`${modalStyles["durationValue"]}`}>
                                         <strong className={`${modalStyles["formLabel"]}`}>Duration:</strong>
                                         <br />
-                                        <span>{calculateBookingDuration(selectedBooking.start, selectedBooking.end)}</span>
+                                        <span className={`${modalStyles["fieldValues"]}`}>{calculateBookingDuration(selectedBooking.start, selectedBooking.end)}</span>
                                     </p>
 
 
@@ -453,44 +426,53 @@ const Bookings = () => {
                                             service_ids: modalSelectedServices,
                                             date_time: bookingDateTime.toISOString(),
                                         };
-                                        handleBookingUpdate(selectedBooking.id, updatedData);
+                                        updateBooking(selectedBooking.id, updatedData);
                                     }}>
                                         {/* Services Selection */}
                                         <Form.Group controlId="services">
                                             <Form.Label className={`${modalStyles["formLabel"]}`}>Services</Form.Label>
-                                            <Form.Control
-                                                className={`${modalStyles["formControl"]}`}
-                                                as="select"
-                                                multiple
-                                                value={modalSelectedServices}
-                                                onChange={(e) => {
-                                                    const selectedOptions = Array.from(e.target.selectedOptions).map(option => parseInt(option.value));
-                                                    setModalSelectedServices(selectedOptions);
-
-                                                    // Calculate total worktime for selected services
-                                                    const selectedServiceTimes = services
-                                                        .filter(service => selectedOptions.includes(service.id))
-                                                        .reduce((total, service) => total + parseWorktimeToMinutes(service.worktime), 0);
-
-                                                    setTotalWorktime(selectedServiceTimes);
-
-                                                    // Calculate new end time based on updated total worktime
-                                                    const newEndTime = DateTime.fromJSDate(selectedBooking.start).plus({ minutes: selectedServiceTimes }).toJSDate();
-
-                                                    // Update the selectedBooking state with new end time for duration calculation
-                                                    setSelectedBooking(prev => ({
-                                                        ...prev,
-                                                        end: newEndTime
-                                                    }));
-                                                }}
-                                                required
-                                            >
+                                            <div className={`${modalStyles["formControl"]}`}>
                                                 {services.map((service) => (
-                                                    <option key={service.id} value={service.id}>
-                                                        {service.name}
-                                                    </option>
+                                                    <Form.Check
+                                                        key={service.id}
+                                                        type="checkbox"
+                                                        label={service.name}
+                                                        value={service.id}
+                                                        checked={modalSelectedServices.includes(service.id)}
+                                                        onChange={(e) => {
+                                                            const selectedServiceId = parseInt(e.target.value);
+                                                            let updatedSelectedServices;
+
+                                                            if (e.target.checked) {
+                                                                // Add the selected service to the list
+                                                                updatedSelectedServices = [...modalSelectedServices, selectedServiceId];
+                                                            } else {
+                                                                // Remove the unselected service from the list
+                                                                updatedSelectedServices = modalSelectedServices.filter(id => id !== selectedServiceId);
+                                                            }
+
+                                                            setModalSelectedServices(updatedSelectedServices);
+
+                                                            // Calculate total worktime for selected services
+                                                            const selectedServiceTimes = services
+                                                                .filter(service => updatedSelectedServices.includes(service.id))
+                                                                .reduce((total, service) => total + parseWorktimeToMinutes(service.worktime), 0);
+
+                                                            setTotalWorktime(selectedServiceTimes);
+
+                                                            // Calculate new end time based on updated total worktime
+                                                            const newEndTime = DateTime.fromJSDate(selectedBooking.start).plus({ minutes: selectedServiceTimes }).toJSDate();
+
+                                                            // Update the selectedBooking state with new end time for duration calculation
+                                                            setSelectedBooking(prev => ({
+                                                                ...prev,
+                                                                end: newEndTime
+                                                            }));
+                                                        }}
+                                                        className={styles["service-checkbox"]}
+                                                    />
                                                 ))}
-                                            </Form.Control>
+                                            </div>
                                         </Form.Group>
 
                                         {/* Date & Time Picker */}
@@ -512,7 +494,8 @@ const Bookings = () => {
                                         <p className={`${modalStyles["totalPriceDisplay"]} mt-3`}>
                                             <strong className={`${modalStyles["formLabel"]}`}>Total Price:</strong>
                                             <br />
-                                            <span>
+                                            <span className={`${styles["priceSpan"]}`}>from </span>
+                                            <span className={`${modalStyles["fieldValues"]}`}>
                                                 {calculateTotalPrice(
                                                     modalSelectedServices.map(serviceId => services.find(service => service.id === serviceId))
                                                 )} EUR
@@ -529,23 +512,27 @@ const Bookings = () => {
                                             className={`${modalStyles["deleteBookingBtn"]}`}
                                             variant="danger"
                                             onClick={() => {
-                                                setBookingIdToDelete(selectedBooking.id); // Set the booking ID to delete
-                                                setShowDeleteConfirm(true); // Show the confirmation modal
+                                                setBookingIdToDelete(selectedBooking.id);
+                                                setShowDeleteConfirm(true);
                                             }}
                                         >
-                                            Delete Booking
+                                            Delete
                                         </Button>
+
                                         <Button
                                             className={`${modalStyles["addUpdateBtn"]}`}
                                             type="submit"
                                             variant="primary"
-                                            onClick={(e) => {
+                                            onClick={async (e) => {
                                                 e.preventDefault();
                                                 const updatedData = {
                                                     service_ids: modalSelectedServices,
                                                     date_time: bookingDateTime.toISOString(),
                                                 };
-                                                handleBookingUpdate(selectedBooking.id, updatedData);
+                                                const success = await updateBooking(selectedBooking.id, updatedData);
+                                                if (success) {
+                                                    setSelectedBooking(null); // Close the modal if update was successful
+                                                }
                                             }}>
                                             Update Booking
                                         </Button>
@@ -589,8 +576,11 @@ const Bookings = () => {
                         className={`${modalStyles["deleteBookingBtn"]}`}
                         variant="danger"
                         onClick={async () => {
-                            await handleDeleteBooking(bookingIdToDelete);  // Delete the booking
-                            setShowDeleteConfirm(false);  // Close the confirmation modal
+                            const success = await deleteBooking(bookingIdToDelete);
+                            if (success) {
+                                setShowDeleteConfirm(false);
+                                setSelectedBooking(null);
+                            }
                         }}
                     >
                         Delete
