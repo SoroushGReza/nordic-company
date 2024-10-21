@@ -17,8 +17,8 @@
 }
 
 .modalBody{
-    background-color: rgba(181, 205, 174, 0.888) !important;
-    color: rgb(34, 34, 34) !important;
+    background-color: #bcd3b8 !important;
+    color: rgb(0, 0, 0) !important;
     border-bottom-left-radius: 7px !important;
     border-bottom-right-radius: 7px !important;
     padding: 10px !important;
@@ -27,18 +27,19 @@
 
 .formLabel{
     font-family: 'Poppins';
-    color: rgba(45, 45, 45, 0.865);
-    font-size: 12px;
-    margin-bottom: 0 !important;
+    color: rgb(11, 11, 11);
+    font-size: 14px;
+    margin-bottom: 2px !important;
     margin-top: 10px !important;
 }
 
 .formControl {
-    font-family: hero-regular !important;
-    background-color: rgba(181, 205, 174, 0.888) !important;
-    color: rgba(45, 45, 45, 0.865);
-    border: 1px solid rgba(69, 114, 69, 0.322) !important;
-    font-size: 15px;
+    background-color: #bcd3b8 !important;
+    color: rgb(0, 0, 0);
+    border: none !important;
+    font-family: "Hero-Regular" !important;
+    margin: 0;
+    font-size: 19px !important;
 }
 
 .fieldValueServices {
@@ -51,8 +52,9 @@
 }
 
 .fieldValues {
-    font-family: hero-regular;
+    font-family: "Hero-Regular" !important;
     margin: 0;
+    font-size: 19px !important;
 }
 
 /* --- Price --- */
