@@ -79,12 +79,16 @@ const renderTooltip = (service) => (
             {service.information && (
                 <>
                     <strong>Information:</strong> <br />
-                    <span>{service.information}</span>
+                    <div
+                        className="text-start"
+                        dangerouslySetInnerHTML={{ __html: service.information.replace(/\n/g, '<br />') }}
+                    />
                 </>
             )}
         </div>
     </Tooltip>
 );
+
 
 const AdminBookings = () => {
     const { events, refreshEvents } = useBookingEvents(true);
@@ -719,38 +723,33 @@ const AdminBookings = () => {
                                     </Form.Group>
 
                                     {/* Services */}
-                                    <Form.Group controlId="services" className={`${modalStyles["servicesForUpdate"]}`}>
-                                        <Form.Label className={`${modalStyles["formLabel"]}`}>Services</Form.Label>
-                                        {currentBooking ? (
-                                            // Editable when editing a booking
-                                            <Form.Control
-                                                className={`${modalStyles["formControl"]}`}
-                                                as="select"
-                                                name="services"
-                                                multiple
-                                                value={modalSelectedServices}
+                                    <Form.Label className={`${modalStyles["formLabel"]}`}>Services</Form.Label>
+                                    <div className={`${modalStyles["formControl"]}`}>
+                                        {services.map((service) => (
+                                            <Form.Check
+                                                key={service.id}
+                                                type="checkbox"
+                                                label={service.name}
+                                                value={service.id}
+                                                checked={modalSelectedServices.includes(service.id)}
                                                 onChange={(e) => {
-                                                    const selectedOptions = Array.from(e.target.selectedOptions).map(option => parseInt(option.value));
-                                                    setModalSelectedServices(selectedOptions);
+                                                    const selectedServiceId = parseInt(e.target.value);
+                                                    let updatedSelectedServices;
+
+                                                    if (e.target.checked) {
+                                                        // Add chosen service to list
+                                                        updatedSelectedServices = [...modalSelectedServices, selectedServiceId];
+                                                    } else {
+                                                        // Remove chosen service from list
+                                                        updatedSelectedServices = modalSelectedServices.filter(id => id !== selectedServiceId);
+                                                    }
+
+                                                    setModalSelectedServices(updatedSelectedServices);
                                                 }}
-                                                required
-                                            >
-                                                {services.map((service) => (
-                                                    <option key={service.id} value={service.id}>
-                                                        {service.name}
-                                                    </option>
-                                                ))}
-                                            </Form.Control>
-                                        ) : (
-                                            // Display selected services when adding a booking
-                                            <div className={`${modalStyles["fieldValueServices"]}`}>
-                                                {modalSelectedServices
-                                                    .map((serviceId) => services.find((s) => s.id === serviceId)?.name)
-                                                    .filter(Boolean)
-                                                    .join(", ")}
-                                            </div>
-                                        )}
-                                    </Form.Group>
+                                                className={styles["service-checkbox"]}
+                                            />
+                                        ))}
+                                    </div>
 
                                     {/* Total Duration */}
                                     <Form.Group controlId="total_duration">
