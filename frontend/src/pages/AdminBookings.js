@@ -119,6 +119,9 @@ const AdminBookings = () => {
     const [showDeleteAvailabilityModal, setShowDeleteAvailabilityModal] = useState(false);
     const [bookingError, setBookingError] = useState("");
     const [showAlert, setShowAlert] = useState(false);
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    const [bookingIdToDelete, setBookingIdToDelete] = useState(null);
+
 
     // Check admin status of user 
     useEffect(() => {
@@ -257,18 +260,12 @@ const AdminBookings = () => {
     // Delete Booking
     const handleDeleteBooking = async (bookingId) => {
         try {
-            // Confirm before deleting
-            const confirmDelete = window.confirm("Are you sure you want to delete this booking?");
-            if (!confirmDelete) {
-                return; // Exit if the user cancels
-            }
-
             await axiosReq.delete(`/admin/bookings/${bookingId}/`);
 
-            // Remove the deleted booking from the calendar events
             refreshEvents();
-
-            closeBookingModal();
+            setShowDeleteConfirm(false);
+            setShowBookingModal(false);
+            setCurrentBooking(null); 
         } catch (err) {
             console.error("Error deleting booking:", err);
             setBookingError("Could not delete booking. Please try again.");
@@ -694,6 +691,18 @@ const AdminBookings = () => {
                                 </div>
                             </Col>
                         </Row>
+
+                        {/* Book Client's Button */}
+                        <div className={styles["sticky-button"]}>
+                            <Button
+                                onClick={() => openBookingModal()}
+                                disabled={isSubmitting || !selectedServices.length || !selectedTime}
+                                className={`mt-3 ${styles["book-services-btn"]}`}
+                            >
+                                {isSubmitting ? "Booking..." : "Book Clients"}
+                            </Button>
+                        </div>
+
                         {/* Add/Edit Bookings Modal */}
                         <Modal className={`${modalStyles["addEditDeleteModal"]}`} show={showBookingModal} onHide={closeBookingModal}>
                             <Modal.Header className={`${modalStyles["modalHeader"]}`} closeButton>
@@ -806,7 +815,10 @@ const AdminBookings = () => {
                                         {currentBooking && (
                                             <Button
                                                 variant="danger"
-                                                onClick={() => handleDeleteBooking(currentBooking.id)}
+                                                onClick={() => {
+                                                    setBookingIdToDelete(currentBooking.id); 
+                                                    setShowDeleteConfirm(true);
+                                                }}
                                                 className={`${modalStyles["deleteBookingBtn"]}`}
                                             >
                                                 Delete Booking
@@ -820,13 +832,47 @@ const AdminBookings = () => {
                             </Modal.Body>
                         </Modal>
 
+                        {/* Confirm Delete Bookings Modal */}
+                        <Modal
+                            className={`${modalStyles["deleteModal"]}`}
+                            show={showDeleteConfirm}
+                            onHide={() => setShowDeleteConfirm(false)}
+                            centered
+                        >
+                            <Modal.Header className={`${modalStyles["deleteModalHeader"]}`} closeButton>
+                                <Modal.Title className={`${modalStyles["deleteModalTitle"]}`}>Confirm Deletion</Modal.Title>
+                            </Modal.Header>
+                            <Modal.Body className={`${modalStyles["confirmDeleteModalBody"]}`}>
+                                Are you sure you want to delete this booking?
+                            </Modal.Body>
+                            <Modal.Footer className={`${modalStyles["deleteModalFooter"]}`}>
+                                <Button
+                                    className={`${modalStyles["modalCancelBtn"]}`}
+                                    variant="secondary"
+                                    onClick={() => setShowDeleteConfirm(false)}
+                                >
+                                    Cancel
+                                </Button>
+                                <Button
+                                    className={`${modalStyles["deleteBookingBtn"]}`}
+                                    variant="danger"
+                                    onClick={async () => {
+                                        await handleDeleteBooking(bookingIdToDelete);  // Call delete booking
+                                        setShowDeleteConfirm(false);  // Close the confirmation modal
+                                    }}
+                                >
+                                    Delete
+                                </Button>
+                            </Modal.Footer>
+                        </Modal>
+
                         {/* Add Availabilitys Modal */}
                         <Modal className={`${modalStyles["addEditDeleteModal"]}`} show={showConfirmModal} onHide={handleCancelAvailability}>
                             <Modal.Header className={`${modalStyles["modalHeader"]}`} closeButton>
                                 <Modal.Title className={`${modalStyles["modalTitle"]}`}>Add Availability</Modal.Title>
                             </Modal.Header>
                             <Modal.Body className={`${modalStyles["modalBody"]}`}>
-                                <p className={`${modalStyles["corfirmAddingAvailability"]}`}>Do you want to add this area as available?</p>
+                                <p className={`${modalStyles["confirmAddingAvailability"]}`}>Do you want to add this area as available?</p>
                                 <Modal.Footer className={`${modalStyles["modalFooter"]}`}>
                                     <Button
                                         variant="secondary"
@@ -851,7 +897,7 @@ const AdminBookings = () => {
                             <Modal.Header className={`${modalStyles["deleteModalHeader"]}`} closeButton>
                                 <Modal.Title className={`${modalStyles["deleteModalTitle"]}`}>Delete Availability</Modal.Title>
                             </Modal.Header>
-                            <Modal.Body className={`${modalStyles["corfirmDeleteModalBody"]}`}>
+                            <Modal.Body className={`${modalStyles["confirmDeleteModalBody"]}`}>
                                 Do you want to delete the selected available times?
                             </Modal.Body>
                             <Modal.Footer className={`${modalStyles["deleteModalFooter"]}`}>
@@ -869,15 +915,6 @@ const AdminBookings = () => {
                     </Col>
                 </Row>
             </Container>
-            <div className={styles["sticky-button"]}>
-                <Button
-                    onClick={() => openBookingModal()}
-                    disabled={isSubmitting || !selectedServices.length || !selectedTime}
-                    className={`mt-3 ${styles["book-services-btn"]}`}
-                >
-                    {isSubmitting ? "Booking..." : "Book Clients"}
-                </Button>
-            </div>
             {/* Edit Service Modal */}
             <Modal className={`${modalStyles["addEditDeleteModal"]}`} show={showEditModal} onHide={() => setShowEditModal(false)}>
                 <Modal.Header className={`${modalStyles["modalHeader"]}`} closeButton>
@@ -947,7 +984,7 @@ const AdminBookings = () => {
                 <Modal.Header className={`${modalStyles["deleteModalHeader"]}`} closeButton>
                     <Modal.Title className={`${modalStyles["deleteModalTitle"]}`}>Delete Service</Modal.Title>
                 </Modal.Header>
-                <Modal.Body className={`${modalStyles["corfirmDeleteModalBody"]}`}>
+                <Modal.Body className={`${modalStyles["confirmDeleteModalBody"]}`}>
                     Are you sure you want to delete this service?
                     <br />
                     <span className={`${modalStyles["deleteModalServiceName"]}`}>
