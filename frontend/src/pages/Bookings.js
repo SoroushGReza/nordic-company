@@ -565,7 +565,7 @@ const Bookings = () => {
                 <Modal.Header className={`${modalStyles["deleteModalHeader"]}`} closeButton>
                     <Modal.Title className={`${modalStyles["deleteModalTitle"]}`}>Confirm Deletion</Modal.Title>
                 </Modal.Header>
-                <Modal.Body className={`${modalStyles["corfirmDeleteModalBody"]}`}>
+                <Modal.Body className={`${modalStyles["confirmDeleteModalBody"]}`}>
                     Are you sure you want to delete this booking?
                 </Modal.Body>
                 <Modal.Footer className={`${modalStyles["deleteModalFooter"]}`}>
