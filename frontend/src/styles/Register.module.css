@@ -76,7 +76,14 @@ body, html {
     white-space: nowrap;
 }
 
+/* --- Login / Register Links --- */
 .msgLink {
     text-decoration: none;
     font-family: Hero-Regular;
+    color: #4d8903;
+}
+
+.msgLink:hover {
+    color: #5ca504;
+    text-shadow: 1px 1px 4px #ffffff;
 }
