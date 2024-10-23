@@ -5,6 +5,7 @@ import "react-big-calendar/lib/css/react-big-calendar.css";
 import { axiosReq } from "../api/axiosDefaults";
 import styles from "../styles/Bookings.module.css";
 import modalStyles from "../styles/Modals.module.css";
+import inputStyles from "../styles/ServiceManagement.module.css";
 import { useMediaQuery } from 'react-responsive';
 import { useNavigate } from "react-router-dom";
 import ServiceManagement from "../components/ServiceManagement";
@@ -99,7 +100,6 @@ const AdminBookings = () => {
     const [totalWorktime, setTotalWorktime] = useState(0); // Storing total worktime
     const [totalDuration, setTotalDuration] = useState('');
     const [totalPrice, setTotalPrice] = useState(0);
-    const [timezoneMessage, setTimezoneMessage] = useState("");
     const [showBookingModal, setShowBookingModal] = useState(false);
     const [currentBooking, setCurrentBooking] = useState(null);
     const [users, setUsers] = useState([]);
@@ -226,21 +226,6 @@ const AdminBookings = () => {
         setSelectedTime(null);
     };
 
-    // Edit Booking
-    const handleBookingUpdate = async (bookingId, updatedData) => {
-        try {
-            await axiosReq.put(`/admin/bookings/${bookingId}/`, updatedData);
-            refreshEvents();
-            closeBookingModal();
-        } catch (err) {
-            if (err.response) {
-                console.error("Error updating booking:", err.response.data);
-            } else {
-                console.error("Error updating booking:", err);
-            }
-        }
-    };
-
     // Add Booking
     const handleAddBooking = async (newBooking) => {
         try {
@@ -257,6 +242,21 @@ const AdminBookings = () => {
         }
     };
 
+    // Edit Booking
+    const handleBookingUpdate = async (bookingId, updatedData) => {
+        try {
+            await axiosReq.put(`/admin/bookings/${bookingId}/`, updatedData);
+            refreshEvents();
+            closeBookingModal();
+        } catch (err) {
+            if (err.response) {
+                console.error("Error updating booking:", err.response.data);
+            } else {
+                console.error("Error updating booking:", err);
+            }
+        }
+    };
+
     // Delete Booking
     const handleDeleteBooking = async (bookingId) => {
         try {
@@ -265,10 +265,28 @@ const AdminBookings = () => {
             refreshEvents();
             setShowDeleteConfirm(false);
             setShowBookingModal(false);
-            setCurrentBooking(null); 
+            setCurrentBooking(null);
         } catch (err) {
             console.error("Error deleting booking:", err);
             setBookingError("Could not delete booking. Please try again.");
+        }
+    };
+
+    // Create availability for a specific time slot
+    const createAvailability = async (start, end) => {
+        try {
+            const response = await axiosReq.post(`/admin/availability/`, {
+                date: start.toISOString().split('T')[0],  // YYYY-MM-DD
+                start_time: start.toTimeString().split(' ')[0],  // HH:MM:SS 
+                end_time: end.toTimeString().split(' ')[0],  // HH:MM:SS 
+            });
+
+            refreshEvents();
+
+            console.log("Availability created successfully:", response.data);
+        } catch (err) {
+            console.error("Error creating availability:", err);
+            setBookingError("Could not create availability. Please try again.");
         }
     };
 
@@ -304,24 +322,6 @@ const AdminBookings = () => {
         setShowConfirmModal(false);
     };
 
-    // Create availability for a specific time slot
-    const createAvailability = async (start, end) => {
-        try {
-            const response = await axiosReq.post(`/admin/availability/`, {
-                date: start.toISOString().split('T')[0],  // Datum i YYYY-MM-DD format
-                start_time: start.toTimeString().split(' ')[0],  // Tid i HH:MM:SS format
-                end_time: end.toTimeString().split(' ')[0],  // Tid i HH:MM:SS format
-            });
-
-            refreshEvents();
-
-            console.log("Availability created successfully:", response.data);
-        } catch (err) {
-            console.error("Error creating availability:", err);
-            setBookingError("Could not create availability. Please try again.");
-        }
-    };
-
 
     useEffect(() => {
         const fetchTimes = async () => {
@@ -338,27 +338,6 @@ const AdminBookings = () => {
             }
         };
         fetchTimes();
-
-        const checkTimezone = () => {
-            const irelandTimezone = 'Europe/Dublin';
-
-            const irelandDate = DateTime.now().setZone(irelandTimezone);
-            const currentUserDate = DateTime.local();
-
-            // Calculate timezone difference in hours 
-            const timezoneDifference = Math.round((currentUserDate.offset - irelandDate.offset) / 60);
-
-            if (currentUserDate.zoneName !== irelandTimezone) {
-                setTimezoneMessage(
-                    <>
-                        You are currently in timezone <strong>{currentUserDate.zoneName}</strong>, which is <strong>{timezoneDifference > 0 ? "+" : ""}{timezoneDifference} hours</strong> {timezoneDifference > 0 ? "ahead" : "behind"} Ireland time.
-                    </>
-                );
-            } else {
-                setTimezoneMessage("Please note that all bookings are made in Irish time. (GMT+1).");
-            }
-        };
-        checkTimezone();
 
         const fetchUsers = async () => {
             try {
@@ -496,6 +475,7 @@ const AdminBookings = () => {
                                     {services.map((service) => (
                                         <div key={service.id} className="d-flex justify-content-between align-items-center">
                                             <Form.Check
+                                                id={`main-service-${service.id}`}
                                                 className={styles["service-checkbox"]}
                                                 type="checkbox"
                                                 label={`${service.name} (${convertWorktimeToReadableFormat(service.worktime)})`}
@@ -539,23 +519,6 @@ const AdminBookings = () => {
                         <h2 className={`${styles["choose-date-time-heading"]} mt-2`}>
                             Choose Date / Time
                         </h2>
-
-                        <Row className="justify-content-center">
-                            <Col
-                                xs={12}
-                                md={12}
-                                className="px-0 d-flex justify-content-center"
-                            >
-                                {timezoneMessage && (
-                                    <Alert
-                                        variant="warning"
-                                        className={`mt-3 ${styles["alert-custom"]}`}
-                                    >
-                                        {timezoneMessage}
-                                    </Alert>
-                                )}
-                            </Col>
-                        </Row>
 
                         {/* ALERTS */}
                         {bookingSuccess && (
@@ -703,7 +666,7 @@ const AdminBookings = () => {
                             </Button>
                         </div>
 
-                        {/* Add/Edit Bookings Modal */}
+                        {/* Add/Edit/Delete Bookings Modal */}
                         <Modal className={`${modalStyles["addEditDeleteModal"]}`} show={showBookingModal} onHide={closeBookingModal}>
                             <Modal.Header className={`${modalStyles["modalHeader"]}`} closeButton>
                                 <Modal.Title className={`${modalStyles["modalTitle"]}`}>
@@ -716,7 +679,7 @@ const AdminBookings = () => {
                                     <Form.Group controlId="user">
                                         <Form.Label className={`${modalStyles["formLabel"]}`}>User</Form.Label>
                                         <Form.Control
-                                            className={`${modalStyles["formControl"]}`}
+                                            className={`${inputStyles["form-input"]} ${modalStyles["formControl"]}`}
                                             as="select"
                                             name="user"
                                             defaultValue={currentBooking?.user || ""}
@@ -735,28 +698,30 @@ const AdminBookings = () => {
                                     <Form.Label className={`${modalStyles["formLabel"]}`}>Services</Form.Label>
                                     <div className={`${modalStyles["formControl"]}`}>
                                         {services.map((service) => (
-                                            <Form.Check
-                                                key={service.id}
-                                                type="checkbox"
-                                                label={service.name}
-                                                value={service.id}
-                                                checked={modalSelectedServices.includes(service.id)}
-                                                onChange={(e) => {
-                                                    const selectedServiceId = parseInt(e.target.value);
-                                                    let updatedSelectedServices;
+                                            <div key={service.id} className={styles["service-checkbox"]}>
+                                                <Form.Check
+                                                    id={`modal-service-${service.id}`}
+                                                    type="checkbox"
+                                                    label={service.name}
+                                                    value={service.id}
+                                                    checked={modalSelectedServices.includes(service.id)}
+                                                    onChange={(e) => {
+                                                        const selectedServiceId = parseInt(e.target.value);
+                                                        let updatedSelectedServices;
 
-                                                    if (e.target.checked) {
-                                                        // Add chosen service to list
-                                                        updatedSelectedServices = [...modalSelectedServices, selectedServiceId];
-                                                    } else {
-                                                        // Remove chosen service from list
-                                                        updatedSelectedServices = modalSelectedServices.filter(id => id !== selectedServiceId);
-                                                    }
+                                                        if (e.target.checked) {
+                                                            // Add service to list
+                                                            updatedSelectedServices = [...modalSelectedServices, selectedServiceId];
+                                                        } else {
+                                                            // Remove service from list
+                                                            updatedSelectedServices = modalSelectedServices.filter(id => id !== selectedServiceId);
+                                                        }
 
-                                                    setModalSelectedServices(updatedSelectedServices);
-                                                }}
-                                                className={styles["service-checkbox"]}
-                                            />
+                                                        setModalSelectedServices(updatedSelectedServices);
+                                                    }}
+                                                    className={styles["service-checkbox"]}
+                                                />
+                                            </div>
                                         ))}
                                     </div>
 
@@ -780,7 +745,7 @@ const AdminBookings = () => {
                                                 dateFormat="yyyy-MM-dd HH:mm"
                                                 timeCaption="Time"
                                                 required
-                                                className={`${modalStyles["datePicker"]} form-control`}
+                                                className={`${inputStyles["form-input"]} ${modalStyles["datePicker"]} form-control`}
                                                 timeZone="Europe/Dublin"
                                                 placeholderText="Select date and time"
                                                 minDate={new Date()}
@@ -816,7 +781,7 @@ const AdminBookings = () => {
                                             <Button
                                                 variant="danger"
                                                 onClick={() => {
-                                                    setBookingIdToDelete(currentBooking.id); 
+                                                    setBookingIdToDelete(currentBooking.id);
                                                     setShowDeleteConfirm(true);
                                                 }}
                                                 className={`${modalStyles["deleteBookingBtn"]}`}
