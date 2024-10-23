@@ -125,7 +125,7 @@
 /* --- Choose Date and Time --- */
 .datePicker{
     margin-left: 3px !important;
-    font-family: "Poppins";
+    font-family: "Poppins" !important;
     font-size: 13px;
     background-color: rgba(181, 205, 174, 0.888) !important;
     color: rgba(45, 45, 45, 0.865);

@@ -1,8 +1,8 @@
 /*  ---- Add Service Button ----  */
 .add-service-btn {
-    background-color: rgba(127, 181, 0, 0.395) !important;
-    border: 1px solid rgba(128, 128, 128, 0.32) !important;
-    color: white !important;
+    background-color: rgb(166 199 172 / 68%) !important;
+    border: 1px solid rgba(150, 169, 150, 0.32) !important;
+    color: rgb(0, 0, 0) !important;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
     font-family: Hero-light !important;
     margin-top: 16px !important;
@@ -23,15 +23,15 @@
 
 /*  ---- Form Input ----  */
 .form-input {
-    background-color: rgba(137, 137, 137, 0.429) !important;
-    border: 2px solid #bcc0b63c !important;
-    color: white !important;
-    font-family: Hero-Regular !important;
+    background-color: rgb(166 199 172 / 68%) !important;
+    border: 1px solid #787a7473 !important;
+    color: rgb(30, 30, 30) !important;
+    font-family: Hero-Regular;
 }
 
 .form-input:focus {
-    border-color: #7fb5008c !important;
-    box-shadow: 0 0 5px #7fb500 !important;
+    border-color: #91987f8c !important;
+    box-shadow: 0 0 5px #539b5c !important;
     outline: none !important;
 }
 
@@ -46,7 +46,7 @@
     background-color: transparent !important;
     border: none !important;
     font-size: 20px !important;
-    color: rgb(47, 47, 47) !important;
+    color: rgb(50, 82, 55) !important;
     padding: 0 !important;
     font-family: 'Poppins' !important;
 }
