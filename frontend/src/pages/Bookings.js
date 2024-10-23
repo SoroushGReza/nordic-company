@@ -5,6 +5,7 @@ import "react-big-calendar/lib/css/react-big-calendar.css";
 import { axiosReq } from "../api/axiosDefaults";
 import styles from "../styles/Bookings.module.css";
 import modalStyles from "../styles/Modals.module.css";
+import inputStyles from "../styles/ServiceManagement.module.css";
 import { useMediaQuery } from 'react-responsive';
 import ServiceInfo from "../components/ServiceInfo";
 import "react-datepicker/dist/react-datepicker.css";
@@ -268,19 +269,23 @@ const Bookings = () => {
                             {services.map((service) => (
                                 <div key={service.id} className="d-flex justify-content-between align-items-center mb-2">
                                     <div className="d-flex align-items-center">
-                                        <Form.Check
-                                            type="checkbox"
-                                            label={`${service.name} (${convertWorktimeToReadableFormat(service.worktime)})`}
-                                            checked={selectedServices.includes(service.id)}
-                                            onChange={() => handleServiceChange(service.id)}
-                                            className="me-2"
-                                        />
+                                        <label htmlFor={`service-${service.id}`} className="d-flex align-items-center me-2" style={{ cursor: 'pointer' }}>
+                                            <Form.Check
+                                                id={`service-${service.id}`}
+                                                type="checkbox"
+                                                label={`${service.name} (${convertWorktimeToReadableFormat(service.worktime)})`}
+                                                checked={selectedServices.includes(service.id)}
+                                                onChange={() => handleServiceChange(service.id)}
+                                                className={styles["service-checkbox"]}
+                                            />
+                                        </label>
                                     </div>
                                     {/* Info-ikon med Tooltip */}
                                     <ServiceInfo service={service} renderTooltip={renderTooltip} />
                                 </div>
                             ))}
-                            {/* Display total price for selected services */}
+
+                            {/* Total Price For Selected Services */}
                             <h3 className={`${styles["totalPriceInServiceForm"]} text-center mt-3`}>
                                 Total Price: € {calculateTotalPrice(
                                     selectedServices.map(serviceId => services.find(service => service.id === serviceId))
@@ -290,6 +295,21 @@ const Bookings = () => {
 
                         <h2 className={`${styles["choose-date-time-heading"]}`}>Choose Date / Time</h2>
 
+                        {/* Booking Cancelation Warning */}
+                        <Row className="justify-content-center">
+                            <Col
+                                xs={12}
+                                md={12}
+                                className="px-0 d-flex justify-content-center"
+                            >
+                                <Alert
+                                    variant="warning"
+                                    className={`mt-3 ${styles["alert-custom"]}`}
+                                >
+                                    Changes or cancellations aren't allowed within 8 hours of the treatment.
+                                </Alert>
+                            </Col>
+                        </Row>
 
                         <Row className="justify-content-center">
                             <Col xs={12} md={12} className="px-0">
@@ -411,15 +431,7 @@ const Bookings = () => {
                                     <Modal.Title className={`${modalStyles["modalTitle"]}`}>Edit Booking</Modal.Title>
                                 </Modal.Header>
                                 <Modal.Body className={`${modalStyles["modalBody"]}`}>
-                                    {/* Display booking duration */}
-                                    <p className={`${modalStyles["durationValue"]}`}>
-                                        <strong className={`${modalStyles["formLabel"]}`}>Duration:</strong>
-                                        <br />
-                                        <span className={`${modalStyles["fieldValues"]}`}>{calculateBookingDuration(selectedBooking.start, selectedBooking.end)}</span>
-                                    </p>
-
-
-                                    {/* Form for editing booking */}
+                                    {/* Edit Booking Form */}
                                     <Form onSubmit={(e) => {
                                         e.preventDefault();
                                         const updatedData = {
@@ -428,52 +440,6 @@ const Bookings = () => {
                                         };
                                         updateBooking(selectedBooking.id, updatedData);
                                     }}>
-                                        {/* Services Selection */}
-                                        <Form.Group controlId="services">
-                                            <Form.Label className={`${modalStyles["formLabel"]}`}>Services</Form.Label>
-                                            <div className={`${modalStyles["formControl"]}`}>
-                                                {services.map((service) => (
-                                                    <Form.Check
-                                                        key={service.id}
-                                                        type="checkbox"
-                                                        label={service.name}
-                                                        value={service.id}
-                                                        checked={modalSelectedServices.includes(service.id)}
-                                                        onChange={(e) => {
-                                                            const selectedServiceId = parseInt(e.target.value);
-                                                            let updatedSelectedServices;
-
-                                                            if (e.target.checked) {
-                                                                // Add the selected service to the list
-                                                                updatedSelectedServices = [...modalSelectedServices, selectedServiceId];
-                                                            } else {
-                                                                // Remove the unselected service from the list
-                                                                updatedSelectedServices = modalSelectedServices.filter(id => id !== selectedServiceId);
-                                                            }
-
-                                                            setModalSelectedServices(updatedSelectedServices);
-
-                                                            // Calculate total worktime for selected services
-                                                            const selectedServiceTimes = services
-                                                                .filter(service => updatedSelectedServices.includes(service.id))
-                                                                .reduce((total, service) => total + parseWorktimeToMinutes(service.worktime), 0);
-
-                                                            setTotalWorktime(selectedServiceTimes);
-
-                                                            // Calculate new end time based on updated total worktime
-                                                            const newEndTime = DateTime.fromJSDate(selectedBooking.start).plus({ minutes: selectedServiceTimes }).toJSDate();
-
-                                                            // Update the selectedBooking state with new end time for duration calculation
-                                                            setSelectedBooking(prev => ({
-                                                                ...prev,
-                                                                end: newEndTime
-                                                            }));
-                                                        }}
-                                                        className={styles["service-checkbox"]}
-                                                    />
-                                                ))}
-                                            </div>
-                                        </Form.Group>
 
                                         {/* Date & Time Picker */}
                                         <Form.Group controlId="date_time">
@@ -487,9 +453,77 @@ const Bookings = () => {
                                                 dateFormat="yyyy-MM-dd HH:mm"
                                                 timeCaption="Time"
                                                 required
-                                                className={`${modalStyles["datePicker"]} form-control`}
+                                                className={`${inputStyles["form-input"]} ${modalStyles["datePicker"]} form-control`}
                                             />
                                         </Form.Group>
+
+                                        {/* Services Selection */}
+                                        <Form.Group controlId="services">
+                                            <Form.Label className={`${modalStyles["formLabel"]}`}>Services</Form.Label>
+                                            <div className={`${modalStyles["formControl"]}`}>
+                                                {services.map((service) => (
+                                                    <div
+                                                        key={service.id}
+                                                        className={`${styles["service-checkbox"]} d-flex align-items-center`}
+                                                        style={{ marginBottom: '8px' }}
+                                                    >
+                                                        <Form.Check
+                                                            id={`modal-service-${service.id}`}
+                                                            type="checkbox"
+                                                            label=""
+                                                            value={service.id}
+                                                            checked={modalSelectedServices.includes(service.id)}
+                                                            onChange={(e) => {
+                                                                const selectedServiceId = parseInt(e.target.value);
+                                                                let updatedSelectedServices;
+
+                                                                if (e.target.checked) {
+                                                                    // Add selected service to list
+                                                                    updatedSelectedServices = [...modalSelectedServices, selectedServiceId];
+                                                                } else {
+                                                                    // Remove unselected service from list
+                                                                    updatedSelectedServices = modalSelectedServices.filter(id => id !== selectedServiceId);
+                                                                }
+
+                                                                setModalSelectedServices(updatedSelectedServices);
+
+                                                                // Calculate total worktime for selected services
+                                                                const selectedServiceTimes = services
+                                                                    .filter(service => updatedSelectedServices.includes(service.id))
+                                                                    .reduce((total, service) => total + parseWorktimeToMinutes(service.worktime), 0);
+
+                                                                setTotalWorktime(selectedServiceTimes);
+
+                                                                // Calculate new end time based on updated total worktime
+                                                                const newEndTime = DateTime.fromJSDate(selectedBooking.start).plus({ minutes: selectedServiceTimes }).toJSDate();
+
+                                                                // Update the selectedBooking state with new end time for duration calculation
+                                                                setSelectedBooking(prev => ({
+                                                                    ...prev,
+                                                                    end: newEndTime
+                                                                }));
+                                                            }}
+                                                            className={styles["service-checkbox"]}
+                                                        />
+                                                        <label
+                                                            htmlFor={`modal-service-${service.id}`}
+                                                            className={`${styles["checkbox-label"]} ms-2`}
+                                                            style={{ cursor: 'pointer' }}
+                                                        >
+                                                            {service.name}
+                                                        </label>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </Form.Group>
+
+                                        {/* Booking Duration */}
+                                        <p className={`${modalStyles["durationValue"]}`}>
+                                            <strong className={`${modalStyles["formLabel"]}`}>Duration:</strong>
+                                            <br />
+                                            <span className={`${modalStyles["fieldValues"]}`}>{calculateBookingDuration(selectedBooking.start, selectedBooking.end)}</span>
+                                        </p>
+
                                         {/* Display total price for selected services */}
                                         <p className={`${modalStyles["totalPriceDisplay"]} mt-3`}>
                                             <strong className={`${modalStyles["formLabel"]}`}>Total Price:</strong>
