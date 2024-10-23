@@ -3,6 +3,7 @@ import { Container, Row, Col, Form, Button } from "react-bootstrap";
 import { useNavigate, Link } from "react-router-dom";
 import { axiosReq } from "../api/axiosDefaults";
 import styles from "../styles/Register.module.css";
+import inputStyles from "../styles/ServiceManagement.module.css";
 import RegisterTxtImg from "../assets/images/Register.png";
 
 const Register = () => {
@@ -21,7 +22,7 @@ const Register = () => {
             return;
         }
         try {
-            // Registrera användaren
+            // Registrera anvï¿½ndaren
             await axiosReq.post("/accounts/register/", {
                 name,
                 surname,
@@ -30,7 +31,7 @@ const Register = () => {
                 password,
             });
 
-            // Logga in användaren automatiskt efter registrering
+            // Logga in anvï¿½ndaren automatiskt efter registrering
             const response = await axiosReq.post("/accounts/login/", {
                 email,
                 password,
@@ -65,7 +66,7 @@ const Register = () => {
                             <Form.Group controlId="formName">
                                 <Form.Label className={styles.customLabel}>Name</Form.Label>
                                 <Form.Control
-                                    className={styles.customInput}
+                                    className={`${inputStyles["form-input"]} ${styles["customInput"]}`}
                                     type="text"
                                     placeholder="Enter your name"
                                     value={name}
@@ -77,7 +78,7 @@ const Register = () => {
                             <Form.Group controlId="formSurname">
                                 <Form.Label className={styles.customLabel}>Surname</Form.Label>
                                 <Form.Control
-                                    className={styles.customInput}
+                                    className={`${inputStyles["form-input"]} ${styles["customInput"]}`}
                                     type="text"
                                     placeholder="Enter your surname"
                                     value={surname}
@@ -89,7 +90,7 @@ const Register = () => {
                             <Form.Group controlId="formPhoneNumber">
                                 <Form.Label className={styles.customLabel}>Phone Number</Form.Label>
                                 <Form.Control
-                                    className={styles.customInput}
+                                    className={`${inputStyles["form-input"]} ${styles["customInput"]}`}
                                     type="text"
                                     placeholder="Enter your phone number"
                                     value={phoneNumber}
@@ -101,7 +102,7 @@ const Register = () => {
                             <Form.Group controlId="formEmail">
                                 <Form.Label className={styles.customLabel}>Email</Form.Label>
                                 <Form.Control
-                                    className={styles.customInput}
+                                    className={`${inputStyles["form-input"]} ${styles["customInput"]}`}
                                     type="email"
                                     placeholder="Enter email"
                                     value={email}
@@ -113,7 +114,7 @@ const Register = () => {
                             <Form.Group controlId="formPassword">
                                 <Form.Label className={styles.customLabel}>Password</Form.Label>
                                 <Form.Control
-                                    className={styles.customInput}
+                                    className={`${inputStyles["form-input"]} ${styles["customInput"]}`}
                                     type="password"
                                     placeholder="Password"
                                     value={password}
@@ -125,7 +126,7 @@ const Register = () => {
                             <Form.Group controlId="formPassword2">
                                 <Form.Label className={styles.customLabel}>Confirm Password</Form.Label>
                                 <Form.Control
-                                    className={styles.customInput}
+                                    className={`${inputStyles["form-input"]} ${styles["customInput"]}`}
                                     type="password"
                                     placeholder="Confirm Password"
                                     value={password2}

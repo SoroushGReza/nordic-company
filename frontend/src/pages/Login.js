@@ -3,6 +3,7 @@ import { Container, Row, Col, Form, Button } from "react-bootstrap";
 import { useNavigate, Link } from "react-router-dom";
 import { axiosReq } from "../api/axiosDefaults";
 import styles from "../styles/Register.module.css";
+import inputStyles from "../styles/ServiceManagement.module.css";
 import LoginTxtImg from "../assets/images/Login.png";
 
 const Login = () => {
@@ -51,7 +52,7 @@ const Login = () => {
                                 <Form.Label className={styles.customLabel}>Email address</Form.Label>
                                 <Form.Control
                                     ref={emailRef}
-                                    className={styles.customInput}
+                                    className={`${inputStyles["form-input"]} ${styles["customInput"]}`}
                                     type="email"
                                     name="email"
                                     autoComplete="username"
@@ -66,9 +67,8 @@ const Login = () => {
                                 <Form.Label className={styles.customLabel}>Password</Form.Label>
                                 <Form.Control
                                     ref={passwordRef}
-                                    className={styles.customInput}
+                                    className={`${inputStyles["form-input"]} ${styles["customInput"]}`}
                                     type="password"
-                                    
                                     name="password"
                                     autoComplete="current-password"
                                     placeholder="Password"
