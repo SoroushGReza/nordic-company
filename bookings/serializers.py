@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Booking, Service, Availability
+from .models import Booking, Service, Availability, Category
 from django.utils import timezone
 from django.utils.timezone import localtime
 from datetime import timedelta
@@ -95,10 +95,16 @@ class AvailabilitySerializer(serializers.ModelSerializer):
 #  ----------------------- ADMIN SERIALIZERS ----------
 
 
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = ["id", "name"]
+
+
 class AdminServiceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Service
-        fields = ["id", "name", "worktime", "price", "information"]
+        fields = ["id", "name", "worktime", "price", "information", "category"]
 
 
 class AdminAvailabilitySerializer(serializers.ModelSerializer):
