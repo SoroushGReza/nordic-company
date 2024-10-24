@@ -1,16 +1,23 @@
 from django.contrib import admin
-from .models import Service, Booking, Availability
+from .models import Service, Booking, Availability, Category
+
+
+# Admin panel for the Category model
+@admin.register(Category)
+class CategoryAdmin(admin.ModelAdmin):
+    list_display = ["name"]
+    search_fields = ["name"]
 
 
 # Admin panel for the Service model
 @admin.register(Service)
 class ServiceAdmin(admin.ModelAdmin):
-    list_display = ["name", "worktime", "price", "information"]
+    list_display = ["name", "worktime", "price", "information", "category"]
     fieldsets = (
         (
             None,
             {
-                "fields": ("name", "worktime", "price", "information"),
+                "fields": ("name", "worktime", "price", "information", "category"),
                 "description": "For worktime, use the format: HH:MM:SS (e.g., 4:00:00 for 4 hours)",
             },
         ),
