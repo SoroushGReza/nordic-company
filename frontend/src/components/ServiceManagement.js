@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Button, Form, Alert, Row, Col } from "react-bootstrap";
+import { Button, Form, Alert, Row, Col, Spinner } from "react-bootstrap";
 import { axiosReq } from "../api/axiosDefaults";
 import styles from "../styles/ServiceManagement.module.css";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -9,7 +9,33 @@ const ServiceManagement = ({ services = [], setServices, onEditService, onDelete
     const [error, setError] = useState(null);
     const [showForm, setShowForm] = useState(false); // Form visibility state
     const [showInformation, setShowInformation] = useState(false);
+    const [categories, setCategories] = useState([]);
+    const [selectedCategory, setSelectedCategory] = useState("");
+    const [loadingCategories, setLoadingCategories] = useState(true);
 
+    // Fetch categories from backend
+    useEffect(() => {
+        const fetchCategories = async () => {
+            try {
+                const response = await axiosReq.get("/categories/");
+                setCategories(response.data);
+
+                const generalCategory = response.data.find(cat => cat.name === "General");
+                if (generalCategory) {
+                    setSelectedCategory(generalCategory.id);
+                } else if (response.data.length > 0) {
+                    setSelectedCategory(response.data[0].id);
+                }
+
+                setLoadingCategories(false);
+            } catch (err) {
+                setError("Error fetching categories");
+                setLoadingCategories(false);
+            }
+        };
+
+        fetchCategories();
+    }, []);
 
     // Handle clicks outside the form to hide it and show "Add Service" button again
     useEffect(() => {
@@ -42,7 +68,7 @@ const ServiceManagement = ({ services = [], setServices, onEditService, onDelete
         }
     }, [error]);
 
-    // ADD SERVICE
+    // Toggle information field visibility
     const toggleInformationField = () => {
         setShowInformation(!showInformation);
     };
@@ -62,28 +88,29 @@ const ServiceManagement = ({ services = [], setServices, onEditService, onDelete
         event.preventDefault();
         const form = event.target;
 
-        // Security checks with optional chaining and fallback values
+        // Collect form data
         const serviceData = {
             name: form.name?.value || "",
             worktime: form.worktime?.value || "",
             price: parseFloat(form.price?.value) || 0,
             information: form.information?.value || "",
+            category: selectedCategory,
         };
 
-        handleAddService(serviceData); // Add Service directly
+        handleAddService(serviceData);
     };
 
     const openServiceForm = () => {
-        setShowForm(true); // Show form
+        setShowForm(true); 
     };
 
     const closeServiceForm = () => {
-        setShowForm(false); // Hide form and reset state
+        setShowForm(false); 
     };
 
     return (
         <div>
-            {!showForm && ( // Show "Add Service" button when form is not visible
+            {!showForm && (
                 <Button onClick={openServiceForm} className={`${styles["add-service-btn"]}`}>
                     Add Service <FontAwesomeIcon icon={faCaretDown} />
                 </Button>
@@ -115,7 +142,34 @@ const ServiceManagement = ({ services = [], setServices, onEditService, onDelete
                             </Form.Group>
                         </Col>
                     </Row>
-                    {/* Show Information field when button is klicked */}
+
+                    {/* Category dropdown */}
+                    <Row className="justify-content-center mt-3">
+                        <Col md={8} className="d-flex justify-content-center">
+                            <Form.Group controlId="category" className="w-100">
+                                <Form.Label className={styles["form-label"]}>Category</Form.Label>
+                                {loadingCategories ? (
+                                    <Spinner animation="border" role="status">
+                                        <span className="visually-hidden">Loading...</span>
+                                    </Spinner>
+                                ) : (
+                                    <Form.Select
+                                        className={styles["form-input"]}
+                                        value={selectedCategory}
+                                        onChange={(e) => setSelectedCategory(e.target.value)}
+                                        required
+                                    >
+                                        {categories.map((category) => (
+                                            <option key={category.id} value={category.id}>
+                                                {category.name}
+                                            </option>
+                                        ))}
+                                    </Form.Select>
+                                )}
+                            </Form.Group>
+                        </Col>
+                    </Row>
+
                     {!showInformation && (
                         <Row className="justify-content-center mt-3">
                             <Col md={8} className="d-flex justify-content-center">
@@ -125,18 +179,17 @@ const ServiceManagement = ({ services = [], setServices, onEditService, onDelete
                             </Col>
                         </Row>
                     )}
-                    {/* Information field */}
                     {showInformation && (
                         <Row className="justify-content-center mt-3">
-                            <Col md={8} className="d-flex flex-column align-items-center"> {/* Flex column för vertikal centrering */}
-                                <Form.Group controlId="information" className="w-100 text-center"> {/* Center align i form-group */}
-                                    <Form.Label className={`${styles["form-label"]}`}>Information</Form.Label> {/* Label är centrerad */}
+                            <Col md={8} className="d-flex flex-column align-items-center">
+                                <Form.Group controlId="information" className="w-100 text-center">
+                                    <Form.Label className={`${styles["form-label"]}`}>Information</Form.Label>
                                     <Form.Control
-                                        className={`${styles["form-input"]} ${styles["information-input"]}`} // 60% bredd, centrerad
+                                        className={`${styles["form-input"]} ${styles["information-input"]}`}
                                         as="textarea"
                                         rows={3}
                                         name="information"
-                                        style={{ width: '60%', margin: '0 auto' }} // Inline styling för att centrera
+                                        style={{ width: '60%', margin: '0 auto' }}
                                     />
                                 </Form.Group>
                             </Col>
