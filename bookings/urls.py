@@ -12,10 +12,21 @@ from .views import (
     AdminBookingListCreateView,
     AdminBookingUpdateDeleteView,
     AvailabilityListCreateView,
-    BookingUpdateDeleteView
+    BookingUpdateDeleteView,
+    CategoryList,
+    CategoryDetail,
+    ServicesByCategory
 )
 
 urlpatterns = [
+    # List oF Categories
+    path("categories/", CategoryList.as_view(), name="category-list"),
+    path("categories/<int:pk>/", CategoryDetail.as_view(), name="category-detail"),
+    path(
+        "categories/<int:category_id>/services/",
+        ServicesByCategory.as_view(),
+        name="services-by-category",
+    ),
     # Admin
     path(
         "admin/bookings/",
@@ -53,7 +64,11 @@ urlpatterns = [
     path("bookings/mine/", BookingListView.as_view(), name="booking-list"),
     path("bookings/all/", AllBookingsListView.as_view(), name="booking-list-all"),
     path("bookings/<int:pk>/", BookingDetailView.as_view(), name="booking-detail"),
-    path("bookings/<int:pk>/edit/", BookingUpdateDeleteView.as_view(), name="booking-edit"),
+    path(
+        "bookings/<int:pk>/edit/",
+        BookingUpdateDeleteView.as_view(),
+        name="booking-edit",
+    ),
     path(
         "availability/",
         AvailabilityListCreateView.as_view(),
