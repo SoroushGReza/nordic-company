@@ -218,7 +218,9 @@ const Bookings = () => {
     const eventPropGetter = (event) => {
         let className = '';
 
-        if (event.booked && event.mine) {
+        if (event.title === "Selected Time") {
+            className = styles['selected-time'];
+        } else if (event.booked && event.mine) {
             className = styles['user-booking'];
         } else if (event.booked) {
             className = styles['booked-event'];
@@ -230,6 +232,7 @@ const Bookings = () => {
 
         return { className };
     };
+
 
     return (
         <div className={styles["page-container"]}>
@@ -317,7 +320,7 @@ const Bookings = () => {
                                     <Calendar
                                         className={`${styles["custom-calendar"]}`}
                                         localizer={localizer}
-                                        events={events}
+                                        events={selectedTime ? events.concat([selectedTime]) : events}
                                         step={30}
                                         timeslots={2}
                                         defaultView="week"
@@ -334,6 +337,7 @@ const Bookings = () => {
                                         onSelectSlot={(slotInfo) => {
                                             const selectedStartTime = slotInfo.start;
 
+                                            // Calculate the selected end time based on total worktime
                                             const selectedEndTime = DateTime.fromJSDate(selectedStartTime).plus({ minutes: totalWorktime }).toJSDate();
 
                                             // Find the latest available time (end time) from the available events
@@ -349,8 +353,9 @@ const Bookings = () => {
                                             // Check if the selected end time exceeds the latest available time
                                             if (latestAvailableTime && selectedEndTime > latestAvailableTime) {
                                                 alert("The selected time exceeds the available time slots. Please choose an earlier time.");
-                                                return;  // Stop further actions
+                                                return;  // Stop further actions if end time is not within available slots
                                             }
+
                                             // Prevent selecting any slot that overlaps with booked time slots
                                             const isOverlappingBooked = events.some(event =>
                                                 event.booked && (
@@ -363,12 +368,14 @@ const Bookings = () => {
                                                 )
                                             );
 
+                                            // If there is an overlap with booked time slots, do not proceed
                                             if (isOverlappingBooked) {
                                                 return;
                                             }
-                                            // Update state with new time and events
+
+                                            // Update the state with the selected time and refresh events
                                             refreshEvents();
-                                            setSelectedTime({ start: selectedStartTime, end: selectedEndTime });
+                                            setSelectedTime({ start: selectedStartTime, end: selectedEndTime, title: "Selected Time", available: true });
                                         }}
                                         onSelectEvent={async (event) => {
                                             if (event.booked && !event.mine) {
