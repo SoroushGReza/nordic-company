@@ -1,7 +1,7 @@
 from rest_framework import generics, permissions, serializers, status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAdminUser
-from .models import Booking, Service, Availability
+from .models import Booking, Service, Availability, Category
 from .serializers import (
     BookingSerializer,
     ServiceSerializer,
@@ -9,11 +9,33 @@ from .serializers import (
     AdminAvailabilitySerializer,
     AdminServiceSerializer,
     AdminBookingSerializer,
+    CategorySerializer,
 )
 from datetime import timedelta
 from django.db.models import Q
 from django.utils.timezone import localtime
 from datetime import datetime
+
+
+# List All Categories
+class CategoryList(generics.ListAPIView):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+
+
+# List Services Filtered Based On Categories 
+class ServicesByCategory(generics.ListAPIView):
+    serializer_class = ServiceSerializer
+
+    def get_queryset(self):
+        category_id = self.kwargs.get("category_id")
+        return Service.objects.filter(category_id=category_id)
+
+
+# Edit/Delete Specific Category
+class CategoryDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
 
 
 # (ADMIN) List all Services
