@@ -24,8 +24,13 @@ const useBookingEvents = (isAdmin = false) => {
 
             setServices(servicesData);
 
+            // Filter out myBookings from allBookings to avoid duplication
+            const filteredAllBookings = allBookings.filter(
+                (booking) => !myBookings.some((myBooking) => myBooking.id === booking.id)
+            );
+
             const bookedEvents = [
-                ...allBookings.map((booking) => ({
+                ...filteredAllBookings.map((booking) => ({
                     start: DateTime.fromISO(booking.date_time).toJSDate(),
                     end: DateTime.fromISO(booking.end_time).toJSDate(),
                     title: booking.user_name || "Unknown User",
