@@ -122,6 +122,7 @@ const AdminBookings = () => {
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [bookingIdToDelete, setBookingIdToDelete] = useState(null);
     const [categories, setCategories] = useState([]);
+    const [notes, setNotes] = useState("");  // Add this line
 
 
     // Check admin status of user 
@@ -239,16 +240,24 @@ const AdminBookings = () => {
                 ...booking,
                 user_name: booking.user_name,
                 user_id: booking.user_id || booking.user,
+                notes: booking.notes || "",
             });
             setModalSelectedServices(booking.services.map(service => service.id));
             const dateTime = DateTime.fromISO(booking.date_time, { zone: 'Europe/Dublin' }).toJSDate();
             setBookingDateTime(dateTime);
+
+            if (booking.notes !== undefined && booking.notes !== null) {
+                setNotes(booking.notes);
+            } else {
+                setNotes("");
+            }
         } else {
             setModalSelectedServices(selectedServices);
             if (selectedTime) {
                 const dateTime = DateTime.fromJSDate(selectedTime.start).setZone('Europe/Dublin').toJSDate();
                 setBookingDateTime(dateTime);
             }
+            setNotes("");
         }
         setShowBookingModal(true);
     };
@@ -309,7 +318,7 @@ const AdminBookings = () => {
     // Create availability for a specific time slot
     const createAvailability = async (start, end) => {
         try {
-            const response = await axiosReq.post(`/admin/availability/`, {
+            await axiosReq.post(`/admin/availability/`, {
                 date: start.toISOString().split('T')[0],  // YYYY-MM-DD
                 start_time: start.toTimeString().split(' ')[0],  // HH:MM:SS 
                 end_time: end.toTimeString().split(' ')[0],  // HH:MM:SS 
@@ -317,7 +326,6 @@ const AdminBookings = () => {
 
             refreshEvents();
 
-            console.log("Availability created successfully:", response.data);
         } catch (err) {
             console.error("Error creating availability:", err);
             setBookingError("Could not create availability. Please try again.");
@@ -360,10 +368,7 @@ const AdminBookings = () => {
     useEffect(() => {
         const fetchTimes = async () => {
             try {
-                const { data: allBookings } = await axiosReq.get("/admin/bookings/");
                 const { data: servicesData } = await axiosReq.get("/admin/services/");
-
-                console.log("Fetched Bookings:", allBookings);
 
                 setServices(servicesData);
 
@@ -451,6 +456,7 @@ const AdminBookings = () => {
             const bookingData = {
                 service_ids: modalSelectedServices,
                 date_time: dateTimeUTC,
+                notes: notes || "",
             };
 
             if (currentBooking) {
@@ -664,6 +670,7 @@ const AdminBookings = () => {
                                                         services: bookingData.services,
                                                         user_name: bookingData.user_name,
                                                         user_id: bookingData.user,
+                                                        notes: bookingData.notes,
                                                     });
                                                 } catch (error) {
                                                     console.error("Error fetching booking details:", error);
@@ -714,6 +721,12 @@ const AdminBookings = () => {
                                             required
                                         />
                                     </Form.Group>
+
+                                    {/* Divider Line */}
+                                    <div className="text-center">
+                                        <hr className={modalStyles["thin-line"]} />
+                                    </div>
+
                                     <Form.Group controlId="worktime">
                                         <Form.Label className={`${modalStyles["formLabel"]}`}>Work Time <span className={`${modalStyles["labelSpan"]}`}>(HH:MM:SS)</span></Form.Label>
                                         <Form.Control
@@ -723,6 +736,12 @@ const AdminBookings = () => {
                                             required
                                         />
                                     </Form.Group>
+
+                                    {/* Divider Line */}
+                                    <div className="text-center">
+                                        <hr className={modalStyles["thin-line"]} />
+                                    </div>
+
                                     <Form.Group controlId="price">
                                         <Form.Label className={`${modalStyles["formLabel"]}`}>Price</Form.Label>
                                         <Form.Control
@@ -733,6 +752,11 @@ const AdminBookings = () => {
                                             required
                                         />
                                     </Form.Group>
+
+                                    {/* Divider Line */}
+                                    <div className="text-center">
+                                        <hr className={modalStyles["thin-line"]} />
+                                    </div>
 
                                     {/* Information Field */}
                                     <Form.Group controlId="information">
@@ -801,6 +825,7 @@ const AdminBookings = () => {
                             </Modal.Header>
                             <Modal.Body className={`${modalStyles["modalBody"]}`}>
                                 <Form onSubmit={handleBookingSubmit}>
+
                                     {/* User Information */}
                                     {currentBooking ? (
                                         <Form.Group controlId="user">
@@ -829,42 +854,10 @@ const AdminBookings = () => {
                                         </Form.Group>
                                     )}
 
-                                    {/* Services */}
-                                    <Form.Label className={`${modalStyles["formLabel"]}`}>Services</Form.Label>
-                                    <div className={`${modalStyles["formControl"]}`}>
-                                        {services.map((service) => (
-                                            <div key={service.id} className={styles["service-checkbox"]}>
-                                                <Form.Check
-                                                    id={`modal-service-${service.id}`}
-                                                    type="checkbox"
-                                                    label={service.name}
-                                                    value={service.id}
-                                                    checked={modalSelectedServices.includes(service.id)}
-                                                    onChange={(e) => {
-                                                        const selectedServiceId = parseInt(e.target.value);
-                                                        let updatedSelectedServices;
-
-                                                        if (e.target.checked) {
-                                                            // Add service to list
-                                                            updatedSelectedServices = [...modalSelectedServices, selectedServiceId];
-                                                        } else {
-                                                            // Remove service from list
-                                                            updatedSelectedServices = modalSelectedServices.filter(id => id !== selectedServiceId);
-                                                        }
-
-                                                        setModalSelectedServices(updatedSelectedServices);
-                                                    }}
-                                                    className={styles["service-checkbox"]}
-                                                />
-                                            </div>
-                                        ))}
+                                    {/* Divider Line */}
+                                    <div className="text-center">
+                                        <hr className={modalStyles["thin-line"]} />
                                     </div>
-
-                                    {/* Total Duration */}
-                                    <Form.Group controlId="total_duration">
-                                        <Form.Label className={`${modalStyles["formLabel"]}`}>Total Duration</Form.Label>
-                                        <p className={`${modalStyles["fieldValues"]}`}>{totalDuration || 'N/A'}</p>
-                                    </Form.Group>
 
                                     {/* Date & Time */}
                                     <Form.Group controlId="date_time">
@@ -897,6 +890,76 @@ const AdminBookings = () => {
                                             </p>
                                         )}
                                     </Form.Group>
+
+                                    {/* Divider Line */}
+                                    <div className="text-center">
+                                        <hr className={modalStyles["thin-line"]} />
+                                    </div>
+
+                                    {/* Services */}
+                                    <Form.Label className={`${modalStyles["formLabel"]}`}>Services</Form.Label>
+                                    <div className={`${modalStyles["formControl"]}`}>
+                                        {services.map((service) => (
+                                            <div key={service.id} className={styles["service-checkbox"]}>
+                                                <Form.Check
+                                                    id={`modal-service-${service.id}`}
+                                                    type="checkbox"
+                                                    label={service.name}
+                                                    value={service.id}
+                                                    checked={modalSelectedServices.includes(service.id)}
+                                                    onChange={(e) => {
+                                                        const selectedServiceId = parseInt(e.target.value);
+                                                        let updatedSelectedServices;
+
+                                                        if (e.target.checked) {
+                                                            // Add service to list
+                                                            updatedSelectedServices = [...modalSelectedServices, selectedServiceId];
+                                                        } else {
+                                                            // Remove service from list
+                                                            updatedSelectedServices = modalSelectedServices.filter(id => id !== selectedServiceId);
+                                                        }
+
+                                                        setModalSelectedServices(updatedSelectedServices);
+                                                    }}
+                                                    className={styles["service-checkbox"]}
+                                                />
+                                            </div>
+                                        ))}
+                                    </div>
+
+                                    {/* Divider Line */}
+                                    <div className="text-center">
+                                        <hr className={modalStyles["thin-line"]} />
+                                    </div>
+
+                                    {/* Total Duration */}
+                                    <Form.Group controlId="total_duration">
+                                        <Form.Label className={`${modalStyles["formLabel"]}`}>Total Duration</Form.Label>
+                                        <p className={`${modalStyles["fieldValues"]}`}>{totalDuration || 'N/A'}</p>
+                                    </Form.Group>
+
+                                    {/* Divider Line */}
+                                    <div className="text-center">
+                                        <hr className={modalStyles["thin-line"]} />
+                                    </div>
+
+                                    {/* Notes */}
+                                    <Form.Group controlId="notes">
+                                        <Form.Label className={`${modalStyles["formLabel"]}`}>Notes</Form.Label>
+                                        <Form.Control
+                                            className={`${inputStyles["form-input"]} ${modalStyles["formControl"]}`}
+                                            as="textarea"
+                                            rows={1}
+                                            value={notes}
+                                            onChange={(e) => setNotes(e.target.value)}
+                                            placeholder="Optional"
+                                        />
+                                    </Form.Group>
+
+                                    {/* Divider Line */}
+                                    <div className="text-center">
+                                        <hr className={modalStyles["thin-line"]} />
+                                    </div>
 
                                     {/* Total Price */}
                                     <Form.Group controlId="total_price" className={`${modalStyles["lastFormGroup"]}`}>

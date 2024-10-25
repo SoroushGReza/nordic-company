@@ -37,6 +37,7 @@ const useBookingEvents = (isAdmin = false) => {
                     booked: true,
                     id: booking.id,
                     mine: false,
+                    notes: booking.notes || "", 
                 })),
                 ...myBookings.map((booking) => ({
                     start: DateTime.fromISO(booking.date_time).toJSDate(),
@@ -45,6 +46,7 @@ const useBookingEvents = (isAdmin = false) => {
                     booked: true,
                     id: booking.id,
                     mine: true, // User's own bookings
+                    notes: booking.notes || "", 
                 }))
             ];
 
