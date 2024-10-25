@@ -144,6 +144,7 @@ class AdminBookingSerializer(serializers.ModelSerializer):
             "date_time",
             "end_time",
             "created_at",
+            "notes",
         ]
         read_only_fields = ["created_at", "end_time"]
 

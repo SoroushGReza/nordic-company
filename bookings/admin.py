@@ -32,7 +32,8 @@ class BookingAdmin(admin.ModelAdmin):
         "date_time",
         "end_time",
         "created_at",
-        "get_services",  # Display services
+        "get_services",
+        "notes",  
     ]
     list_filter = ["date_time"]  # Filter by date
     search_fields = ["user__username"]  # Search by username
