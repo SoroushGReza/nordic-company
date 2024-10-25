@@ -140,7 +140,6 @@ const Bookings = () => {
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [bookingIdToDelete, setBookingIdToDelete] = useState(null);
 
-
     const todayMin = new Date();
     todayMin.setHours(8, 0, 0, 0);
     const todayMax = new Date();
@@ -448,21 +447,42 @@ const Bookings = () => {
                                         updateBooking(selectedBooking.id, updatedData);
                                     }}>
 
-                                        {/* Date & Time Picker */}
+                                        {/* Date & Time */}
                                         <Form.Group controlId="date_time">
-                                            <Form.Label className={`${modalStyles["formLabel"]}`}>Date & Time</Form.Label>
-                                            <DatePicker
-                                                selected={bookingDateTime}
-                                                onChange={(date) => setBookingDateTime(date)}
-                                                showTimeSelect
-                                                timeFormat="HH:mm"
-                                                timeIntervals={15}
-                                                dateFormat="yyyy-MM-dd HH:mm"
-                                                timeCaption="Time"
-                                                required
-                                                className={`${inputStyles["form-input"]} ${modalStyles["datePicker"]} form-control`}
-                                            />
+                                            <Form.Label className={`${modalStyles["formLabel"]}`}>Date & Start Time</Form.Label>
+                                            {selectedBooking ? (
+                                                // Editable when editing a booking
+                                                <DatePicker
+                                                    selected={bookingDateTime}
+                                                    onChange={(date) => setBookingDateTime(date)}
+                                                    showTimeSelect
+                                                    timeFormat="HH:mm"
+                                                    timeIntervals={15}
+                                                    dateFormat="yyyy-MM-dd HH:mm"
+                                                    timeCaption="Time"
+                                                    required
+                                                    className={`${inputStyles["form-input"]} ${modalStyles["datePicker"]} form-control`}
+                                                    timeZone="Europe/Dublin"
+                                                    placeholderText="Select date and time"
+                                                    minDate={new Date()}
+                                                    maxDate={DateTime.local().plus({ months: 6 }).toJSDate()} // Limit booking to 6 months ahead
+                                                />
+                                            ) : (
+                                                // Display selected date & time when adding a booking
+                                                <p className={`${modalStyles["fieldValues"]}`}>
+                                                    {selectedTime
+                                                        ? DateTime.fromJSDate(selectedTime.start)
+                                                            .setZone('Europe/Dublin', { keepLocalTime: true }) // Convert to Irish time
+                                                            .toFormat('yyyy-MM-dd HH:mm')
+                                                        : 'No time selected'}
+                                                </p>
+                                            )}
                                         </Form.Group>
+
+                                        {/* Divider Line */}
+                                        <div className="text-center">
+                                            <hr className={modalStyles["thin-line"]} />
+                                        </div>
 
                                         {/* Services Selection */}
                                         <Form.Group controlId="services">
@@ -524,12 +544,22 @@ const Bookings = () => {
                                             </div>
                                         </Form.Group>
 
+                                        {/* Divider Line */}
+                                        <div className="text-center">
+                                            <hr className={modalStyles["thin-line"]} />
+                                        </div>
+
                                         {/* Booking Duration */}
                                         <p className={`${modalStyles["durationValue"]}`}>
                                             <strong className={`${modalStyles["formLabel"]}`}>Duration:</strong>
                                             <br />
                                             <span className={`${modalStyles["fieldValues"]}`}>{calculateBookingDuration(selectedBooking.start, selectedBooking.end)}</span>
                                         </p>
+
+                                        {/* Divider Line */}
+                                        <div className="text-center">
+                                            <hr className={modalStyles["thin-line"]} />
+                                        </div>
 
                                         {/* Display total price for selected services */}
                                         <p className={`${modalStyles["totalPriceDisplay"]} mt-3`}>

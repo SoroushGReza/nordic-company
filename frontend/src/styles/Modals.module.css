@@ -197,3 +197,9 @@
     font-weight: bold;
 }
 
+.thin-line {
+    color: rgb(5, 40, 0);
+    margin: 7px 7px auto;
+    width: 90%;
+}
+
