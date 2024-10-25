@@ -12,6 +12,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import DatePicker from "react-datepicker";
 import useBookingEvents from "../hooks/useBookingEvents";
 import { DateTime } from 'luxon';
+import useStickyButton from "../hooks/useStickyButton";
 
 const localizer = luxonLocalizer(DateTime);
 
@@ -139,6 +140,8 @@ const Bookings = () => {
     const [bookingDateTime, setBookingDateTime] = useState(new Date());
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [bookingIdToDelete, setBookingIdToDelete] = useState(null);
+    const calendarRef = useRef(null);
+    const isStickyVisible = useStickyButton(calendarRef);
 
     const todayMin = new Date();
     todayMin.setHours(8, 0, 0, 0);
@@ -315,7 +318,7 @@ const Bookings = () => {
 
                         <Row className="justify-content-center">
                             <Col xs={12} md={12} className="px-0">
-                                <div className="w-100 calendar-container">
+                                <div className="w-100 calendar-container" ref={calendarRef}>
                                     <Calendar
                                         className={`${styles["custom-calendar"]}`}
                                         localizer={localizer}
@@ -617,15 +620,17 @@ const Bookings = () => {
             </Container>
 
             {/* Book Services Button */}
-            <div className={styles["sticky-button"]}>
-                <Button
-                    onClick={handleBookingSubmit}
-                    disabled={isSubmitting || !selectedServices.length || !selectedTime}
-                    className={`mt-3 ${styles["book-services-btn"]}`}
-                >
-                    {isSubmitting ? "Booking..." : "Book Services"}
-                </Button>
-            </div>
+            {isStickyVisible && (
+                <div className={styles["sticky-button"]}>
+                    <Button
+                        onClick={handleBookingSubmit}
+                        disabled={isSubmitting || !selectedServices.length || !selectedTime}
+                        className={`mt-3 ${styles["book-services-btn"]}`}
+                    >
+                        {isSubmitting ? "Booking..." : "Book Services"}
+                    </Button>
+                </div>
+            )}
 
             {/* Delete Booking  */}
             <Modal

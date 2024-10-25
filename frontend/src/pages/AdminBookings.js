@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Container, Row, Col, Button, Form, Alert, Modal, Tooltip } from "react-bootstrap";
 import { Calendar, luxonLocalizer } from "react-big-calendar";
 import "react-big-calendar/lib/css/react-big-calendar.css";
@@ -16,6 +16,7 @@ import { DateTime } from 'luxon';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import useBookingEvents from "../hooks/useBookingEvents";
+import useStickyButton from "../hooks/useStickyButton";
 
 
 const localizer = luxonLocalizer(DateTime);
@@ -122,7 +123,9 @@ const AdminBookings = () => {
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [bookingIdToDelete, setBookingIdToDelete] = useState(null);
     const [categories, setCategories] = useState([]);
-    const [notes, setNotes] = useState("");  // Add this line
+    const [notes, setNotes] = useState("");
+    const calendarRef = useRef(null);
+    const isStickyVisible = useStickyButton(calendarRef);
 
 
     // Check admin status of user 
@@ -200,8 +203,7 @@ const AdminBookings = () => {
         fetchCategories();
     }, []);
 
-
-
+    // Close Edit Modal
     const closeEditModal = () => {
         setShowEditModal(false);
         setSelectedService(null);
@@ -414,6 +416,7 @@ const AdminBookings = () => {
         }
     }, [bookingSuccess]);
 
+    // Update total booking duration, price, and work time based on selected services
     useEffect(() => {
         const selectedServiceDetails = services.filter(service =>
             modalSelectedServices.includes(service.id)
@@ -587,7 +590,7 @@ const AdminBookings = () => {
 
                         <Row className="justify-content-center">
                             <Col xs={12} md={12} className="px-0">
-                                <div className="w-100 calendar-container">
+                                <div className="w-100 calendar-container" ref={calendarRef}>
                                     <Calendar
                                         className={`${styles["custom-calendar"]}`}
                                         localizer={localizer}
@@ -693,6 +696,19 @@ const AdminBookings = () => {
                                 </div>
                             </Col>
                         </Row>
+
+                        {/* Book Client's Button */}
+                        {isStickyVisible && (
+                            <div className={styles["sticky-button"]}>
+                                <Button
+                                    onClick={() => openBookingModal()}
+                                    disabled={isSubmitting || !selectedServices.length || !selectedTime}
+                                    className={`mt-3 ${styles["book-services-btn"]}`}
+                                >
+                                    {isSubmitting ? "Booking..." : "Book Clients"}
+                                </Button>
+                            </div>
+                        )}
 
                         {/* Edit Service Modal */}
                         <Modal className={`${modalStyles["addEditDeleteModal"]}`} show={showEditModal} onHide={closeEditModal}>
@@ -804,17 +820,6 @@ const AdminBookings = () => {
                                 </Button>
                             </Modal.Footer>
                         </Modal>
-
-                        {/* Book Client's Button */}
-                        <div className={styles["sticky-button"]}>
-                            <Button
-                                onClick={() => openBookingModal()}
-                                disabled={isSubmitting || !selectedServices.length || !selectedTime}
-                                className={`mt-3 ${styles["book-services-btn"]}`}
-                            >
-                                {isSubmitting ? "Booking..." : "Book Clients"}
-                            </Button>
-                        </div>
 
                         {/* Add/Edit/Delete Bookings Modal */}
                         <Modal className={`${modalStyles["addEditDeleteModal"]}`} show={showBookingModal} onHide={closeBookingModal}>
