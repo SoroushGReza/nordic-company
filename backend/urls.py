@@ -11,12 +11,12 @@ def welcome_view(request):
 
 urlpatterns = [
     path("", TemplateView.as_view(template_name="index.html")),
-    path("secure-admin/", admin.site.urls),  # Admin panelen
-    path("api/accounts/", include("accounts.urls")),  # Konto relaterade endpoints
-    path("api/auth/", include("dj_rest_auth.urls")),  # Inloggning / Logout / Token
+    path("secure-admin/", admin.site.urls),  # Admin Panel
+    path("api/accounts/", include("accounts.urls")),  
+    path("api/auth/", include("dj_rest_auth.urls")),  
     path(
         "api/auth/registration/", include("dj_rest_auth.registration.urls")
-    ),  # Registrering
+    ),
     path(
         "api/auth/token/obtain/",
         TokenObtainPairView.as_view(),
