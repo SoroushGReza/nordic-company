@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.urls import path, include
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from django.http import HttpResponse
+from django.views.generic import TemplateView
 
 
 def welcome_view(request):
@@ -9,6 +10,7 @@ def welcome_view(request):
 
 
 urlpatterns = [
+    path("", TemplateView.as_view(template_name="index.html")),
     path("secure-admin/", admin.site.urls),  # Admin panelen
     path("api/accounts/", include("accounts.urls")),  # Konto relaterade endpoints
     path("api/auth/", include("dj_rest_auth.urls")),  # Inloggning / Logout / Token
@@ -26,3 +28,5 @@ urlpatterns = [
     path("api/", include("bookings.urls")),
     path("", welcome_view),
 ]
+
+handler404 = TemplateView.as_view(template_name='index.html')
