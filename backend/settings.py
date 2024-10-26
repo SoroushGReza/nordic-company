@@ -38,7 +38,6 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 DEBUG = os.getenv("DJANGO_DEVELOPMENT") == "True"
 
 ALLOWED_HOSTS = [
-    "8000-soroushgrez-tinyswebsit-hmdy1e3e5ct.ws-us115.gitpod.io",
     "nordic-company-b4376fa6e38c.herokuapp.com",
     "localhost",
 ]
@@ -51,8 +50,6 @@ CSRF_TRUSTED_ORIGINS = [
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
-    "https://3000-soroushgrez-tinyswebsit-hmdy1e3e5ct.ws-us115.gitpod.io",
-    "https://8000-soroushgrez-tinyswebsit-hmdy1e3e5ct.ws-us115.gitpod.io",
     "https://nordic-company-b4376fa6e38c.herokuapp.com",
 ]
 
