@@ -187,8 +187,11 @@ USE_TZ = True
 
 STATIC_ROOT = BASE_DIR / "staticfiles"
 STATIC_URL = "/static/"
-STATICFILES_DIRS = [os.path.join(BASE_DIR, "staticfiles", "build")]
-WHITENOISE_ROOT = os.path.join(BASE_DIR, "staticfiles")
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "frontend", "build", "static"),
+]
+
+# WHITENOISE_ROOT = BASE_DIR / "staticfiles" / "build"
 
 
 # Whitenoise Settings

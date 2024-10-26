@@ -3,7 +3,7 @@ import axios from "axios";
 // Dynamically set the base URL based on the environment
 axios.defaults.baseURL =
     process.env.NODE_ENV === "development"
-        ? "http://localhost:8000/api/"
+        ? "/api"
         : "https://nordic-company-b4376fa6e38c.herokuapp.com/api/";
 
 axios.defaults.headers.post["Content-Type"] = "application/json";
