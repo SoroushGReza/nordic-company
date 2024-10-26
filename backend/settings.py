@@ -35,8 +35,7 @@ else:
 SECRET_KEY = os.getenv("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-# DEBUG = os.getenv("DJANGO_DEVELOPMENT") == "True"
-DEBUG = True
+DEBUG = os.getenv("DJANGO_DEVELOPMENT") == "True"
 
 ALLOWED_HOSTS = [
     "8000-soroushgrez-tinyswebsit-hmdy1e3e5ct.ws-us115.gitpod.io",
