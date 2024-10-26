@@ -54,7 +54,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "https://3000-soroushgrez-tinyswebsit-hmdy1e3e5ct.ws-us115.gitpod.io",
     "https://8000-soroushgrez-tinyswebsit-hmdy1e3e5ct.ws-us115.gitpod.io",
-    "nordic-company-b4376fa6e38c.herokuapp.com",
+    "https://nordic-company-b4376fa6e38c.herokuapp.com",
 ]
 
 CORS_ALLOW_CREDENTIALS = True
