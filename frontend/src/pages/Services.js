@@ -12,57 +12,35 @@ import { axiosReq } from "../api/axiosDefaults";
 const Services = () => {
   const [hairServices, setHairServices] = useState([]);
   const [lashServices, setLashServices] = useState([]);
-  const [browServices, setBrowServices] = useState([]); // State for Brow services
+  const [browServices, setBrowServices] = useState([]);
   const [loadingHair, setLoadingHair] = useState(true);
   const [loadingLashes, setLoadingLashes] = useState(true);
-  const [loadingBrows, setLoadingBrows] = useState(true); // Loading state for Brows
+  const [loadingBrows, setLoadingBrows] = useState(true);
 
-  // Fetch Hair services on component mount
   useEffect(() => {
-    const fetchHairServices = async () => {
+    const fetchServices = async (categoryName, setServices, setLoading) => {
       try {
-        const response = await axiosReq.get("/categories/2/services/"); // Assume category ID 2 is "Hair"
-        setHairServices(response.data);
+        // Fetch all cetegories and find based on name
+        const categoriesResponse = await axiosReq.get("/categories/");
+        const category = categoriesResponse.data.find(cat => cat.name === categoryName);
+
+        if (category) {
+          // Get Category by ID
+          const servicesResponse = await axiosReq.get(`/categories/${category.id}/services/`);
+          setServices(servicesResponse.data);
+        }
       } catch (error) {
-        console.error("Error fetching Hair services:", error);
+        console.error(`Error fetching ${categoryName} services:`, error);
       } finally {
-        setLoadingHair(false);
+        setLoading(false);
       }
     };
 
-    fetchHairServices();
-  }, []);
+    // Get services for each Category
+    fetchServices("Hair", setHairServices, setLoadingHair);
+    fetchServices("Lashes", setLashServices, setLoadingLashes);
+    fetchServices("Brows", setBrowServices, setLoadingBrows);
 
-  // Fetch Lashes services on component mount
-  useEffect(() => {
-    const fetchLashServices = async () => {
-      try {
-        const response = await axiosReq.get("/categories/3/services/"); // Assume category ID 3 is "Lashes"
-        setLashServices(response.data);
-      } catch (error) {
-        console.error("Error fetching Lashes services:", error);
-      } finally {
-        setLoadingLashes(false);
-      }
-    };
-
-    fetchLashServices();
-  }, []);
-
-  // Fetch Brow services on component mount
-  useEffect(() => {
-    const fetchBrowServices = async () => {
-      try {
-        const response = await axiosReq.get("/categories/4/services/"); // Assume category ID 4 is "Brows"
-        setBrowServices(response.data);
-      } catch (error) {
-        console.error("Error fetching Brow services:", error);
-      } finally {
-        setLoadingBrows(false);
-      }
-    };
-
-    fetchBrowServices();
   }, []);
 
   return (
