@@ -174,7 +174,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = "Europe/Istanbul"  # During development
+TIME_ZONE = "Europe/Stockholm" # For local testing by client
 
 USE_I18N = True
 
