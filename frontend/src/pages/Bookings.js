@@ -245,7 +245,7 @@ const Bookings = () => {
                     </Col>
                 </Row>
                 <Row className="justify-content-center">
-                    <Col md={12}>
+                <Col xs={12} md={12}>
                         <h2 className={`${styles["choose-services-heading"]}`}>Choose Services</h2>
 
                         {bookingSuccess && (
