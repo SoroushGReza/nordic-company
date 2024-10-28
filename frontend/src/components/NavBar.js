@@ -58,10 +58,6 @@ function NavBar() {
                                 >
                                     Booking
                                 </Nav.Link>
-                                {/*Commented out to add for future development*/}
-                                {/*<Nav.Link as={Link} to="/shop" className={styles.navLink}>*/}
-                                {/*    Shop*/}
-                                {/*</Nav.Link>*/}
                                 <Nav.Link as={Link} to="/about" className={styles.navLink}>
                                     About Us
                                 </Nav.Link>
@@ -149,15 +145,6 @@ function NavBar() {
                                     onClick={handleClose}
                                 >
                                     Booking
-                                </Nav.Link>
-
-                                <Nav.Link
-                                    as={Link}
-                                    to="/shop"
-                                    className={styles.burgerNavLink}
-                                    onClick={handleClose}
-                                >
-                                    Shop Products
                                 </Nav.Link>
                                 <Nav.Link
                                     as={Link}
