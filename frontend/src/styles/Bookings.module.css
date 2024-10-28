@@ -40,6 +40,12 @@
     text-align: center;
 }
 
+@media (max-width: 522px) {
+    .choose-services-heading {
+        font-size: 30px !important;
+    }
+}
+
 /* Choosing Services */
 .services-to-choose {
     font-size: 21px;
@@ -49,9 +55,21 @@
     margin: 0 auto;
     color: rgb(49, 48, 48);
     font-family: hero-regular;
-    width: 55%;
+    width: 75%;
     line-height: 1.5;
     vertical-align: baseline;
+}
+
+@media (max-width: 999px) {
+    .services-to-choose {
+        width: 95%;
+    }
+}
+
+@media (max-width: 767px) {
+    .services-to-choose {
+        font-size: 18px;
+    }
 }
 
 .services-to-choose label {
@@ -68,6 +86,13 @@
     cursor: pointer;
     transition: background-color 0.3s ease, border-color 0.3s ease;
     line-height: 1.5;
+}
+
+@media (max-width: 767px) {
+    .service-checkbox input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+    }
 }
 
 /* Checked */
@@ -153,6 +178,12 @@
     text-align: center;
 }
 
+@media (max-width: 522px) {
+    .choose-date-time-heading {
+        font-size: 30px !important;
+    }
+}
+
 /* ----- Book Services Button ----- */
 
 /* Styles for the disabled state */
@@ -225,12 +256,26 @@ button.book-services-btn:hover {
 
 /* User's own bookings */
 .user-booking {
-    background-color: rgb(0, 22, 81) !important;
-    color: white !important;
+    background-color: rgba(73, 113, 145, 0.854) !important;
+    color: rgb(236, 236, 236) !important;
+    text-shadow: 0px 2px 2px black !important;
     cursor: pointer !important;
     z-index: 3;
     border: none !important;
-    font-size: 10px !important;
+    font-size: 12px !important;
+    font-family: "Poppins" !important;
+}
+
+@media (max-width: 922px) {
+    .user-booking {
+        font-size: 8px !important;
+    }
+}
+
+@media (max-width: 500px) {
+    .user-booking {
+        font-size: 6px !important;
+    }
 }
 
 /* Other users bookings */
@@ -243,27 +288,55 @@ button.book-services-btn:hover {
 
 /* Available times */
 .available-event {
-    background-color: green !important;
+    background-color: rgba(150, 202, 150, 0.651) !important;
     cursor: pointer !important;
-    border: none !important;
-    font-size: 10px !important;
+    border: 1px solid rgba(73, 117, 73, 0.107) !important;
+    font-size: 12px !important;
+    color: #1a281e !important;
+    font-family: "Poppins" !important;
 }
+
+@media (max-width: 767px) {
+    .available-event {
+        font-size: 8px !important;
+    }
+}
+
+@media (max-width: 500px) {
+    .available-event  {
+        font-size: 7px !important;
+    }
+}
+
 
 /* Selected Time */
 .selected-time {
-    background-color: lightblue !important;
-    color: black !important;
+    background-color: rgb(37, 71, 125) !important;
+    color: rgb(219, 214, 214) !important;
     width: 100% !important;
     left: 0 !important;
     z-index: 999;
     box-sizing: border-box;
     border: none;
-    font-size: 12px;
+    font-size: 12px !important;
+    font-family: "Poppins" !important;
+}
+
+@media (max-width: 767px) {
+    .selected-time {
+        font-size: 8px !important;
+    }
+}
+
+@media (max-width: 500px) {
+    .selected-time  {
+        font-size: 6px !important;
+    }
 }
 
 /* Unavailable times */
 .unavailable-event {
-    background-color: lightgray !important;
+    background-color: rgba(155, 152, 152, 0.902) !important;
 }
 
 /* Hidden Elements */
