@@ -1,7 +1,7 @@
 {
   "files": {
-    "main.css": "/static/css/main.36c9891e.css",
-    "main.js": "/static/js/main.7499bfb9.js",
+    "main.css": "/static/css/main.e79c194a.css",
+    "main.js": "/static/js/main.232ed869.js",
     "static/js/453.d855a71b.chunk.js": "/static/js/453.d855a71b.chunk.js",
     "static/media/HairServices.png": "/static/media/HairServices.7d7f456f1bfa31f46e67.png",
     "static/media/Blueberry.png": "/static/media/Blueberry.fbaac0446ed2790ad72b.png",
@@ -27,12 +27,12 @@
     "static/media/nc-logo-black.png": "/static/media/nc-logo-black.a2878eba8c3049127501.png",
     "static/media/AfterCare.png": "/static/media/AfterCare.326203fe3bcf3fc67653.png",
     "index.html": "/index.html",
-    "main.36c9891e.css.map": "/static/css/main.36c9891e.css.map",
-    "main.7499bfb9.js.map": "/static/js/main.7499bfb9.js.map",
+    "main.e79c194a.css.map": "/static/css/main.e79c194a.css.map",
+    "main.232ed869.js.map": "/static/js/main.232ed869.js.map",
     "453.d855a71b.chunk.js.map": "/static/js/453.d855a71b.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.36c9891e.css",
-    "static/js/main.7499bfb9.js"
+    "static/css/main.e79c194a.css",
+    "static/js/main.232ed869.js"
   ]
 }
