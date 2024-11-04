@@ -17,32 +17,9 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import useBookingEvents from "../hooks/useBookingEvents";
 import useStickyButton from "../hooks/useStickyButton";
-
+import CustomHeader from "../components/CustomHeader";
 
 const localizer = luxonLocalizer(DateTime);
-
-// Show Date and day / Date based on screen size
-const CustomHeader = ({ date }) => {
-    const isMobile = useMediaQuery({ query: '(max-width: 992px)' });
-    const day = date.getDay();
-
-    // Determine the class based on the day
-    const headerClass =
-        day === 0 || day === 6 // Sunday or Saturday
-            ? styles['weekend-header']
-            : styles['weekday-header'];
-
-    // Format date based on screen size using Luxon
-    const formattedDate = isMobile
-        ? DateTime.fromJSDate(date).toFormat('dd')
-        : DateTime.fromJSDate(date).toFormat('dd EEE'); // Show only day for mobile
-
-    return (
-        <div className={`${headerClass} rbc-button-link`}>
-            <span role="columnheader" aria-sort="none">{formattedDate}</span>
-        </div>
-    );
-};
 
 // Function to convert "HH:MM:SS" to minutes
 const parseWorktimeToMinutes = (worktime) => {

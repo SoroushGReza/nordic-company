@@ -13,6 +13,7 @@ import DatePicker from "react-datepicker";
 import useBookingEvents from "../hooks/useBookingEvents";
 import { DateTime } from 'luxon';
 import useStickyButton from "../hooks/useStickyButton";
+import CustomHeader from "../components/CustomHeader";
 
 const localizer = luxonLocalizer(DateTime);
 
@@ -70,27 +71,6 @@ function BookingInfoDropdown() {
     );
 }
 
-// Show Date and day / Date based on screen size
-const CustomHeader = ({ date }) => {
-    const isMobile = useMediaQuery({ query: '(max-width: 992px)' });
-    const day = DateTime.fromJSDate(date).weekday;
-
-    // Determine the class based on the day
-    const headerClass = day === 7 || day === 6 ? styles['weekend-header'] : styles['weekday-header'];
-
-    // Format date based on screen size
-    const formattedDate = isMobile
-        ? DateTime.fromJSDate(date).toFormat('dd')  // Only day
-        : DateTime.fromJSDate(date).toFormat('dd EEE'); // Full day with name
-
-    return (
-        <div className={headerClass}>
-            <div className="rbc-button-link" role="button">
-                <span role="columnheader" aria-sort="none">{formattedDate}</span>
-            </div>
-        </div>
-    );
-};
 
 // Calculate Duration of a bookings 
 const calculateBookingDuration = (start, end) => {
