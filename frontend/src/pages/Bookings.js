@@ -1,12 +1,11 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Container, Row, Col, Button, Form, Alert, Modal, Collapse, Tooltip } from "react-bootstrap";
+import { Container, Row, Col, Button, Form, Modal, Alert, Collapse, Tooltip } from "react-bootstrap";
 import { Calendar, luxonLocalizer } from "react-big-calendar";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { axiosReq } from "../api/axiosDefaults";
 import styles from "../styles/Bookings.module.css";
 import modalStyles from "../styles/Modals.module.css";
 import inputStyles from "../styles/ServiceManagement.module.css";
-import { useMediaQuery } from 'react-responsive';
 import ServiceInfo from "../components/ServiceInfo";
 import "react-datepicker/dist/react-datepicker.css";
 import DatePicker from "react-datepicker";
@@ -14,6 +13,7 @@ import useBookingEvents from "../hooks/useBookingEvents";
 import { DateTime } from 'luxon';
 import useStickyButton from "../hooks/useStickyButton";
 import CustomHeader from "../components/CustomHeader";
+import BookingAlerts from "../components/BookingAlerts";
 
 const localizer = luxonLocalizer(DateTime);
 
@@ -110,9 +110,10 @@ const renderTooltip = (service) => (
 );
 
 const Bookings = () => {
-    const { events, services, bookingError, refreshEvents, updateBooking, deleteBooking } = useBookingEvents(false);
+    const { events, services, refreshEvents, updateBooking, deleteBooking } = useBookingEvents(false);
     const [selectedServices, setSelectedServices] = useState([]);
     const [bookingSuccess, setBookingSuccess] = useState(false);
+    const [bookingError, setBookingError] = useState("");
     const [selectedTime, setSelectedTime] = useState(null);
     const [totalWorktime, setTotalWorktime] = useState(0);
     const [selectedBooking, setSelectedBooking] = useState(null);
@@ -154,21 +155,6 @@ const Bookings = () => {
     };
 
     const [isSubmitting] = useState(false);
-    const [showAlert, setShowAlert] = useState(false);
-
-    useEffect(() => {
-        if (bookingError) {
-            setShowAlert(true); // Show the alert
-
-            // Automatically close the alert after 5 seconds
-            const timer = setTimeout(() => {
-                setShowAlert(false);
-            }, 5000);
-
-            // Cleanup the timer when the component unmounts or when bookingError changes
-            return () => clearTimeout(timer);
-        }
-    }, [bookingError]);
 
     const handleBookingSubmit = async () => {
         if (!selectedTime || selectedServices.length === 0) {
@@ -193,6 +179,7 @@ const Bookings = () => {
             setBookingSuccess(true);
         } catch (err) {
             console.error("Error creating booking:", err.response ? err.response.data : err.message);
+            setBookingError("Could not create booking. Please try again.");
         }
     };
 
@@ -225,30 +212,16 @@ const Bookings = () => {
                     </Col>
                 </Row>
                 <Row className="justify-content-center">
-                <Col xs={12} md={12}>
+                    <Col xs={12} md={12}>
                         <h2 className={`${styles["choose-services-heading"]}`}>Choose Services</h2>
 
-                        {bookingSuccess && (
-                            <Alert
-                                variant="success"
-                                onClose={() => setShowAlert(false)}
-                                dismissible
-                                className={`position-fixed top-0 start-50 translate-middle-x ${styles["custom-success-alert"]}`}
-                            >
-                                <p>Booking Successful!</p>
-                            </Alert>
-                        )}
-
-                        {showAlert && (
-                            <Alert
-                                variant="danger"
-                                onClose={() => setShowAlert(false)}
-                                dismissible
-                                className={`position-fixed top-0 start-50 translate-middle-x ${styles["booking-fail-alert"]}`}
-                            >
-                                <p>{bookingError}</p>
-                            </Alert>
-                        )}
+                        {/* Booking Alerts Component */}
+                        <BookingAlerts
+                            bookingSuccess={bookingSuccess}
+                            setBookingSuccess={setBookingSuccess}
+                            bookingError={bookingError}
+                            setBookingError={setBookingError}
+                        />
 
                         <Form className={`${styles["services-to-choose"]} ${styles["services-forms"]}`}>
                             {services.map((service) => (

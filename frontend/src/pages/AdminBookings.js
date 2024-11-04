@@ -1,12 +1,11 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Container, Row, Col, Button, Form, Alert, Modal, Tooltip } from "react-bootstrap";
+import { Container, Row, Col, Button, Form, Modal, Tooltip } from "react-bootstrap";
 import { Calendar, luxonLocalizer } from "react-big-calendar";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { axiosReq } from "../api/axiosDefaults";
 import styles from "../styles/Bookings.module.css";
 import modalStyles from "../styles/Modals.module.css";
 import inputStyles from "../styles/ServiceManagement.module.css";
-import { useMediaQuery } from 'react-responsive';
 import { useNavigate } from "react-router-dom";
 import ServiceManagement from "../components/ServiceManagement";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -18,6 +17,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import useBookingEvents from "../hooks/useBookingEvents";
 import useStickyButton from "../hooks/useStickyButton";
 import CustomHeader from "../components/CustomHeader";
+import BookingAlerts from "../components/BookingAlerts";
 
 const localizer = luxonLocalizer(DateTime);
 
@@ -73,7 +73,6 @@ const AdminBookings = () => {
     const { events, refreshEvents } = useBookingEvents(true);
     const [services, setServices] = useState([]);
     const [selectedServices, setSelectedServices] = useState([]);
-    const [bookingSuccess, setBookingSuccess] = useState(false);
     const [selectedTime, setSelectedTime] = useState(null);
     const [totalWorktime, setTotalWorktime] = useState(0); // Storing total worktime
     const [totalDuration, setTotalDuration] = useState('');
@@ -95,8 +94,8 @@ const AdminBookings = () => {
     const [selectedService, setSelectedService] = useState(null);
     const [overlappingAvailableEvents, setOverlappingAvailableEvents] = useState([]);
     const [showDeleteAvailabilityModal, setShowDeleteAvailabilityModal] = useState(false);
+    const [bookingSuccess, setBookingSuccess] = useState(false);
     const [bookingError, setBookingError] = useState("");
-    const [showAlert, setShowAlert] = useState(false);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [bookingIdToDelete, setBookingIdToDelete] = useState(null);
     const [categories, setCategories] = useState([]);
@@ -368,31 +367,6 @@ const AdminBookings = () => {
         fetchUsers();
     }, []);
 
-    // Error Alert
-    useEffect(() => {
-        if (bookingError) {
-            setShowAlert(true); // Show the alert
-
-            // Automatically close the alert after 5 seconds
-            const timer = setTimeout(() => {
-                setShowAlert(false);
-            }, 5000);
-
-            // Cleanup the timer when the component unmounts or when bookingError changes
-            return () => clearTimeout(timer);
-        }
-    }, [bookingError]);
-
-    // Bookings SUccess Alert 
-    useEffect(() => {
-        if (bookingSuccess) {
-            const timer = setTimeout(() => {
-                setBookingSuccess(false);
-            }, 5000);
-            return () => clearTimeout(timer);
-        }
-    }, [bookingSuccess]);
-
     // Update total booking duration, price, and work time based on selected services
     useEffect(() => {
         const selectedServiceDetails = services.filter(service =>
@@ -491,6 +465,14 @@ const AdminBookings = () => {
                             Choose Services
                         </h2>
 
+                        {/* Booking Alerts Component */}
+                        <BookingAlerts
+                            bookingSuccess={bookingSuccess}
+                            setBookingSuccess={setBookingSuccess}
+                            bookingError={bookingError}
+                            setBookingError={setBookingError}
+                        />
+
                         <Row className="justify-content-center mb-4">
                             <Col md={8} className={`${styles["services-to-choose"]} ${styles["services-forms"]}`}>
                                 <Form className="mb-2">
@@ -542,28 +524,7 @@ const AdminBookings = () => {
                             Choose Date / Time
                         </h2>
 
-                        {/* ALERTS */}
-                        {bookingSuccess && (
-                            <Alert
-                                variant="success"
-                                onClose={() => setShowAlert(false)}
-                                dismissible
-                                className={`position-fixed top-0 start-50 translate-middle-x ${styles["custom-success-alert"]}`}
-                            >
-                                <p>Booking Successful!</p>
-                            </Alert>
-                        )}
 
-                        {showAlert && (
-                            <Alert
-                                variant="danger"
-                                onClose={() => setShowAlert(false)}
-                                dismissible
-                                className={`position-fixed top-0 start-50 translate-middle-x ${styles["booking-fail-alert"]}`}
-                            >
-                                <p>{bookingError}</p>
-                            </Alert>
-                        )}
 
                         <Row className="justify-content-center">
                             <Col xs={12} md={12} className="px-0">
