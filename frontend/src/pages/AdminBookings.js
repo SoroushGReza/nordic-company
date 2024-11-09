@@ -1,23 +1,27 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Container, Row, Col, Button, Form, Modal } from "react-bootstrap";
 import { Calendar, luxonLocalizer } from "react-big-calendar";
-import "react-big-calendar/lib/css/react-big-calendar.css";
 import { axiosReq } from "../api/axiosDefaults";
+import { DateTime } from 'luxon';
+import DatePicker from 'react-datepicker';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPenToSquare, faTrashCan } from '@fortawesome/free-solid-svg-icons';
+// Styles
+import 'react-datepicker/dist/react-datepicker.css';
+import "react-big-calendar/lib/css/react-big-calendar.css";
 import styles from "../styles/Bookings.module.css";
 import modalStyles from "../styles/Modals.module.css";
 import inputStyles from "../styles/ServiceManagement.module.css";
-import { useNavigate } from "react-router-dom";
+// Components
 import ServiceManagement from "../components/ServiceManagement";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPenToSquare, faTrashCan } from '@fortawesome/free-solid-svg-icons';
 import ServiceInfo from "../components/ServiceInfo";
-import { DateTime } from 'luxon';
-import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
-import useBookingEvents from "../hooks/useBookingEvents";
-import useStickyButton from "../hooks/useStickyButton";
 import CustomHeader from "../components/CustomHeader";
 import BookingAlerts from "../components/BookingAlerts";
+// Hooks
+import useBookingEvents from "../hooks/useBookingEvents";
+import useStickyButton from "../hooks/useStickyButton";
+import useAdminCheck from "../hooks/useAdminCheck";
+// Utils
 import { parseWorktimeToMinutes, convertWorktimeToReadableFormat, calculateBookingDuration } from '../utils/timeUtils';
 import { calculateTotalPrice } from "../utils/priceUtils";
 
@@ -25,6 +29,7 @@ const localizer = luxonLocalizer(DateTime);
 
 
 const AdminBookings = () => {
+    useAdminCheck();
     const { events, refreshEvents } = useBookingEvents(true);
     const [services, setServices] = useState([]);
     const [selectedServices, setSelectedServices] = useState([]);
@@ -36,7 +41,6 @@ const AdminBookings = () => {
     const [currentBooking, setCurrentBooking] = useState(null);
     const [users, setUsers] = useState([]);
     const [modalSelectedServices, setModalSelectedServices] = useState([]);
-    const navigate = useNavigate();
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const todayMin = DateTime.local().setZone('Europe/Dublin').set({ hour: 8, minute: 0, second: 0, millisecond: 0 }).toJSDate();
@@ -57,27 +61,6 @@ const AdminBookings = () => {
     const [notes, setNotes] = useState("");
     const calendarRef = useRef(null);
     const isStickyVisible = useStickyButton(calendarRef);
-
-
-    // Check admin status of user 
-    useEffect(() => {
-        const checkAdminStatus = async () => {
-            try {
-                const { data: user } = await axiosReq.get("/accounts/profile/");
-
-                // Check id user is NOT admin, if NOT redirect
-                if (!user.is_staff && !user.is_superuser) {
-                    navigate("/bookings");
-                }
-            } catch (err) {
-                console.error("Error fetching user status:", err);
-                // Redirect in case of error
-                navigate("/login");
-            }
-        };
-
-        checkAdminStatus();
-    }, [navigate]);
 
     // Handle selection/deselection of a service and update the total work time
     const handleServiceChange = (serviceId) => {

@@ -1,21 +1,27 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Container, Row, Col, Button, Form, Modal, Alert, Collapse } from "react-bootstrap";
-import { Calendar, luxonLocalizer } from "react-big-calendar";
-import "react-big-calendar/lib/css/react-big-calendar.css";
 import { axiosReq } from "../api/axiosDefaults";
+import { DateTime } from 'luxon';
+import { Calendar, luxonLocalizer } from "react-big-calendar";
+import { Container, Row, Col, Button, Form, Modal, Alert, Collapse } from "react-bootstrap";
+import DatePicker from "react-datepicker";
+// Styles
+import "react-big-calendar/lib/css/react-big-calendar.css";
 import styles from "../styles/Bookings.module.css";
 import modalStyles from "../styles/Modals.module.css";
 import inputStyles from "../styles/ServiceManagement.module.css";
-import ServiceInfo from "../components/ServiceInfo";
 import "react-datepicker/dist/react-datepicker.css";
-import DatePicker from "react-datepicker";
-import useBookingEvents from "../hooks/useBookingEvents";
-import { DateTime } from 'luxon';
-import useStickyButton from "../hooks/useStickyButton";
+// Components
+import ServiceInfo from "../components/ServiceInfo";
 import CustomHeader from "../components/CustomHeader";
 import BookingAlerts from "../components/BookingAlerts";
+// Hooks
+import useBookingEvents from "../hooks/useBookingEvents";
+import useAdminCheck from "../hooks/useAdminCheck";
+import useStickyButton from "../hooks/useStickyButton";
+// Utils
 import { parseWorktimeToMinutes, convertWorktimeToReadableFormat, calculateBookingDuration } from '../utils/timeUtils';
 import { calculateTotalPrice } from "../utils/priceUtils";
+
 
 const localizer = luxonLocalizer(DateTime);
 
@@ -74,12 +80,15 @@ function BookingInfoDropdown() {
 }
 
 const Bookings = () => {
+    useAdminCheck();
     const { events, services, refreshEvents, updateBooking, deleteBooking } = useBookingEvents(false);
     const [selectedServices, setSelectedServices] = useState([]);
     const [bookingSuccess, setBookingSuccess] = useState(false);
     const [bookingError, setBookingError] = useState("");
     const [selectedTime, setSelectedTime] = useState(null);
+    const [totalDuration, setTotalDuration] = useState('');
     const [totalWorktime, setTotalWorktime] = useState(0);
+    const [totalPrice, setTotalPrice] = useState(0);
     const [selectedBooking, setSelectedBooking] = useState(null);
     const [modalSelectedServices, setModalSelectedServices] = useState([]);
     const [bookingDateTime, setBookingDateTime] = useState(new Date());
@@ -112,6 +121,28 @@ const Bookings = () => {
     };
 
     const [isSubmitting] = useState(false);
+
+    // Update total booking duration, price, and work time based on selected services
+    useEffect(() => {
+        const selectedServiceDetails = services.filter(service =>
+            modalSelectedServices.includes(service.id)
+        );
+
+        // Calculate total duration of booking
+        const duration = calculateBookingDuration(selectedServiceDetails);
+        setTotalDuration(duration);
+
+        // Calculate total price
+        const price = calculateTotalPrice(selectedServiceDetails);
+        setTotalPrice(price);
+
+        // Update totalWorktime (in minutes)
+        const totalWorkMinutes = selectedServiceDetails.reduce((total, service) => {
+            return total + parseWorktimeToMinutes(service.worktime);
+        }, 0);
+        setTotalWorktime(totalWorkMinutes);
+
+    }, [modalSelectedServices, services]);
 
     const handleBookingSubmit = async () => {
         if (!selectedTime || selectedServices.length === 0) {
@@ -202,9 +233,7 @@ const Bookings = () => {
 
                             {/* Total Price For Selected Services */}
                             <h3 className={`${styles["totalPriceInServiceForm"]} text-center mt-3`}>
-                                Total Price: € {calculateTotalPrice(
-                                    selectedServices.map(serviceId => services.find(service => service.id === serviceId))
-                                )}
+                                Total Price: € {totalPrice}
                             </h3>
                         </Form>
 
@@ -466,7 +495,7 @@ const Bookings = () => {
                                         <p className={`${modalStyles["durationValue"]}`}>
                                             <strong className={`${modalStyles["formLabel"]}`}>Duration:</strong>
                                             <br />
-                                            <span className={`${modalStyles["fieldValues"]}`}>{calculateBookingDuration(selectedBooking.start, selectedBooking.end)}</span>
+                                            <span className={`${modalStyles["fieldValues"]}`}>{totalDuration || 'N/A'}</span>
                                         </p>
 
                                         {/* Divider Line */}
