@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Container, Row, Col, Button, Form, Modal, Alert, Collapse, Tooltip } from "react-bootstrap";
+import { Container, Row, Col, Button, Form, Modal, Alert, Collapse } from "react-bootstrap";
 import { Calendar, luxonLocalizer } from "react-big-calendar";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { axiosReq } from "../api/axiosDefaults";
@@ -14,6 +14,8 @@ import { DateTime } from 'luxon';
 import useStickyButton from "../hooks/useStickyButton";
 import CustomHeader from "../components/CustomHeader";
 import BookingAlerts from "../components/BookingAlerts";
+import { parseWorktimeToMinutes, convertWorktimeToReadableFormat, calculateBookingDuration } from '../utils/timeUtils';
+import { calculateTotalPrice } from "../utils/priceUtils";
 
 const localizer = luxonLocalizer(DateTime);
 
@@ -71,44 +73,6 @@ function BookingInfoDropdown() {
     );
 }
 
-
-// Calculate Duration of a bookings 
-const calculateBookingDuration = (start, end) => {
-    const startTime = DateTime.fromJSDate(start);
-    const endTime = DateTime.fromJSDate(end);
-    const totalMinutes = Math.round(endTime.diff(startTime, 'minutes').minutes);
-    const hours = Math.floor(totalMinutes / 60);
-    const minutes = totalMinutes % 60;
-
-    return `${hours}h ${minutes > 0 ? `${minutes}min` : ''}`;  // Return "5h 30min" etc.
-};
-
-// Convert Worktime to Readable Format 
-const convertWorktimeToReadableFormat = (worktime) => {
-    const [hours, minutes] = worktime.split(':').map(Number);
-    return `${hours > 0 ? `${hours}h` : ''} ${minutes > 0 ? `${minutes} minutes` : ''}`.trim();
-}
-
-// Calculate total price for chosen services
-const calculateTotalPrice = (services) => {
-    return services.reduce((total, service) => total + parseFloat(service.price), 0);
-};
-
-// Info Tooltip
-const renderTooltip = (service) => (
-    <Tooltip id={`tooltip-${service.id}`}>
-        <div>
-            <strong>Price:</strong> {service.price} EUR <br />
-            {service.information && (
-                <>
-                    <strong>Information:</strong> <br />
-                    <span className="text-start">{service.information}</span>
-                </>
-            )}
-        </div>
-    </Tooltip>
-);
-
 const Bookings = () => {
     const { events, services, refreshEvents, updateBooking, deleteBooking } = useBookingEvents(false);
     const [selectedServices, setSelectedServices] = useState([]);
@@ -128,13 +92,6 @@ const Bookings = () => {
     todayMin.setHours(8, 0, 0, 0);
     const todayMax = new Date();
     todayMax.setHours(20, 30, 0, 0);
-
-    // Function to convert "HH:MM:SS" to minutes
-    const parseWorktimeToMinutes = (worktime) => {
-        const [hours, minutes, seconds] = worktime.split(':').map(Number); // Convert HH:MM:SS till numbers
-        const totalMinutes = (hours * 60) + minutes + (seconds / 60);  // Convert to minutes
-        return totalMinutes;
-    };
 
     const handleServiceChange = (serviceId) => {
         let updatedSelectedServices;
@@ -239,7 +196,7 @@ const Bookings = () => {
                                         </label>
                                     </div>
                                     {/* Info-ikon med Tooltip */}
-                                    <ServiceInfo service={service} renderTooltip={renderTooltip} />
+                                    <ServiceInfo service={service} />
                                 </div>
                             ))}
 

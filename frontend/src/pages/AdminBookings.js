@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Container, Row, Col, Button, Form, Modal, Tooltip } from "react-bootstrap";
+import { Container, Row, Col, Button, Form, Modal } from "react-bootstrap";
 import { Calendar, luxonLocalizer } from "react-big-calendar";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { axiosReq } from "../api/axiosDefaults";
@@ -18,55 +18,10 @@ import useBookingEvents from "../hooks/useBookingEvents";
 import useStickyButton from "../hooks/useStickyButton";
 import CustomHeader from "../components/CustomHeader";
 import BookingAlerts from "../components/BookingAlerts";
+import { parseWorktimeToMinutes, convertWorktimeToReadableFormat, calculateBookingDuration } from '../utils/timeUtils';
+import { calculateTotalPrice } from "../utils/priceUtils";
 
 const localizer = luxonLocalizer(DateTime);
-
-// Function to convert "HH:MM:SS" to minutes
-const parseWorktimeToMinutes = (worktime) => {
-    const [hours, minutes, seconds] = worktime.split(':').map(Number);
-    return hours * 60 + minutes + seconds / 60;
-};
-
-// Calculate total duration of selected services
-const calculateBookingDuration = (services) => {
-    const totalMinutes = services.reduce((total, service) => {
-        return total + parseWorktimeToMinutes(service.worktime);
-    }, 0);
-
-    const hours = Math.floor(totalMinutes / 60);
-    const minutes = Math.floor(totalMinutes % 60);
-
-    return `${hours}h ${minutes > 0 ? `${minutes}min` : ''}`.trim();
-};
-
-// Convert Worktime to Readable Format 
-const convertWorktimeToReadableFormat = (worktime) => {
-    const [hours, minutes] = worktime.split(':').map(Number);
-    return `${hours > 0 ? `${hours}h` : ''} ${minutes > 0 ? `${minutes} minutes` : ''}`.trim();
-}
-
-// Calculate total price for chosen services
-const calculateTotalPrice = (services) => {
-    return services.reduce((total, service) => total + parseFloat(service.price), 0);
-};
-
-// Info Tooltip
-const renderTooltip = (service) => (
-    <Tooltip id={`tooltip-${service.id}`}>
-        <div>
-            <strong>Price:</strong> {service.price} EUR <br />
-            {service.information && (
-                <>
-                    <strong>Information:</strong> <br />
-                    <div
-                        className="text-start"
-                        dangerouslySetInnerHTML={{ __html: service.information.replace(/\n/g, '<br />') }}
-                    />
-                </>
-            )}
-        </div>
-    </Tooltip>
-);
 
 
 const AdminBookings = () => {
@@ -489,7 +444,7 @@ const AdminBookings = () => {
                                             <div className="d-flex justify-content-start align-items-center">
 
                                                 {/* Info-ikon med Tooltip */}
-                                                <ServiceInfo service={service} renderTooltip={renderTooltip} />
+                                                <ServiceInfo service={service} />
 
                                                 {/* Edit Service Button */}
                                                 <Button className={`${styles["edit-service-button"]}`} onClick={() => handleOpenEditModal(service)}>
