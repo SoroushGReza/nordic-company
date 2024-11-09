@@ -4,7 +4,7 @@ import styles from "../styles/Menu.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faInstagram } from "@fortawesome/free-brands-svg-icons";
 import { Link, useNavigate } from "react-router-dom";
-import useAuthStatus from "../hooks/AuthStatus";
+import useAuthStatus from "../hooks/useAuthStatus";
 
 const Menu = () => {
     const navigate = useNavigate();

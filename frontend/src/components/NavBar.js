@@ -3,7 +3,7 @@ import { Navbar, Nav, Offcanvas, Container, Row, Col } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
 import styles from "../styles/NavBar.module.css";
 import logo from "../assets/images/nc-logo-black.png";
-import useAuthStatus from "../hooks/AuthStatus";
+import useAuthStatus from "../hooks/useAuthStatus";
 
 function NavBar() {
     const [show, setShow] = useState(false);
