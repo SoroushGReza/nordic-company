@@ -1,9 +1,10 @@
 from rest_framework import serializers
-from .models import Booking, Service, Availability, Category
+from .models import Booking, Service, Availability, Category, TimezoneSetting
 from django.utils import timezone
 from django.utils.timezone import localtime
 from datetime import timedelta
 from accounts.models import CustomUser
+import pytz
 
 
 # Serializer for Service with added price and worktime fields
@@ -33,21 +34,32 @@ class BookingSerializer(serializers.ModelSerializer):
             [service.worktime for service in services], timedelta()
         )  # Summing worktimes
 
+        # Retrieve the selected timezone from the TimezoneSetting model
+        timezone_setting = TimezoneSetting.objects.get(pk=1)
+        selected_timezone = pytz.timezone(timezone_setting.timezone)
+
+        # Ensure start_time is timezone-aware and in the selected timezone
+        if timezone.is_naive(start_time):
+            start_time = selected_timezone.localize(start_time)
+        else:
+            start_time = start_time.astimezone(selected_timezone)
+        data["date_time"] = start_time  # Update start_time in data
+
+        # Add print statements to check the times
+        print(f"Selected Timezone in validate: {selected_timezone}")
+        print(f"Start Time (timezone-aware): {start_time}")
+
         # Prevent booking in the past
-        if start_time and start_time < timezone.now():
+        if start_time < timezone.now():
             raise serializers.ValidationError("Cannot book in the past.")
 
         end_time = start_time + total_duration
 
-        # Convert start_time and end_time to naive local time for checking availability
-        local_start_time = localtime(start_time).replace(tzinfo=None)
-        local_end_time = localtime(end_time).replace(tzinfo=None)
-
         # Check availability for the desired time slot
         if not Availability.objects.filter(
-            date=local_start_time.date(),
-            start_time__lte=local_start_time.time(),
-            end_time__gte=local_end_time.time(),
+            date=start_time.date(),
+            start_time__lte=start_time.time(),
+            end_time__gte=end_time.time(),
             is_available=True,
         ).exists():
             raise serializers.ValidationError("The selected time slot is unavailable.")

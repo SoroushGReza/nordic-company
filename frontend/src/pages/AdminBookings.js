@@ -43,9 +43,10 @@ const AdminBookings = () => {
     const [modalSelectedServices, setModalSelectedServices] = useState([]);
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const todayMin = DateTime.local().setZone('Europe/Dublin').set({ hour: 8, minute: 0, second: 0, millisecond: 0 }).toJSDate();
+    const [selectedTimezone, setSelectedTimezone] = useState('Europe/Istanbul');
+    const todayMin = DateTime.local().setZone(selectedTimezone).set({ hour: 8, minute: 0, second: 0, millisecond: 0 }).toJSDate();
     todayMin.setHours(8, 0, 0, 0);
-    const todayMax = DateTime.local().setZone('Europe/Dublin').set({ hour: 20, minute: 30, second: 0, millisecond: 0 }).toJSDate();
+    const todayMax = DateTime.local().setZone(selectedTimezone).set({ hour: 20, minute: 30, second: 0, millisecond: 0 }).toJSDate();
     todayMax.setHours(20, 30, 0, 0);
     const [bookingDateTime, setBookingDateTime] = useState(null);
     const [showEditModal, setShowEditModal] = useState(false);
@@ -103,6 +104,20 @@ const AdminBookings = () => {
         }
     };
 
+    // Fetch timezone
+    useEffect(() => {
+        const fetchTimezone = async () => {
+            try {
+                const response = await axiosReq.get('/api/timezone/');
+                setSelectedTimezone(response.data.timezone);
+                console.log(`Fetched Timezone: ${response.data.timezone}`);
+            } catch (err) {
+                console.error('Error fetching timezone:', err);
+            }
+        };
+        fetchTimezone();
+    }, []);
+
     // Fetch Categories
     useEffect(() => {
         const fetchCategories = async () => {
@@ -152,6 +167,7 @@ const AdminBookings = () => {
     // Open Booking Modal
     const openBookingModal = (booking = null) => {
         if (booking) {
+            // Editing an existing booking
             setCurrentBooking({
                 ...booking,
                 user_name: booking.user_name,
@@ -159,8 +175,16 @@ const AdminBookings = () => {
                 notes: booking.notes || "",
             });
             setModalSelectedServices(booking.services.map(service => service.id));
-            const dateTime = DateTime.fromISO(booking.date_time, { zone: 'Europe/Dublin' }).toJSDate();
-            setBookingDateTime(dateTime);
+
+            // Use booking.date_time instead of selectedTime.start
+            if (booking.date_time) {
+                const dateTime = DateTime.fromISO(booking.date_time)
+                    .setZone(selectedTimezone)
+                    .toJSDate();
+                setBookingDateTime(dateTime);
+            } else {
+                console.error("booking.date_time is null or undefined");
+            }
 
             if (booking.notes !== undefined && booking.notes !== null) {
                 setNotes(booking.notes);
@@ -168,15 +192,21 @@ const AdminBookings = () => {
                 setNotes("");
             }
         } else {
+            // Creating a new booking
             setModalSelectedServices(selectedServices);
-            if (selectedTime) {
-                const dateTime = DateTime.fromJSDate(selectedTime.start).setZone('Europe/Dublin').toJSDate();
+            if (selectedTime && selectedTime.start) {
+                const dateTime = DateTime.fromJSDate(selectedTime.start)
+                    .setZone(selectedTimezone)
+                    .toJSDate();
                 setBookingDateTime(dateTime);
+            } else {
+                console.error("selectedTime is null when opening booking modal for new booking");
             }
             setNotes("");
         }
         setShowBookingModal(true);
     };
+
 
     // Close Booking Modal
     const closeBookingModal = () => {
@@ -341,9 +371,14 @@ const AdminBookings = () => {
 
             // Convert bookingDateTime to UTC before sending to backend
             const dateTimeUTC = DateTime.fromJSDate(bookingDateTime)
-                .setZone('Europe/Dublin')
+                .setZone(selectedTimezone)
                 .toUTC()
                 .toISO();
+
+            // Add console logs to check the times
+            console.log(`Selected Timezone: ${selectedTimezone}`);
+            console.log(`Booking DateTime (in selected timezone): ${bookingDateTime}`);
+            console.log(`Booking DateTime UTC: ${dateTimeUTC}`);
 
             const bookingData = {
                 service_ids: modalSelectedServices,
@@ -397,6 +432,27 @@ const AdminBookings = () => {
     return (
         <div className={styles["page-container"]}>
             <Container>
+                <Form.Group controlId="timezoneSelect">
+                    <Form.Label>Select Timezone</Form.Label>
+                    <Form.Control
+                        as="select"
+                        value={selectedTimezone}
+                        onChange={async (e) => {
+                            const timezone = e.target.value;
+                            setSelectedTimezone(timezone);
+                            console.log(`Selected Timezone changed to: ${timezone}`);
+                            try {
+                                await axiosReq.post('/api/timezone/', { timezone });
+                                // Optionally refresh data or components to reflect the new timezone
+                            } catch (err) {
+                                console.error('Error updating timezone:', err);
+                            }
+                        }}
+                    >
+                        <option value="Europe/Stockholm">Stockholm</option>
+                        <option value="Europe/Dublin">Dublin</option>
+                    </Form.Control>
+                </Form.Group>
                 <Row className="justify-content-center">
                     <Col md={12}>
                         <h2 className={`${styles["choose-services-heading"]} mt-4`}>
@@ -493,6 +549,8 @@ const AdminBookings = () => {
                                             const selectedStartTime = slotInfo.start;
                                             const selectedEndTime = slotInfo.end;
 
+                                            console.log(`Slot selected from ${selectedStartTime} to ${selectedEndTime} in timezone ${selectedTimezone}`);
+
                                             // Check if opverlapping bookings
                                             const isOverlappingBooked = events.some(event =>
                                                 event.booked && (
@@ -532,6 +590,7 @@ const AdminBookings = () => {
                                             }
                                         }}
                                         onSelectEvent={async (event) => {
+                                            console.log('Event selected:', event);
                                             if (event.booked) {
                                                 if (!event.id) {
                                                     console.error("No booking ID found for this event.");

@@ -4,6 +4,18 @@ from django.utils import timezone
 from django.utils.timezone import timedelta
 
 
+class TimezoneSetting(models.Model):
+    timezone = models.CharField(max_length=50, default="Europe/Istanbul")
+
+    def __str__(self):
+        return self.timezone
+
+    def save(self, *args, **kwargs):
+        # Make sure only one instance exists
+        self.pk = 1
+        super(TimezoneSetting, self).save(*args, **kwargs)
+
+
 # Service Category
 class Category(models.Model):
     name = models.CharField(max_length=100, unique=True)

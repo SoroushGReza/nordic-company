@@ -1,7 +1,8 @@
 from rest_framework import generics, permissions, serializers, status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAdminUser
-from .models import Booking, Service, Availability, Category
+from rest_framework.views import APIView
+from .models import Booking, Service, Availability, Category, TimezoneSetting
 from .serializers import (
     BookingSerializer,
     ServiceSerializer,
@@ -11,10 +12,31 @@ from .serializers import (
     AdminBookingSerializer,
     CategorySerializer,
 )
-from datetime import timedelta
+from datetime import timedelta, datetime
 from django.db.models import Q
 from django.utils.timezone import localtime
-from datetime import datetime
+from django.utils import timezone
+import pytz
+
+
+class TimezoneAPIView(APIView):
+    permission_classes = [IsAdminUser]
+
+    def get(self, request):
+        timezone_setting, _ = TimezoneSetting.objects.get_or_create(pk=1)
+        return Response({"timezone": timezone_setting.timezone})
+
+    def post(self, request):
+        timezone = request.data.get("timezone")
+        if timezone:
+            timezone_setting, _ = TimezoneSetting.objects.get_or_create(pk=1)
+            timezone_setting.timezone = timezone
+            timezone_setting.save()
+            return Response({"status": "Timezone updated"})
+        else:
+            return Response(
+                {"error": "No timezone provided"}, status=status.HTTP_400_BAD_REQUEST
+            )
 
 
 # List All Categories
@@ -23,7 +45,7 @@ class CategoryList(generics.ListAPIView):
     serializer_class = CategorySerializer
 
 
-# List Services Filtered Based On Categories 
+# List Services Filtered Based On Categories
 class ServicesByCategory(generics.ListAPIView):
     serializer_class = ServiceSerializer
 
@@ -133,26 +155,42 @@ class BookingCreateView(generics.CreateAPIView):
         for service in services:
             total_worktime += service.worktime
 
-        # Check availability based on total_worktime
+        # Retrieve the selected timezone from the TimezoneSetting model
+        timezone_setting = TimezoneSetting.objects.get(pk=1)
+        selected_timezone = pytz.timezone(timezone_setting.timezone)
+
+        # Ensure booking_time is timezone-aware and in the selected timezone
         booking_time = serializer.validated_data["date_time"]
+
+        if timezone.is_naive(booking_time):
+            booking_time = selected_timezone.localize(booking_time)
+        else:
+            booking_time = booking_time.astimezone(selected_timezone)
+
         end_time = booking_time + total_worktime
 
-        # Convert booking_time and end_time to naive local time
-        local_booking_time = localtime(booking_time).replace(tzinfo=None)
-        local_end_time = localtime(end_time).replace(tzinfo=None)
+         # Add print statements to check the times
+        print(f"Selected Timezone in perform_create: {selected_timezone}")
+        print(f"Booking Time (timezone-aware): {booking_time}")
+        print(f"End Time (timezone-aware): {end_time}")
 
+        # Use booking_time and end_time directly without converting to naive local time
         available_slots = Availability.objects.filter(
-            date=local_booking_time.date(),
-            start_time__lte=local_booking_time.time(),
-            end_time__gte=local_end_time.time(),
+            date=booking_time.date(),
+            start_time__lte=booking_time.time(),
+            end_time__gte=end_time.time(),
             is_available=True,
         )
 
         is_slot_available = False
         for slot in available_slots:
-            slot_start = datetime.combine(slot.date, slot.start_time)
-            slot_end = datetime.combine(slot.date, slot.end_time)
-            if local_booking_time >= slot_start and local_end_time <= slot_end:
+            slot_start = datetime.combine(slot.date, slot.start_time).replace(
+                tzinfo=selected_timezone
+            )
+            slot_end = datetime.combine(slot.date, slot.end_time).replace(
+                tzinfo=selected_timezone
+            )
+            if booking_time >= slot_start and end_time <= slot_end:
                 is_slot_available = True
                 break
 
@@ -161,8 +199,8 @@ class BookingCreateView(generics.CreateAPIView):
                 {"error": "No available slot for the selected services"}
             )
 
-        # Save booking if its within available times
-        serializer.save(user=self.request.user)
+        # Save booking with timezone-aware date_time
+        serializer.save(user=self.request.user, date_time=booking_time)
 
 
 # Edit / Delete Booking (USER)

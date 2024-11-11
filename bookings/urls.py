@@ -15,10 +15,13 @@ from .views import (
     BookingUpdateDeleteView,
     CategoryList,
     CategoryDetail,
-    ServicesByCategory
+    ServicesByCategory,
+    TimezoneAPIView
 )
 
 urlpatterns = [
+    # Timezone settings
+    path('api/timezone/', TimezoneAPIView.as_view(), name='timezone-api'),
     # List oF Categories
     path("categories/", CategoryList.as_view(), name="category-list"),
     path("categories/<int:pk>/", CategoryDetail.as_view(), name="category-detail"),
