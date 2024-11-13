@@ -356,7 +356,7 @@ button.book-services-btn:hover {
 
 /* ABOW TIME - Header Gutter Background */
 :global(.rbc-label.rbc-time-header-gutter) {
-    background-image: url('../assets/images/2.gif');
+    background-image: url('../assets/images/3.gif');
     background-size: cover;
     background-color: rgb(46, 46, 46);
 }

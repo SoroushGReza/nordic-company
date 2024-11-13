@@ -26,10 +26,11 @@
 }
 
 .heroImage {
-    width: 100%;
+    width: auto; 
+    max-width: 30%;
     height: auto;
     display: block;
-    margin-bottom: -5px;
+    margin: auto;
     z-index: 1;
 }
 /* END OF HERO IMAGE */

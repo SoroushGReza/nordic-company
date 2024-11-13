@@ -46,7 +46,7 @@ const Services = () => {
   return (
     <Container fluid className={styles.servicesContainer}>
       <Row className={styles.heroRow}>
-        <Col xs={5} className={styles.imageCol}>
+        <Col xs={12} className={styles.imageCol}>
           <img
             src={HairServicesImg}
             alt="Hair services"
