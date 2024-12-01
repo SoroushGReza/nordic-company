@@ -1,0 +1,124 @@
+.contactPage {
+  background-color: #e8e6dd;
+  padding: 40px 20px;
+  min-height: 100vh;
+  font-family: Hero-Regular;
+  position: relative;
+}
+
+.palmImg {
+  position: absolute;
+  top: 0; 
+  left: 0;
+  width: 350px;
+  z-index: 1; 
+}
+
+.contactTitle {
+  width: 50%;
+  margin-bottom: 20px;
+}
+
+.contactFormContainer {
+  background-color: #f9f6f0;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 2;
+}
+
+.contactForm h2 {
+  font-size: 1.5rem;
+  margin-bottom: 15px;
+}
+
+.contactForm label {
+  display: block;
+  font-size: 1rem;
+  margin-bottom: 5px;
+  color: #333;
+}
+
+.contactForm input,
+.contactForm textarea {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 1rem;
+}
+
+.contactForm textarea {
+  min-height: 100px;
+}
+
+.sendButton {
+  background-color: #4caf50;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  cursor: pointer;
+  display: block;
+  width: 100%;
+}
+
+.sendButton:hover {
+  background-color: #326e34;
+}
+
+/* --- Email Sent Verification ---*/
+.confirmationIcon {
+    font-size: 3rem;
+    color: #4caf50;
+    margin-bottom: 20px;
+  }
+  
+/* --- Instagaram Logo --- */
+.instagram {
+    font-size: 35px;
+    color: #333;
+    padding: 3px;
+}
+
+    .instagram:hover {
+        color: white;
+        background: linear-gradient(to bottom right, #f09433, #e6683c, #dc2743, #cc2366, #bc1888, #ab1cbf, #833ab4, #515bd4, #405de6);
+        padding: 3px;
+        border-radius: 8px;
+    }
+
+.link {
+    text-decoration: none;
+    display: block;
+    width: 100%;
+    margin-bottom: 10px;
+    justify-content: center;
+
+}
+
+.contactLogo {
+  width: 150px;
+  margin-bottom: 20px;
+}
+
+.contactPhone {
+  font-size: 1.2rem;
+  background-color: #4caf4fa2;
+  padding: 8px;
+  border-radius: 5px;
+  color:#333;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.contactPhone:hover {
+  color: #000000;
+}
+
+.whatsappText {
+  margin-top: 3%;
+  font-size: 14px;
+}
