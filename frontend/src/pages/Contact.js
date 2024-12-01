@@ -1,15 +1,21 @@
 import React, { useState, useEffect } from "react";
+// API 
+import { axiosReq } from "../api/axiosDefaults";
+// Utils
+import { sendEmail } from "../utils/sendEmail";
+// Hooks
 import useAuthStatus from "../hooks/useAuthStatus";
+// Styling & Images
 import { Container, Row, Col, Button } from "react-bootstrap";
 import styles from "../styles/Contact.module.css";
-import ContactImg from "../assets/images/Contact.png";
+import ContactImgText from "../assets/images/Contact.png";
 import PalmImg from "../assets/images/palm.png";
 import LogoBlack from "../assets/images/nc-logo-black.png";
+// Font Awesome Icons
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faInstagram } from "@fortawesome/free-brands-svg-icons";
+import { faWhatsapp } from "@fortawesome/free-brands-svg-icons";
 import { faCheckCircle } from "@fortawesome/free-solid-svg-icons";
-import { sendEmail } from "../utils/sendEmail";
-import { axiosReq } from "../api/axiosDefaults";
 
 const Contact = () => {
   const { isAuthenticated } = useAuthStatus();
@@ -64,11 +70,17 @@ const Contact = () => {
 
       <Container fluid>
         <Row className="justify-content-center">
-          <Col xs={12} md={10} lg={8} className="text-center">
+          {/* Contact Image Text */}
+          <Col
+            xs={12}
+            md={10}
+            lg={8}
+            className="text-center justify-content-center"
+          >
             <img
-              src={ContactImg}
+              src={ContactImgText}
               alt="Contact Title"
-              className={styles.contactTitle}
+              className={styles.ContactImgText}
             />
           </Col>
         </Row>
@@ -88,7 +100,7 @@ const Contact = () => {
           </Row>
         ) : (
           <Row className="justify-content-center">
-            <Col xs={12} md={8} lg={6} className={styles.contactFormContainer}>
+            <Col xs={12} md={8} lg={6} className={styles.emailFormContainer}>
               <form onSubmit={handleSubmit} className={styles.contactForm}>
                 <h2>Email</h2>
                 <label>
@@ -142,29 +154,53 @@ const Contact = () => {
         )}
 
         <Row className="justify-content-center contact-footer">
-          <Col xs={12} md={6} lg={4} className="text-center">
+          <Col xs={10} md={6} lg={4} className="text-center">
             <img
               src={LogoBlack}
               alt="Nordic Company"
-              className={styles.contactLogo}
+              className={styles.LogoBlack}
             />
-            <div className={styles.contactFormContainer}>
-              <h4>Phone</h4>
-              <a href="tel:+46708234455" className={styles.contactPhone}>
-                +46 708 23 44 55
-              </a>
-              <p className={styles.whatsappText}>Available on WhatsApp</p>
+          </Col>
+        </Row>
+
+        <Row className="justify-content-center contact-footer">
+          <Col xs={12} md={10} lg={6} className="text-center">
+            <div className={styles.phoneInstagramContainer}>
+              {/* Phone Section */}
+              <div className={styles.phoneSection}>
+                <h4>Phone</h4>
+                <a href="tel:+46708480032" className={styles.contactPhone}>
+                  +46 708 48 00 32
+                </a>
+                <p className={styles.whatsappText}>
+                  <FontAwesomeIcon
+                    icon={faWhatsapp}
+                    className={styles.whatsappIcon}
+                  />{" "}
+                  Available on WhatsApp
+                </p>
+              </div>
+
+              {/* Divider */}
+              <div className={styles.divider}></div>
+
+              {/* Instagram Section */}
+              <div className={styles.instagramSection}>
+                <h4>Instagram</h4>
+                <a
+                  href="https://www.instagram.com/facebykristine/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={styles.instaLink}
+                >
+                  <FontAwesomeIcon
+                    className={styles.instagram}
+                    icon={faInstagram}
+                  />
+                </a>
+              </div>
             </div>
           </Col>
-          {/* Instagram Link */}
-          <a
-            href="https://www.instagram.com/facebykristine/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={`${styles["link"]} text-center mt-4`}
-          >
-            <FontAwesomeIcon className={styles.instagram} icon={faInstagram} />
-          </a>
         </Row>
       </Container>
     </div>

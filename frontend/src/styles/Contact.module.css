@@ -6,20 +6,23 @@
   position: relative;
 }
 
+/* --- Palm Image --- */
 .palmImg {
   position: absolute;
-  top: 0; 
+  top: 0;
   left: 0;
   width: 350px;
-  z-index: 1; 
+  z-index: 1;
 }
 
-.contactTitle {
-  width: 50%;
+/* --- Contact Text Image --- */
+.ContactImgText {
   margin-bottom: 20px;
+  max-width: 60%;
+  height: auto;
 }
 
-.contactFormContainer {
+.emailFormContainer {
   background-color: #f9f6f0;
   padding: 20px;
   border-radius: 10px;
@@ -71,45 +74,41 @@
 
 /* --- Email Sent Verification ---*/
 .confirmationIcon {
-    font-size: 3rem;
-    color: #4caf50;
-    margin-bottom: 20px;
-  }
-  
-/* --- Instagaram Logo --- */
-.instagram {
-    font-size: 35px;
-    color: #333;
-    padding: 3px;
+  font-size: 3rem;
+  color: #4caf50;
+  margin-bottom: 20px;
 }
 
-    .instagram:hover {
-        color: white;
-        background: linear-gradient(to bottom right, #f09433, #e6683c, #dc2743, #cc2366, #bc1888, #ab1cbf, #833ab4, #515bd4, #405de6);
-        padding: 3px;
-        border-radius: 8px;
-    }
-
-.link {
-    text-decoration: none;
-    display: block;
-    width: 100%;
-    margin-bottom: 10px;
-    justify-content: center;
-
-}
-
-.contactLogo {
+/* ---- Company Logo ---- */
+.LogoBlack {
   width: 150px;
   margin-bottom: 20px;
 }
 
+/* ---- Phone & Instagram Container ---- */
+.phoneInstagramContainer {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  background-color: #f9f6f0;
+  padding: 10px;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* ---- Phone Section ---- */
+.phoneSection {
+  text-align: center;
+  flex: 1;
+}
+
+/* --- Phone --- */
 .contactPhone {
   font-size: 1.2rem;
   background-color: #4caf4fa2;
-  padding: 8px;
+  padding: 3px;
   border-radius: 5px;
-  color:#333;
+  color: #333;
   font-weight: bold;
   text-decoration: none;
 }
@@ -118,7 +117,108 @@
   color: #000000;
 }
 
+/* --- Whatsapp Text --- */
 .whatsappText {
   margin-top: 3%;
   font-size: 14px;
+  color: #0f6212;
+}
+
+/* --- Whatsapp Icon --- */
+.whatsappIcon {
+  font-size: 18px;
+  color: #0f6212;
+}
+
+/* ---- Divider ---- */
+.divider {
+  width: 1px;
+  height: 75px;
+  background-color: #17171728;
+  margin-top: 15px;
+  justify-content: center;
+}
+
+/* ---- Instagram Section ---- */
+.instagramSection {
+  text-align: center;
+  flex: 1;
+}
+
+.instagramSection h4 {
+  margin-bottom: 10px;
+}
+
+/* --- Instagram Logo --- */
+.instagram {
+  font-size: 45px;
+  color: #333;
+  padding: 3px;
+}
+
+.instagram:hover {
+  color: white;
+  background: linear-gradient(
+    to bottom right,
+    #f09433,
+    #e6683c,
+    #dc2743,
+    #cc2366,
+    #bc1888,
+    #ab1cbf,
+    #833ab4,
+    #515bd4,
+    #405de6
+  );
+  padding: 6px;
+  border-radius: 8px;
+}
+
+.instaLink {
+  text-decoration: none;
+}
+
+/* ----------------------- Media Queries ----------------------- */
+
+/* ------- Palm Image ------- */
+@media (min-width: 390px) and (max-width: 940px) {
+  .palmImg {
+    opacity: 0.5;
+  }
+}
+
+/* ---- Contact Image Text ---- */
+@media (min-width: 350px) and (max-width: 940px) {
+  .ContactImgText {
+    max-width: 100%;
+    height: auto;
+  }
+}
+
+/* ------- Phone & Instagram Container ------- */
+@media (min-width: 350px) and (max-width: 550px) {
+  .phoneInstagramContainer h4 {
+    font-size: 0.8rem;
+  }
+
+  .contactPhone {
+    font-size: 0.8rem;
+    padding: 5px;
+  }
+
+  .whatsappText {
+    font-size: 0.5rem;
+  }
+
+  .whatsappIcon {
+    font-size: 10px;
+  }
+
+  .divider {
+    margin-top: 3px;
+  }
+
+  .instagram {
+    font-size: 28px;
+  }
 }
