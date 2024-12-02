@@ -39,6 +39,26 @@
         margin-bottom: auto;
     }
 
+    .navbarContainer .navbar .profileNavLink {
+        color: rgb(56, 57, 57);
+        margin-right: 5px;
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-top: auto;
+        margin-bottom: auto; 
+    }
+
+    .navbarContainer .navbar .profileImage {
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.7);
+    }
+
+    .navbarContainer .navbar .profileImage:hover {
+        box-shadow: 0 4px 15px rgba(39, 110, 13, 0.888);
+    }
+    
+
         .navbarContainer .navbar .navLink:hover {
             color: #ffffff;
             background-color: #898e82;
@@ -49,8 +69,8 @@
     }
 
 
-/* Ändrar höjden på navbaren när den förvandlas till hamburgermeny */
-@media (max-width: 991.98px) {
+/* Max width to change Navbar into Hamburger Menu */
+@media (max-width: 1052px) {
     .navbarContainer .navbar {
         height: 70px;
     }
@@ -84,8 +104,6 @@
 }
 
     .burgerNavLink:hover {
-        /*color: #676b62 !important;
-        text-shadow: 0 3px 5px rgba(0, 0, 0, 0.5);*/
         text-shadow: 0 3px 5px #ffffff;
         color: #515151c4 !important;
     }
@@ -95,5 +113,5 @@
 }
 
 .customBurgerLogout {
-    color: rgb(78, 94, 62) !important; /* Röd färg för länken */
+    color: rgb(78, 94, 62) !important;
 }
