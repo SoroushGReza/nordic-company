@@ -1,23 +1,125 @@
 .profilePage {
-    padding: 40px 20px;
-    min-height: 100vh;
-    font-family: Hero-Regular;
-    position: relative;
-  }
+  padding: 40px 20px;
+  min-height: 100vh;
+  font-family: Hero-Regular;
+  position: relative;
+}
 
-/* --- Profile Text Image --- */
+/* --- Profile Header Image --- */
 .profileImageText {
-    margin-bottom: 20px;
-    max-width: 50% !important;
-    height: auto;
-  }
+  margin-bottom: 20px;
+  max-width: 50% !important;
+  height: auto;
+}
+
+/* ----- Profile Image User ----- */
+.imageUploadGroup {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+}
+
+.profileImage {
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  transition: transform 0.3s ease;
+}
+
+.profileImage:hover {
+  transform: scale(1.1);
+}
+
+.imageUploadLabel {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+}
+
+.hoverText {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: 12px;
+  display: none;
+  white-space: nowrap;
+}
+
+.imageUploadLabel:hover .hoverText {
+  display: block;
+}
+
+/* ---- Update Detils & Password Form Container ---- */
+.formContainer {
+  background-color: rgb(184 197 183);
+  padding: 30px;
+  border-radius: 8px;
+  border: 1px solid rgba(82, 108, 80, 0.543);
+  margin-bottom: 40px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+}
+
+/* ----- Update / Save Buttons ----- */
+.customButton {
+  background-color: #224200 !important;
+  border: none !important;
+  height: 38px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 15px;
+  border-radius: 8px;
+  color: #ffffff !important;
+  font-family: Hero-Regular !important;
+  font-size: 18px !important;
+  width: 27%;
+}
+
+.customButton:hover {
+  background-color: #043500 !important;
+  color: #58a100 !important;
+}
+
+/* ----- Delete Account Container ----- */
+.deleteContainer {
+  background-color: rgb(219, 204, 204);
+  padding: 30px;
+  border-radius: 8px;
+  border: 1px solid rgba(116, 96, 96, 0.543);
+  margin-bottom: 40px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+}
+
+/* ----- Delete Account Button ----- */
+.deleteButton {
+  background-color: #840000 !important;
+  border: none !important;
+  height: 38px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 15px;
+  border-radius: 8px;
+  color: #ffffff !important;
+  font-family: Hero-Regular !important;
+  font-size: 18px !important;
+  width: 27%;
+}
+
+.deleteButton:hover {
+  background-color: #4f0101 !important;
+  color: #ff0000 !important;
+}
 
 /* ---------------------- MEdia Queries ---------------------- */
 
-/* ---- Profile Image Text ---- */
+/* ---- Profile Header Image ---- */
 @media (min-width: 350px) and (max-width: 940px) {
-    .profileImageText {
-      max-width: 100% !important;
-      height: auto;
-    }
+  .profileImageText {
+    max-width: 100% !important;
+    height: auto;
   }
+}

@@ -5,6 +5,7 @@ import { axiosReq } from "../api/axiosDefaults";
 import useAuthStatus from "../hooks/useAuthStatus";
 // Styling & Images
 import styles from "../styles/Profile.module.css";
+import inputStyles from "../styles/ServiceManagement.module.css";
 import {
   Form,
   Button,
@@ -16,6 +17,9 @@ import {
   Alert,
 } from "react-bootstrap";
 import ProfileImageText from "../assets/images/Profile.png";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faLock } from "@fortawesome/free-solid-svg-icons";
+import { faTriangleExclamation } from "@fortawesome/free-solid-svg-icons";
 
 function Profile() {
   useAuthStatus();
@@ -156,133 +160,200 @@ function Profile() {
       <Container fluid className="mt-5">
         {/* Profile Image Text */}
         <Row className="justify-content-center">
-        <img
-          src={ProfileImageText}
-          alt="Profile"
-          className={styles.profileImageText}
-        />
+          <img
+            src={ProfileImageText}
+            alt="Profile"
+            className={styles.profileImageText}
+          />
         </Row>
-        <Row>
-          <Col md={6}>
+        <Row className="justify-content-center">
+          <Col md={7}>
             {/* Display any errors */}
             {errors.non_field_errors && (
               <Alert variant="danger">{errors.non_field_errors}</Alert>
             )}
+
             {/* Profile Update Form */}
             <Form onSubmit={handleProfileUpdate}>
-              <Form.Group controlId="profile_image">
-                {imagePreview && (
-                  <Image
-                    src={imagePreview}
-                    roundedCircle
-                    width={100}
-                    height={100}
-                    className="mt-2 mb-2"
-                  />
-                )}
-                {errors.profile_image && (
-                  <div className="text-danger">{errors.profile_image}</div>
-                )}
-                <Form.Control
-                  type="file"
-                  name="profile_image"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                />
-              </Form.Group>
-              <Form.Group controlId="name">
-                <Form.Label>Name</Form.Label>
-                <Form.Control
-                  type="text"
-                  name="name"
-                  value={profileData.name || ""}
-                  onChange={handleProfileChange}
-                />
-                {errors.name && (
-                  <div className="text-danger">{errors.name}</div>
-                )}
-              </Form.Group>
-              <Form.Group controlId="surname">
-                <Form.Label>Surname</Form.Label>
-                <Form.Control
-                  type="text"
-                  name="surname"
-                  value={profileData.surname || ""}
-                  onChange={handleProfileChange}
-                />
-                {errors.surname && (
-                  <div className="text-danger">{errors.surname}</div>
-                )}
-              </Form.Group>
-              <Form.Group controlId="email">
-                <Form.Label>Email</Form.Label>
-                <Form.Control
-                  type="email"
-                  name="email"
-                  value={profileData.email || ""}
-                  onChange={handleProfileChange}
-                />
-                {errors.email && (
-                  <div className="text-danger">{errors.email}</div>
-                )}
-              </Form.Group>
-              <Form.Group controlId="phone_number">
-                <Form.Label>Phone Number</Form.Label>
-                <Form.Control
-                  type="text"
-                  name="phone_number"
-                  value={profileData.phone_number || ""}
-                  onChange={handleProfileChange}
-                />
-                {errors.phone_number && (
-                  <div className="text-danger">{errors.phone_number}</div>
-                )}
-              </Form.Group>
-              <Button variant="primary" type="submit" className="mt-3">
-                Update Profile
-              </Button>
+              <Row className="justify-content-center align-items-center">
+                <Col xs="auto" className="text-center">
+                  {/* Profile Image */}
+                  <Form.Group
+                    controlId="profile_image"
+                    className={`mb-4 ${styles.imageUploadGroup}`}
+                  >
+                    <label
+                      htmlFor="profileImageInput"
+                      className={styles.imageUploadLabel}
+                    >
+                      <Image
+                        src={imagePreview || "default_image_url"}
+                        roundedCircle
+                        width={100}
+                        height={100}
+                        alt="Profile"
+                        className={`${styles.profileImage}`}
+                      />
+                      <span className={styles.hoverText}>Choose Image</span>
+                    </label>
+                    <Form.Control
+                      type="file"
+                      id="profileImageInput"
+                      name="profile_image"
+                      accept="image/*"
+                      onChange={handleImageChange}
+                      className="d-none"
+                    />
+                  </Form.Group>
+                </Col>
+              </Row>
+
+              {/* Profile Details */}
+              <Row>
+                <Col className={`${styles.formContainer}`}>
+                  <h3 className="text-center">Update Profile</h3>
+                  <Form.Group controlId="name">
+                    <Form.Label className={`${inputStyles["form-label"]} mt-2`}>
+                      Name
+                    </Form.Label>
+                    <Form.Control
+                      type="text"
+                      name="name"
+                      value={profileData.name || ""}
+                      onChange={handleProfileChange}
+                      className={`${inputStyles["form-input"]}`}
+                    />
+                    {errors.name && (
+                      <div className="text-danger">{errors.name}</div>
+                    )}
+                  </Form.Group>
+                  <Form.Group controlId="surname">
+                    <Form.Label className={`${inputStyles["form-label"]} mt-3`}>
+                      Surname
+                    </Form.Label>
+                    <Form.Control
+                      type="text"
+                      name="surname"
+                      value={profileData.surname || ""}
+                      onChange={handleProfileChange}
+                      className={`${inputStyles["form-input"]}`}
+                    />
+                    {errors.surname && (
+                      <div className="text-danger">{errors.surname}</div>
+                    )}
+                  </Form.Group>
+                  <Form.Group controlId="email">
+                    <Form.Label className={`${inputStyles["form-label"]} mt-3`}>
+                      Email
+                    </Form.Label>
+                    <Form.Control
+                      type="email"
+                      name="email"
+                      value={profileData.email || ""}
+                      onChange={handleProfileChange}
+                      className={`${inputStyles["form-input"]}`}
+                    />
+                    {errors.email && (
+                      <div className="text-danger">{errors.email}</div>
+                    )}
+                  </Form.Group>
+                  <Form.Group controlId="phone_number">
+                    <Form.Label className={`${inputStyles["form-label"]} mt-3`}>
+                      Phone Number
+                    </Form.Label>
+                    <Form.Control
+                      type="text"
+                      name="phone_number"
+                      value={profileData.phone_number || ""}
+                      onChange={handleProfileChange}
+                      className={`${inputStyles["form-input"]}`}
+                    />
+                    {errors.phone_number && (
+                      <div className="text-danger">{errors.phone_number}</div>
+                    )}
+                  </Form.Group>
+                  <div className="d-flex justify-content-center">
+                    <Button
+                      variant="primary"
+                      type="submit"
+                      className={`${styles["customButton"]} mt-4`}
+                    >
+                      Update
+                    </Button>
+                  </div>
+                </Col>
+              </Row>
             </Form>
           </Col>
-          <Col md={6}>
-            {/* Change Password Form */}
-            <h3 className="mt-4">Change Password</h3>
-            {errors.old_password && (
-              <Alert variant="danger">{errors.old_password}</Alert>
-            )}
-            <Form onSubmit={handleChangePassword}>
-              <Form.Group controlId="old_password">
-                <Form.Label>Old Password</Form.Label>
-                <Form.Control
-                  type="password"
-                  name="old_password"
-                  value={passwordData.old_password}
-                  onChange={handlePasswordChange}
-                />
-              </Form.Group>
-              <Form.Group controlId="new_password">
-                <Form.Label>New Password</Form.Label>
-                <Form.Control
-                  type="password"
-                  name="new_password"
-                  value={passwordData.new_password}
-                  onChange={handlePasswordChange}
-                />
-              </Form.Group>
-              <Button variant="primary" type="submit" className="mt-3">
-                Change Password
-              </Button>
-            </Form>
-            {/* Delete Account Button */}
-            <h3 className="mt-4 text-danger">Delete Account</h3>
-            <Button
-              variant="danger"
-              onClick={() => setShowDeleteModal(true)}
-              className="mt-2"
-            >
-              Delete Account
-            </Button>
+
+          {/* Password */}
+          <Col md={7}>
+            <Row>
+              <Col className={`${styles.formContainer}`}>
+                {/* Change Password Form */}
+                <h3 className="text-center mt-2">
+                  <FontAwesomeIcon icon={faLock} /> Change Password
+                </h3>
+                {errors.old_password && (
+                  <Alert variant="danger">{errors.old_password}</Alert>
+                )}
+                <Form onSubmit={handleChangePassword}>
+                  <Form.Group controlId="old_password">
+                    <Form.Label className={`${inputStyles["form-label"]} mt-2`}>
+                      Old Password
+                    </Form.Label>
+                    <Form.Control
+                      type="password"
+                      name="old_password"
+                      value={passwordData.old_password}
+                      onChange={handlePasswordChange}
+                      className={`${inputStyles["form-input"]}`}
+                    />
+                  </Form.Group>
+                  <Form.Group controlId="new_password">
+                    <Form.Label className={`${inputStyles["form-label"]} mt-3`}>
+                      New Password
+                    </Form.Label>
+                    <Form.Control
+                      type="password"
+                      name="new_password"
+                      value={passwordData.new_password}
+                      onChange={handlePasswordChange}
+                      className={`${inputStyles["form-input"]}`}
+                    />
+                  </Form.Group>
+                  <div className="d-flex justify-content-center">
+                    <Button
+                      variant="primary"
+                      type="submit"
+                      className={`${styles["customButton"]} mt-4`}
+                    >
+                      Save
+                    </Button>
+                  </div>
+                </Form>
+              </Col>
+            </Row>
+
+            {/* Delete Account */}
+            <Row>
+              <Col className={`${styles.deleteContainer}`}>
+                <h3 className="text-danger text-center"><FontAwesomeIcon icon={faTriangleExclamation} /> Delete Account</h3>
+                <h6 className="text-center">This action is not reversable!</h6>
+                <div className="d-flex justify-content-center">
+                  <Button
+                    variant="danger"
+                    onClick={() => setShowDeleteModal(true)}
+                    className={`${styles["deleteButton"]} mt-4`}
+                  >
+                    Delete
+                  </Button>
+                </div>
+              </Col>
+            </Row>
           </Col>
         </Row>
+        
         {/* Modal for Account Deletion Confirmation */}
         <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
           <Modal.Header closeButton>
