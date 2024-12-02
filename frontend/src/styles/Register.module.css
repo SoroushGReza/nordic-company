@@ -5,11 +5,37 @@ body, html {
     height: 100%;
 }
 
+/* ------ Palm Images ------ */
+
+/* --- Login Page --- */
+.palmImg2 {
+    position: absolute !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    z-index: 1 !important;
+    width: 30% !important;
+}
+
+/* --- Register Page --- */
+.palmImg3 {
+    position: absolute !important;
+    top: 0 !important;
+    right: 0 !important;
+    z-index: 1 !important;
+    width: 40% !important;
+}
+
+.registerContainer {
+    position: relative !important; 
+    z-index: 3 !important;
+}
+
 .formCol {
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: calc(100vh - 100px);
+    z-index: 2;
 }
 
 .formWrapper {

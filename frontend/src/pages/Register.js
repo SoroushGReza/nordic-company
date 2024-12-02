@@ -5,6 +5,7 @@ import { axiosReq } from "../api/axiosDefaults";
 import styles from "../styles/Register.module.css";
 import inputStyles from "../styles/ServiceManagement.module.css";
 import RegisterTxtImg from "../assets/images/Register.png";
+import PalmImg3 from "../assets/images/palm3.png";
 
 const Register = () => {
     const [name, setName] = useState("");
@@ -22,7 +23,7 @@ const Register = () => {
             return;
         }
         try {
-            // Registrera anv�ndaren
+            // Register user
             await axiosReq.post("/accounts/register/", {
                 name,
                 surname,
@@ -31,17 +32,17 @@ const Register = () => {
                 password,
             });
 
-            // Logga in anv�ndaren automatiskt efter registrering
+            // Log in user after registration
             const response = await axiosReq.post("/accounts/login/", {
                 email,
                 password,
             });
 
-            // Spara JWT-token i localStorage
+            // Save JWT-token in localStorage
             localStorage.setItem("refresh", response.data.refresh);
             localStorage.setItem("access", response.data.access);
 
-            // Navigera till hemsidan
+            // Navigate to home page
             navigate("/");
         } catch (error) {
             console.error(error);
@@ -52,6 +53,7 @@ const Register = () => {
 
     return (
         <Container fluid className={styles.registerContainer}>
+            <img src={PalmImg3} alt="Palm Shadow" className={styles.palmImg3} />
             <Row className="justify-content-center">
                 <Col md={6} className={styles.formCol}>
                     <div className={styles.formWrapper}>
@@ -60,7 +62,7 @@ const Register = () => {
                                 <img src={RegisterTxtImg} alt="Register" className={styles.pageImgTxt} />
                             </Col>
                         </Row>
-                        {/*<h2 className={styles.registerHeader}>Register</h2>*/}
+
                         <Form onSubmit={handleSubmit}>
 
                             <Form.Group controlId="formName">
