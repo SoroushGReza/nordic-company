@@ -264,7 +264,7 @@
 
 .deleteAccModalInput:focus {
     border-color: rgba(255, 0, 0, 0.781) !important;
-    box-shadow: 0 0 5px rgba(255, 0, 0, 0.514);
+    box-shadow: 0 0 5px rgba(255, 0, 0, 0.514) !important;
 }
 
 .deleteAccDltBtn {
