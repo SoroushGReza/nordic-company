@@ -5,6 +5,12 @@
   position: relative;
 }
 
+.loadingProfile {
+  font-family: "Poppins";
+  font-size: 24px;
+  color: #043500;
+}
+
 /* --- Profile Header Image --- */
 .profileImageText {
   margin-bottom: 20px;

@@ -150,7 +150,11 @@ function Profile() {
   if (loading) {
     return (
       <Container className="mt-5">
-        <h1>Loading Profile...</h1>
+        <Row className="justify-content-center">
+          <Col md={3}>
+            <h3 className={styles.loadingProfile}>Loading Profile...</h3>
+          </Col>
+        </Row>
       </Container>
     );
   }
@@ -338,7 +342,10 @@ function Profile() {
             {/* Delete Account */}
             <Row>
               <Col className={`${styles.deleteContainer}`}>
-                <h3 className="text-danger text-center"><FontAwesomeIcon icon={faTriangleExclamation} /> Delete Account</h3>
+                <h3 className="text-danger text-center">
+                  <FontAwesomeIcon icon={faTriangleExclamation} /> Delete
+                  Account
+                </h3>
                 <h6 className="text-center">This action is not reversable!</h6>
                 <div className="d-flex justify-content-center">
                   <Button
@@ -353,7 +360,7 @@ function Profile() {
             </Row>
           </Col>
         </Row>
-        
+
         {/* Modal for Account Deletion Confirmation */}
         <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
           <Modal.Header closeButton>
