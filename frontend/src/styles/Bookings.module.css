@@ -1,495 +1,494 @@
 .page-container {
-    padding-bottom: 90px;
+  padding-bottom: 90px;
+}
+
+/* ---- Bookings Header Image ---- */
+.bookingImage {
+  display: block; 
+  margin: 0 auto; 
+  max-width: 80%; 
+  height: auto; 
 }
 
 /* Info List */
 .booking-info-list {
-    list-style: none;
-    padding-left: 0;
+  list-style: none;
+  padding-left: 0;
 }
 
 /* Booking info Button */
 .booking-info-button {
-    margin-bottom: 20px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-    color: rgb(40, 40, 40);
+  margin-bottom: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  color: rgb(40, 40, 40);
+  font-family: Hero-regular !important;
+  font-size: 15px !important;
 }
 
 .booking-info-button:hover {
-    color: rgb(0, 0, 0);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+  color: rgb(0, 0, 0);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
 }
-
 
 /* --------------- FORMS --------------- */
 .services-forms {
-    background-color: rgb(184 197 183);
-    padding: 10px;
-    border-radius: 8px;
-    border: 1px solid rgba(82, 108, 80, 0.543);
-    margin-bottom: 40px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+  background-color: rgb(184 197 183);
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(82, 108, 80, 0.543);
+  margin-bottom: 40px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
 }
 
 /* Choose Services Heading */
 .choose-services-heading {
-    font-family: hero-regular;
-    font-size: 40px;
-    margin-top: 20px !important;
-    margin-bottom: 10px;
-    text-align: center;
+  font-family: hero-regular;
+  font-size: 40px;
+  margin-top: 20px !important;
+  margin-bottom: 10px;
+  text-align: center;
 }
 
 @media (max-width: 522px) {
-    .choose-services-heading {
-        font-size: 30px !important;
-    }
+  .choose-services-heading {
+    font-size: 30px !important;
+  }
 }
 
 /* Choosing Services */
 .services-to-choose {
-    font-size: 21px;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-center;
-    margin: 0 auto;
-    color: rgb(49, 48, 48);
-    font-family: hero-regular;
-    width: 75%;
-    line-height: 1.5;
-    vertical-align: baseline;
+  font-size: 21px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-center;
+  margin: 0 auto;
+  color: rgb(49, 48, 48);
+  font-family: hero-regular;
+  width: 75%;
+  line-height: 1.5;
+  vertical-align: baseline;
 }
 
 @media (max-width: 999px) {
-    .services-to-choose {
-        width: 95%;
-    }
+  .services-to-choose {
+    width: 95%;
+  }
 }
 
 @media (max-width: 767px) {
-    .services-to-choose {
-        font-size: 18px;
-    }
+  .services-to-choose {
+    font-size: 18px;
+  }
 }
 
 .services-to-choose label {
-    vertical-align: baseline;
+  vertical-align: baseline;
 }
 
 /* Custom checkbox */
 .service-checkbox input[type="checkbox"] {
-    appearance: none;
-    width: 20px;
-    height: 20px;
-    border: 2px solid #74896f;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s ease, border-color 0.3s ease;
-    line-height: 1.5;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border: 2px solid #74896f;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+  line-height: 1.5;
 }
 
 @media (max-width: 767px) {
-    .service-checkbox input[type="checkbox"] {
-        width: 18px;
-        height: 18px;
-    }
+  .service-checkbox input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+  }
 }
 
 /* Checked */
 .service-checkbox input[type="checkbox"]:checked {
-    background-color: #313232;
-    border-color: #3b3b3b;
+  background-color: #313232;
+  border-color: #3b3b3b;
 }
 
 /* Focused and CHECKED */
 .service-checkbox input[type="checkbox"]:checked:focus {
-    box-shadow: 0 0 7px 2px #639d54c3 !important;
-    border-color: #74896f !important;
+  box-shadow: 0 0 7px 2px #639d54c3 !important;
+  border-color: #74896f !important;
 }
 
 /* Focused but UNCHECKED */
 .service-checkbox input[type="checkbox"]:focus {
-    box-shadow: 0 0 7px 2px #4ab131c3 !important;
-    border-color: #74896f !important;
+  box-shadow: 0 0 7px 2px #4ab131c3 !important;
+  border-color: #74896f !important;
 }
-
 
 /* --- Edit Service Button --- */
 .edit-service-button {
-    background-color: #313232c7 !important;
-    color: whitesmoke;
-    height: 25px;
-    width: 40px;
-    display: flex !important;
-    justify-content: center !important;
-    align-items: center !important;
-    border-radius: 5px;
-    padding: 0;
-    border: none !important;
-    margin-right: 5px;
+  background-color: #313232c7 !important;
+  color: whitesmoke;
+  height: 25px;
+  width: 40px;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  border-radius: 5px;
+  padding: 0;
+  border: none !important;
+  margin-right: 5px;
 }
 
 .edit-service-button:hover {
-    background-color: #313232 !important;
-    font-size: 18px !important;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  background-color: #313232 !important;
+  font-size: 18px !important;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
 /* --- Delete Service Button --- */
 .delete-service-button {
-    background-color: #720d0d9d !important;
-    color: whitesmoke;
-    height: 25px;
-    width: 40px;
-    display: flex !important;
-    justify-content: center !important;
-    align-items: center !important;
-    border-radius: 5px;
-    padding: 0;
-    border: none !important;
+  background-color: #720d0d9d !important;
+  color: whitesmoke;
+  height: 25px;
+  width: 40px;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  border-radius: 5px;
+  padding: 0;
+  border: none !important;
 }
 
 .delete-service-button:hover {
-    background-color: #720d0ded !important;
-    font-size: 18px !important;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  background-color: #720d0ded !important;
+  font-size: 18px !important;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 /* --- Total price in service form --- */
 .totalPriceInServiceForm {
-    font-family: 'Poppins';
-    font-size: 18px;
-    color: #1a281e;
+  font-family: "Poppins";
+  font-size: 18px;
+  color: #1a281e;
 }
 
-.priceSpan{
-    font-size: 13px;
-    color: #1a281e;
-    font-family: 'hero-regular';
+.priceSpan {
+  font-size: 13px;
+  color: #1a281e;
+  font-family: "hero-regular";
 }
-
 
 /* Choose Date/Time Heading */
 .choose-date-time-heading {
-    font-family: hero-regular !important;
-    font-size: 40px;
-    margin-top: 40px !important;
-    margin-bottom: 10px;
-    text-align: center;
+  font-family: hero-regular !important;
+  font-size: 40px;
+  margin-top: 40px !important;
+  margin-bottom: 10px;
+  text-align: center;
 }
 
 @media (max-width: 522px) {
-    .choose-date-time-heading {
-        font-size: 30px !important;
-    }
+  .choose-date-time-heading {
+    font-size: 30px !important;
+  }
 }
 
 /* ----- Book Services Button ----- */
 
 /* Styles for the disabled state */
 button.book-services-btn:disabled {
-    background-color: #003b08;
-    color: rgb(188, 188, 188);
-    cursor: not-allowed;
-    opacity: 0.7;
+  background-color: #003b08;
+  color: rgb(188, 188, 188);
+  cursor: not-allowed;
+  opacity: 0.7;
 }
 
 /* Styles for the active state */
 button.book-services-btn {
-    background-color: #197d00;
-    color: rgb(255, 255, 255);
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    margin-bottom: 35px;
-    display: inline-block;
-    box-shadow: 0 0 15px rgba(30, 30, 30, 0.8),
-        0 0 30px rgba(49, 49, 49, 0.6),
-        0 0 45px rgba(99, 99, 99, 0.4),
-        0 0 60px rgba(0, 0, 0, 0.2);
+  background-color: #197d00;
+  color: rgb(255, 255, 255);
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-bottom: 35px;
+  display: inline-block;
+  box-shadow: 0 0 15px rgba(30, 30, 30, 0.8), 0 0 30px rgba(49, 49, 49, 0.6),
+    0 0 45px rgba(99, 99, 99, 0.4), 0 0 60px rgba(0, 0, 0, 0.2);
 }
 
-
 button.book-services-btn:hover {
-    background-color: #006b0e;
-    color: rgb(227, 227, 227);
-    box-shadow: 0 0 15px rgba(153, 153, 153, 0.8),
-        0 0 30px rgba(159, 159, 159, 0.6),
-        0 0 45px rgba(99, 99, 99, 0.4),
-        0 0 60px rgba(0, 0, 0, 0.2);
+  background-color: #006b0e;
+  color: rgb(227, 227, 227);
+  box-shadow: 0 0 15px rgba(153, 153, 153, 0.8),
+    0 0 30px rgba(159, 159, 159, 0.6), 0 0 45px rgba(99, 99, 99, 0.4),
+    0 0 60px rgba(0, 0, 0, 0.2);
 }
 
 .sticky-button {
-    position: fixed;
-    bottom: -20px;
-    left: 0;
-    width: 100%;
-    padding: 10px 0;
-    text-align: center;
-    z-index: 1000;
+  position: fixed;
+  bottom: -20px;
+  left: 0;
+  width: 100%;
+  padding: 10px 0;
+  text-align: center;
+  z-index: 1000;
 }
 
 /* ----- Calendar Component ----- */
 
 .calendar-container {
-    width: 100%;
-    height: auto;
-    border: none;
-    border-radius: 4px;
+  width: 100%;
+  height: auto;
+  border: none;
+  border-radius: 4px;
 }
 
 .custom-calendar {
-    width: 100%;
-    max-width: 100%;
-    background-color: rgb(255, 255, 255);
-    border-radius: 4px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
-    border: none;
+  width: 100%;
+  max-width: 100%;
+  background-color: rgb(255, 255, 255);
+  border-radius: 4px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+  border: none;
 }
 
 /* Remove border (Calendar) */
 :global(.rbc-time-view) {
-    border: none !important;
+  border: none !important;
 }
 
 /* User's own bookings */
 .user-booking {
-    background-color: rgba(73, 113, 145, 0.854) !important;
-    color: rgb(236, 236, 236) !important;
-    text-shadow: 0px 2px 2px black !important;
-    cursor: pointer !important;
-    z-index: 3;
-    border: none !important;
-    font-size: 12px !important;
-    font-family: "Poppins" !important;
+  background-color: rgba(73, 113, 145, 0.854) !important;
+  color: rgb(236, 236, 236) !important;
+  text-shadow: 0px 2px 2px black !important;
+  cursor: pointer !important;
+  z-index: 3;
+  border: none !important;
+  font-size: 12px !important;
+  font-family: "Poppins" !important;
 }
 
 @media (max-width: 922px) {
-    .user-booking {
-        font-size: 8px !important;
-    }
+  .user-booking {
+    font-size: 8px !important;
+  }
 }
 
 @media (max-width: 500px) {
-    .user-booking {
-        font-size: 6px !important;
-    }
+  .user-booking {
+    font-size: 6px !important;
+  }
 }
 
 /* Other users bookings */
 .booked-event {
-    background-color: transparent !important;
-    border: none !important;
-    pointer-events: none !important;
-    color: transparent !important;
+  background-color: transparent !important;
+  border: none !important;
+  pointer-events: none !important;
+  color: transparent !important;
 }
 
 /* Available times */
 .available-event {
-    background-color: rgba(150, 202, 150, 0.651) !important;
-    cursor: pointer !important;
-    border: 1px solid rgba(73, 117, 73, 0.107) !important;
-    font-size: 12px !important;
-    color: #1a281e !important;
-    font-family: "Poppins" !important;
+  background-color: rgba(150, 202, 150, 0.651) !important;
+  cursor: pointer !important;
+  border: 1px solid rgba(73, 117, 73, 0.107) !important;
+  font-size: 12px !important;
+  color: #1a281e !important;
+  font-family: "Poppins" !important;
 }
 
 @media (max-width: 767px) {
-    .available-event {
-        font-size: 8px !important;
-    }
+  .available-event {
+    font-size: 8px !important;
+  }
 }
 
 @media (max-width: 500px) {
-    .available-event  {
-        font-size: 7px !important;
-    }
+  .available-event {
+    font-size: 7px !important;
+  }
 }
-
 
 /* Selected Time */
 .selected-time {
-    background-color: rgb(37, 71, 125) !important;
-    color: rgb(219, 214, 214) !important;
-    width: 100% !important;
-    left: 0 !important;
-    z-index: 999;
-    box-sizing: border-box;
-    border: none;
-    font-size: 12px !important;
-    font-family: "Poppins" !important;
+  background-color: rgb(37, 71, 125) !important;
+  color: rgb(219, 214, 214) !important;
+  width: 100% !important;
+  left: 0 !important;
+  z-index: 999;
+  box-sizing: border-box;
+  border: none;
+  font-size: 12px !important;
+  font-family: "Poppins" !important;
 }
 
 @media (max-width: 767px) {
-    .selected-time {
-        font-size: 8px !important;
-    }
+  .selected-time {
+    font-size: 8px !important;
+  }
 }
 
 @media (max-width: 500px) {
-    .selected-time  {
-        font-size: 6px !important;
-    }
+  .selected-time {
+    font-size: 6px !important;
+  }
 }
 
 /* Unavailable times */
 .unavailable-event {
-    background-color: rgba(155, 152, 152, 0.902) !important;
+  background-color: rgba(155, 152, 152, 0.902) !important;
 }
 
 /* Hidden Elements */
 
 :global(.rbc-day-bg) {
-    display: none !important;
+  display: none !important;
 }
 
 :global(.rbc-row-bg) {
-    display: none !important;
+  display: none !important;
 }
 
 :global(.rbc-allday-cell) {
-    display: none !important;
+  display: none !important;
 }
-
 
 /* ABOW TIME - Header Gutter Background */
 :global(.rbc-label.rbc-time-header-gutter) {
-    background-image: url('../assets/images/3.gif');
-    background-size: cover;
-    background-color: rgb(46, 46, 46);
+  background-image: url("../assets/images/3.gif");
+  background-size: cover;
+  background-color: rgb(46, 46, 46);
 }
 
 /* Dates Background */
 :global(.rbc-header) {
-    background-color: #bcc0b65c;
+  background-color: #bcc0b65c;
 }
 
 /* Month */
 :global(.rbc-toolbar-label) {
-    font-family: 'Hero-Regular', sans-serif;
-    font-size: medium;
+  font-family: "Hero-Regular", sans-serif;
+  font-size: medium;
 }
 
 /* Dates text */
 
 /* Weekends (Saturday, Sunday) */
 .weekend-header span[role="columnheader"] {
-    font-size: 15px;
-    font-family: 'Sixtyfour Convergence';
-    text-align: center;
-    line-height: 1.9;
+  font-size: 15px;
+  font-family: "Sixtyfour Convergence";
+  text-align: center;
+  line-height: 1.9;
 }
 
 /* Weekday (Monday - Friday) */
 .weekday-header span[role="columnheader"] {
-    color: rgb(53, 53, 53);
-    font-size: 18px;
-    font-family: 'Poppins';
-    line-height: 1.5;
-    letter-spacing: 1px;
+  color: rgb(53, 53, 53);
+  font-size: 18px;
+  font-family: "Poppins";
+  line-height: 1.5;
+  letter-spacing: 1px;
 }
 
 /* Time */
 :global(.rbc-label) {
-    font-family: 'Hero-Regular', sans-serif;
-    text-align: center;
-    line-height: 2.5;
+  font-family: "Hero-Regular", sans-serif;
+  text-align: center;
+  line-height: 2.5;
 }
 
 /* ------------------   ALERTS   ------------------ */
 
 /* Timezone alert */
 .alert-custom {
-    margin-top: 20px;
-    margin-bottom: 20px;
-    font-size: 18px;
-    font-family: "hero-regular";
-    text-align: center;
-    max-width: fit-content;
-    max-height: 40px;
-    line-height: 8px;
-    color: rgb(32, 32, 32) !important;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  font-size: 18px;
+  font-family: "hero-regular";
+  text-align: center;
+  max-width: fit-content;
+  max-height: 40px;
+  line-height: 8px;
+  color: rgb(32, 32, 32) !important;
 }
 
 @media only screen and (max-width: 768px) {
-    .alert-custom {
-        font-size: 0.6rem;
-        padding: 5px;
-        line-height: 10px;
-    }
+  .alert-custom {
+    font-size: 0.6rem;
+    padding: 5px;
+    line-height: 10px;
+  }
 }
 
 @media only screen and (max-width: 477px) {
-    .alert-custom {
-        font-size: 0.5rem;
-        padding: 5px;
-    }
+  .alert-custom {
+    font-size: 0.5rem;
+    padding: 5px;
+  }
 }
 
 @media only screen and (max-width: 406px) {
-    .alert-custom {
-        font-size: 0.4rem;
-        padding: 5px;
-        line-height: 5px;
-    }
+  .alert-custom {
+    font-size: 0.4rem;
+    padding: 5px;
+    line-height: 5px;
+  }
 }
 
 /* Info Alert */
 .booking-info-alert {
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
-    padding: 20px;
-    border-radius: 5px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+  padding: 20px;
+  border-radius: 5px;
 }
 
 /* Booking Successfull Alert */
 .custom-success-alert {
-    width: 40%;
-    min-height: 40px;
-    padding: 5px;
-    z-index: 9999;
-    margin-top: 20px;
-    text-align: center;
+  width: 40%;
+  min-height: 40px;
+  padding: 5px;
+  z-index: 9999;
+  margin-top: 20px;
+  text-align: center;
 }
 
 .custom-success-alert p {
-    font-family: Hero-regular;
-    margin: 0;
-    font-weight: bold;
-    color: rgb(49, 49, 49);
+  font-family: Hero-regular;
+  margin: 0;
+  font-weight: bold;
+  color: rgb(49, 49, 49);
 }
 
 /* Booking Fail Alert */
 .booking-fail-alert {
-    width: 40%;
-    min-height: 40px;
-    padding: 7px;
-    z-index: 9999;
-    margin-top: 20px;
-    text-align: center;
+  width: 40%;
+  min-height: 40px;
+  padding: 7px;
+  z-index: 9999;
+  margin-top: 20px;
+  text-align: center;
 }
 
 .booking-fail-alert p {
-    font-family: Hero-regular;
-    margin: 0;
-    font-weight: bold;
-    color: rgb(49, 49, 49);
+  font-family: Hero-regular;
+  margin: 0;
+  font-weight: bold;
+  color: rgb(49, 49, 49);
 }
 
 /* Alert Media Queries */
 @media (max-width: 934px) {
-
-    .custom-success-alert p,
-    .booking-fail-alert p {
-        font-size: 0.7rem;
-    }
+  .custom-success-alert p,
+  .booking-fail-alert p {
+    font-size: 0.7rem;
+  }
 }
 
 @media (max-width: 700px) {
-
-    .custom-success-alert p,
-    .booking-fail-alert p {
-        font-size: 0.5rem;
-    }
+  .custom-success-alert p,
+  .booking-fail-alert p {
+    font-size: 0.5rem;
+  }
 }
