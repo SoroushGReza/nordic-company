@@ -6,6 +6,7 @@ import useAuthStatus from "../hooks/useAuthStatus";
 // Styling & Images
 import styles from "../styles/Profile.module.css";
 import inputStyles from "../styles/ServiceManagement.module.css";
+import modalStyles from "../styles/Modals.module.css";
 import {
   Form,
   Button,
@@ -363,31 +364,52 @@ function Profile() {
 
         {/* Modal for Account Deletion Confirmation */}
         <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
-          <Modal.Header closeButton>
-            <Modal.Title>Confirm Account Deletion</Modal.Title>
+          <Modal.Header
+            className={`${modalStyles["deleteAccModalHeader"]}`}
+            closeButton
+          >
+            <Modal.Title
+              className={`${modalStyles["deleteAccountModalTitle"]}`}
+            >
+              Confirm Account Deletion
+            </Modal.Title>
           </Modal.Header>
-          <Modal.Body>
+          <Modal.Body className={`${modalStyles["deleteAccModalBody"]}`}>
             <Form onSubmit={handleDeleteAccount}>
               {errors.password && (
                 <Alert variant="danger">{errors.password}</Alert>
               )}
               <Form.Group controlId="delete_password">
-                <Form.Label>Enter your password to confirm</Form.Label>
+                <p className={`${modalStyles["warningText"]}`}>
+                  <FontAwesomeIcon
+                    className={`${modalStyles["warningIcon"]}`}
+                    icon={faTriangleExclamation}
+                  />{" "}
+                  All your data will be deleted!
+                </p>
+                <Form.Label className={`${modalStyles["deleteAccModalLabel"]}`}>
+                  Enter your password to confirm
+                </Form.Label>
                 <Form.Control
                   type="password"
                   name="password"
                   value={deletePassword}
                   onChange={(e) => setDeletePassword(e.target.value)}
+                  className={`${modalStyles["deleteAccModalInput"]}`}
                 />
               </Form.Group>
               <div className="mt-3">
-                <Button variant="danger" type="submit">
+                <Button
+                  variant="danger"
+                  type="submit"
+                  className={`${modalStyles["deleteAccDltBtn"]}`}
+                >
                   Delete Account
                 </Button>
                 <Button
                   variant="secondary"
                   onClick={() => setShowDeleteModal(false)}
-                  className="ml-2"
+                  className={`${modalStyles["deleteAccCnlBtn"]}`}
                 >
                   Cancel
                 </Button>

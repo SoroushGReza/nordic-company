@@ -203,3 +203,93 @@
     width: 90%;
 }
 
+/* ------------- Delete Account Modal ------------- */
+.deleteAccModalHeader{
+    font-family: "Poppins" !important;
+    font-size: 16px !important;
+    background-color: rgba(0, 0, 0, 0.826) !important;
+    border: 1px solid rgba(0, 0, 0, 0.167) !important;
+}
+
+.deleteAccountModalTitle {
+    font-size: 17px !important;
+    font-family: Hero-regular;
+    font-weight: 600;
+    color: rgb(193, 0, 0) !important;
+    letter-spacing: 1px !important;
+    border: none !important;
+}
+
+.deleteAccModalBody {
+    font-family: "Poppins" !important;
+    background-color: rgba(0, 0, 0, 0.826) !important;
+    padding: 20px !important;
+    border: none !important;
+    color: rgb(255, 255, 255);
+    border-bottom-right-radius: 7px !important;
+    border-bottom-left-radius: 7px !important;
+}
+
+.warningIcon {
+    font-family: "Poppins" !important;
+    color: rgba(243, 253, 60, 0.756) !important;
+    font-size: 22px !important;
+    margin-right: 8px !important;
+}
+
+.warningText {
+    font-family: "Poppins" !important;
+    color: rgb(192, 192, 192) !important;
+    font-size: 18px !important;
+    margin: 0;
+}
+
+.deleteAccModalLabel {
+    font-family: Hero-regular !important;
+    color: rgb(192, 192, 192) !important;
+    font-size: 15px !important;
+    margin-bottom: 3px !important;
+    margin-top: 15px !important;
+}
+
+.deleteAccModalInput {
+    background-color: rgba(0, 0, 0, 0.826) !important;
+    color: rgb(255, 255, 255) !important;
+    border: none !important;
+    font-family: "Hero-Regular" !important;
+    margin: 0;
+    font-size: 18px !important;
+    letter-spacing: 5px !important;
+}
+
+.deleteAccModalInput:focus {
+    border-color: rgba(255, 0, 0, 0.781) !important;
+    box-shadow: 0 0 5px rgba(255, 0, 0, 0.514);
+}
+
+.deleteAccDltBtn {
+    background-color: rgb(160, 42, 42) !important;
+    border: none !important;
+    font-family: hero-regular !important;
+    font-size: 16px;
+    margin-right: 10px !important;
+}
+
+.deleteAccDltBtn:hover {
+    background-color: rgb(125, 28, 28) !important;
+    color: rgb(211, 211, 211) !important;
+}
+
+.deleteAccCnlBtn {
+    background-color: rgb(70, 70, 70) !important;
+    border: none !important;
+    font-family: hero-regular !important;
+    font-size: 16px;
+}   
+
+.deleteAccCnlBtn:hover {
+    background-color: rgb(50, 50, 50) !important;
+    color: rgb(211, 211, 211) !important;
+}
+
+
