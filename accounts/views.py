@@ -86,6 +86,7 @@ class UserLoginView(APIView):
 
 
 class UserProfileView(generics.RetrieveUpdateAPIView):
+    queryset = CustomUser.objects.all()
     permission_classes = [IsAuthenticated]
     serializer_class = UserProfileSerializer
 

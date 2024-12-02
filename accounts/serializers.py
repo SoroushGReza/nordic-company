@@ -18,6 +18,10 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             name=validated_data.get("name"),
             surname=validated_data.get("surname"),
             phone_number=validated_data.get("phone_number"),
+            profile_image=validated_data.get(
+                "profile_image",
+                CustomUser._meta.get_field("profile_image").get_default(),
+            ),
         )
         return user
 
@@ -33,7 +37,15 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CustomUser
-        fields = ("email", "name", "surname", "phone_number", "is_superuser", "is_staff")
+        fields = (
+            "email",
+            "name",
+            "surname",
+            "phone_number",
+            "profile_image",
+            "is_superuser",
+            "is_staff",
+        )
 
 
 class ChangePasswordSerializer(serializers.Serializer):

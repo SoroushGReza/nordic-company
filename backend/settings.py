@@ -37,10 +37,7 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DJANGO_DEVELOPMENT") == "True"
 
-ALLOWED_HOSTS = [
-    "nordic-company-b4376fa6e38c.herokuapp.com",
-    "localhost",
-]
+ALLOWED_HOSTS = ["nordic-company-b4376fa6e38c.herokuapp.com", "localhost", "127.0.0.1"]
 
 CSRF_TRUSTED_ORIGINS = [
     "https://*.gitpod.io",
@@ -187,7 +184,7 @@ USE_TZ = True
 STATIC_ROOT = BASE_DIR / "staticfiles"
 STATIC_URL = "/static/"
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'frontend', 'build', 'static'),
+    os.path.join(BASE_DIR, "frontend", "build", "static"),
 ]
 
 # WHITENOISE_ROOT = BASE_DIR / "staticfiles" / "build"
