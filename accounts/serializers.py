@@ -34,7 +34,7 @@ class UserLoginSerializer(serializers.Serializer):
 class UserProfileSerializer(serializers.ModelSerializer):
     is_superuser = serializers.BooleanField(read_only=True)
     is_staff = serializers.BooleanField(read_only=True)
-    profile_image = serializers.SerializerMethodField()
+    profile_image = serializers.ImageField(required=False)
 
     class Meta:
         model = CustomUser
@@ -48,8 +48,13 @@ class UserProfileSerializer(serializers.ModelSerializer):
             "is_staff",
         )
 
-    def get_profile_image(self, obj):
-        return obj.profile_image.url if obj.profile_image else None
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        if instance.profile_image:
+            representation["profile_image"] = instance.profile_image.url
+        else:
+            representation["profile_image"] = None
+        return representation
 
 
 class ChangePasswordSerializer(serializers.Serializer):

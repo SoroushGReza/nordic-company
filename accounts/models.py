@@ -33,7 +33,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     phone_number = models.CharField(max_length=15)
     profile_image = CloudinaryField(
         "image",
-        default="https://res.cloudinary.com/grezacloud/image/upload/v1733069473/default_avatar_a314ux.png",
+        default="https://res.cloudinary.com/durdklhd9/image/upload/v1733144989/default_avatar_bbz2vo.png",
     )
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
