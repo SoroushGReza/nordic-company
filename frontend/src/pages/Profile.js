@@ -161,7 +161,7 @@ function Profile() {
 
   return (
     <div className={styles.profilePage}>
-      <Container fluid className="mt-5">
+      <Container fluid>
         {/* Profile Image Text */}
         <Row className="justify-content-center">
           <img
