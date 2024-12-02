@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Route, Routes, useLocation } from "react-route
 import NavBar from "./components/NavBar";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
+import Profile from "./pages/Profile";
 import Bookings from "./pages/Bookings";
 import Home from "./pages/Home";
 import Services from "./pages/Services";
@@ -27,6 +28,7 @@ function AppContent() {
                 <Route path="/aftercare-tips" element={<Aftercare />} />
                 <Route path="/register" element={<Register />} />
                 <Route path="/login" element={<Login />} />
+                <Route path="/profile" element={<Profile />} />
                 <Route path="/admin" element={<AdminPage />} />
                 <Route path="/bookings" element={<Bookings />} />
                 <Route path="/admin/bookings" element={<AdminBookings />} />

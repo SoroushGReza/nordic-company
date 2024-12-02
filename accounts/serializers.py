@@ -34,6 +34,7 @@ class UserLoginSerializer(serializers.Serializer):
 class UserProfileSerializer(serializers.ModelSerializer):
     is_superuser = serializers.BooleanField(read_only=True)
     is_staff = serializers.BooleanField(read_only=True)
+    profile_image = serializers.SerializerMethodField()
 
     class Meta:
         model = CustomUser
@@ -46,6 +47,9 @@ class UserProfileSerializer(serializers.ModelSerializer):
             "is_superuser",
             "is_staff",
         )
+
+    def get_profile_image(self, obj):
+        return obj.profile_image.url if obj.profile_image else None
 
 
 class ChangePasswordSerializer(serializers.Serializer):
