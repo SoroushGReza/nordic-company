@@ -1,0 +1,23 @@
+.profilePage {
+    padding: 40px 20px;
+    min-height: 100vh;
+    font-family: Hero-Regular;
+    position: relative;
+  }
+
+/* --- Profile Text Image --- */
+.profileImageText {
+    margin-bottom: 20px;
+    max-width: 50% !important;
+    height: auto;
+  }
+
+/* ---------------------- MEdia Queries ---------------------- */
+
+/* ---- Profile Image Text ---- */
+@media (min-width: 350px) and (max-width: 940px) {
+    .profileImageText {
+      max-width: 100% !important;
+      height: auto;
+    }
+  }
