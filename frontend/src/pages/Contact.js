@@ -102,7 +102,7 @@ const Contact = () => {
           <Row className="justify-content-center">
             <Col xs={12} md={8} lg={6} className={styles.emailFormContainer}>
               <form onSubmit={handleSubmit} className={styles.contactForm}>
-                <h2>Email</h2>
+                <h2 className="text-center">Email</h2>
                 <label>
                   Name:
                   <input
