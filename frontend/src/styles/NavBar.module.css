@@ -1,117 +1,119 @@
 .navbarContainer .navbar {
-    height: 100px;
-    display: flex;
-    align-items: center;
-    padding: 0;
-    overflow: hidden;
-    background: linear-gradient(135deg, #e2e5db, #bbc0b5);
+  height: 100px;
+  display: flex;
+  align-items: center;
+  padding: 0;
+  overflow: hidden;
+  background: linear-gradient(135deg, #e2e5db, #bbc0b5);
 }
 
-    .navbarContainer .navbar .logo {
-        height: 90px;
-        margin-right: 10px;
-        border: none;
-    }
+.navbarContainer .navbar .logo {
+  height: 90px;
+  margin-right: 10px;
+  border: none;
+}
 
-    .navbarContainer .navbar .logoLink {
-        padding: 0;
-        display: flex;
-        align-items: center;
-        height: 100%;
-    }
+.navbarContainer .navbar .logoLink {
+  padding: 0;
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
 
-    .navbarContainer .navbar .navLink {
-        color: rgb(56, 57, 57);
-        font-size: 15px;
-        font-family: Hero-Regular;
-        margin-right: 5px;
-        white-space: nowrap;
-        border: none;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-        border-radius: 24px;
-        background-color: white;
-        height: 48px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 0 15px;
-        margin-top: auto;
-        margin-bottom: auto;
-    }
+.navbarContainer .navbar .navLink {
+  color: rgb(56, 57, 57);
+  font-size: 15px;
+  font-family: Hero-Regular;
+  margin-right: 5px;
+  white-space: nowrap;
+  border: none;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  border-radius: 24px;
+  background-color: white;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 15px;
+  margin-top: auto;
+  margin-bottom: auto;
+}
 
-    .navbarContainer .navbar .profileNavLink {
-        color: rgb(56, 57, 57);
-        margin-right: 5px;
-        border: none;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin-top: auto;
-        margin-bottom: auto; 
-    }
+.navbarContainer .navbar .profileNavLink {
+  color: rgb(56, 57, 57);
+  margin-right: 5px;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: auto;
+  margin-bottom: auto;
+}
 
-    .navbarContainer .navbar .profileImage {
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.7);
-    }
+.navbarContainer .navbar .profileImage {
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.7);
+  transition: transform 0.3s ease;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: 50% 20%;
+}
 
-    .navbarContainer .navbar .profileImage:hover {
-        box-shadow: 0 4px 15px rgba(39, 110, 13, 0.888);
-    }
-    
+.navbarContainer .navbar .profileImage:hover {
+  box-shadow: 0 4px 15px rgba(39, 110, 13, 0.888);
+  transform: scale(1.1);
+}
 
-        .navbarContainer .navbar .navLink:hover {
-            color: #ffffff;
-            background-color: #898e82;
-        }
+.navbarContainer .navbar .navLink:hover {
+  color: #ffffff;
+  background-color: #898e82;
+}
 
-    .navbarContainer .navbar .logOutHover:hover {
-        background-color: #ea626275 !important;
-    }
-
+.navbarContainer .navbar .logOutHover:hover {
+  background-color: #ea626275 !important;
+}
 
 /* Max width to change Navbar into Hamburger Menu */
 @media (max-width: 1052px) {
-    .navbarContainer .navbar {
-        height: 70px;
-    }
+  .navbarContainer .navbar {
+    height: 70px;
+  }
 
-        .navbarContainer .navbar .logo {
-            height: 65px;
-            margin-right: 0;
-            margin-left: 5%;
-        }
+  .navbarContainer .navbar .logo {
+    height: 65px;
+    margin-right: 0;
+    margin-left: 5%;
+  }
 
-        .navbarContainer .navbar .logoLink {
-            height: 100%;
-            justify-content: center;
-        }
+  .navbarContainer .navbar .logoLink {
+    height: 100%;
+    justify-content: center;
+  }
 }
-
 
 /* ----- Hamburger Menu ----- */
 
 .menuTitle {
-    font-family: Hero-Regular;
-    font-size: 25px !important;
-    color: rgb(71, 71, 71) !important;
+  font-family: Hero-Regular;
+  font-size: 25px !important;
+  color: rgb(71, 71, 71) !important;
 }
 
 .burgerNavLink {
-    font-family: Hero-Regular;
-    color: #ffffff !important;
-    font-size: 20px !important;
-    text-shadow: 0 3px 5px rgba(0, 0, 0, 0.3);
+  font-family: Hero-Regular;
+  color: #ffffff !important;
+  font-size: 20px !important;
+  text-shadow: 0 3px 5px rgba(0, 0, 0, 0.3);
 }
 
-    .burgerNavLink:hover {
-        text-shadow: 0 3px 5px #ffffff;
-        color: #515151c4 !important;
-    }
+.burgerNavLink:hover {
+  text-shadow: 0 3px 5px #ffffff;
+  color: #515151c4 !important;
+}
 
 .customBurgerLogout:hover {
-    color: #763333ff !important;
+  color: #763333ff !important;
 }
 
 .customBurgerLogout {
-    color: rgb(78, 94, 62) !important;
+  color: rgb(78, 94, 62) !important;
 }
