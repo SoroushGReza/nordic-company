@@ -126,7 +126,7 @@ const Register = () => {
               <Form.Group controlId="formPassword">
                 <Form.Label className={styles.customLabel}>Password</Form.Label>
                 <Form.Control
-                  className={`${inputStyles["form-input"]} ${styles["customInput"]}`}
+                  className={`${inputStyles["form-input"]} ${styles["customInput"]} ${styles["passwordInput"]}`}
                   type="password"
                   placeholder="Password"
                   value={password}
@@ -140,7 +140,7 @@ const Register = () => {
                   Confirm Password
                 </Form.Label>
                 <Form.Control
-                  className={`${inputStyles["form-input"]} ${styles["customInput"]}`}
+                  className={`${inputStyles["form-input"]} ${styles["customInput"]} ${styles["passwordInput"]}`}
                   type="password"
                   placeholder="Confirm Password"
                   value={password2}

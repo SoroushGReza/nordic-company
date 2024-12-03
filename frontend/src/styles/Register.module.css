@@ -1,115 +1,126 @@
-body, html {
-    padding: 0;
-    margin: 0;
-    background-color: #bcc0b6 !important;
-    height: 100%;
+body,
+html {
+  padding: 0;
+  margin: 0;
+  background-color: #bcc0b6 !important;
+  height: 100%;
 }
 
 /* ------ Palm Images ------ */
 
 /* --- Login Page --- */
 .palmImg2 {
-    position: absolute !important;
-    bottom: 0 !important;
-    left: 0 !important;
-    z-index: 1 !important;
-    width: 30% !important;
+  position: absolute !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  z-index: 1 !important;
+  width: 30% !important;
 }
 
 /* --- Register Page --- */
 .palmImg3 {
-    position: absolute !important;
-    top: 0 !important;
-    right: 0 !important;
-    z-index: 1 !important;
-    width: 40% !important;
+  position: absolute !important;
+  top: 0 !important;
+  right: 0 !important;
+  z-index: 1 !important;
+  width: 40% !important;
 }
 
 .registerContainer {
-    position: relative !important; 
-    z-index: 3 !important;
+  position: relative !important;
+  z-index: 3 !important;
 }
 
 .formCol {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: calc(100vh - 100px);
-    z-index: 2;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(100vh - 100px);
+  z-index: 2;
 }
 
 .formWrapper {
-    background-color: #bcc0b6;
-    padding: 30px;
-    border-radius: 10px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    border: 1px solid #ccc;
-    width: 100%;
-    max-width: 500px;
-    margin: 20px 0;
+  background-color: #bcc0b6;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  border: 1px solid #ccc;
+  width: 100%;
+  max-width: 500px;
+  margin: 20px 0;
 }
 
 .pageImgTxt {
-    max-width: 100%;
-    max-height: 150px;
-    height: auto;
-    width: auto;
-    display: block;
-    margin: 0 auto; /* Center image inside Col */
-    margin-bottom: 2%;
+  max-width: 100%;
+  max-height: 150px;
+  height: auto;
+  width: auto;
+  display: block;
+  margin: 0 auto; /* Center image inside Col */
+  margin-bottom: 2%;
 }
 
 .customLabel {
-    font-family: Hero-Regular;
-    font-size: 18px;
+  font-family: Hero-Regular;
+  font-size: 18px;
 }
 
 .customInput {
-    font-family: Hero-Light;
-    font-size: 18px;
-    margin-top: -5px;
-    margin-bottom: 13px;
-    background-color: mintcream !important;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
-    border-radius: 4px;
+  font-family: Hero-Light;
+  font-size: 18px;
+  margin-top: -5px;
+  margin-bottom: 13px;
+  background-color: mintcream !important;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+  border-radius: 4px;
+}
+
+.passwordInput {
+  letter-spacing: 0.2em !important;
+  font-family: "Poppins" !important;
+}
+
+.passwordInput::placeholder {
+  letter-spacing: normal;
+  font-family: Hero-Light;
 }
 
 .customButton {
-    background-color: #224200 !important;
-    margin-bottom: 10%;
-    margin-top: 6%;
-    border: none !important;
-    height: 38px !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    padding: 0 15px;
-    border-radius: 8px;
-    color: #ffffff !important;
-    font-family: Hero-Regular !important;
-    font-size: 18px !important;
-    width: 27%;
+  background-color: #224200 !important;
+  margin-bottom: 10%;
+  margin-top: 6%;
+  border: none !important;
+  height: 38px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 15px;
+  border-radius: 8px;
+  color: #ffffff !important;
+  font-family: Hero-Regular !important;
+  font-size: 18px !important;
+  width: 27%;
 }
 
-    .customButton:hover {
-        background-color: #043500 !important;
-        color: #58a100 !important;
-    }
+.customButton:hover {
+  background-color: #043500 !important;
+  color: #58a100 !important;
+}
 
 .msgLinkTxt h3 {
-    font-family: Hero-Light;
-    font-size: 20px !important;
-    white-space: nowrap;
+  font-family: Hero-Light;
+  font-size: 20px !important;
+  white-space: nowrap;
 }
 
 /* --- Login / Register Links --- */
 .msgLink {
-    text-decoration: none;
-    font-family: Hero-Regular;
-    color: #4d8903;
+  text-decoration: none;
+  font-family: Hero-Regular;
+  color: #4d8903;
 }
 
 .msgLink:hover {
-    color: #5ca504;
-    text-shadow: 1px 1px 4px #ffffff;
+  color: #5ca504;
+  text-shadow: 1px 1px 4px #ffffff;
 }

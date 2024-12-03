@@ -256,10 +256,7 @@
     background-color: rgba(0, 0, 0, 0.826) !important;
     color: rgb(255, 255, 255) !important;
     border: none !important;
-    font-family: "Hero-Regular" !important;
     margin: 0;
-    font-size: 18px !important;
-    letter-spacing: 5px !important;
 }
 
 .deleteAccModalInput:focus {

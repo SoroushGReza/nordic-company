@@ -86,7 +86,7 @@ const Login = () => {
                 <Form.Label className={styles.customLabel}>Password</Form.Label>
                 <Form.Control
                   ref={passwordRef}
-                  className={`${inputStyles["form-input"]} ${styles["customInput"]}`}
+                  className={`${inputStyles["form-input"]} ${styles["customInput"]} ${styles["passwordInput"]}`}
                   type="password"
                   name="password"
                   autoComplete="current-password"

@@ -9,6 +9,7 @@ import AccountAlerts from "../components/AccountAlerts";
 import styles from "../styles/Profile.module.css";
 import inputStyles from "../styles/ServiceManagement.module.css";
 import modalStyles from "../styles/Modals.module.css";
+import passwordInput from "../styles/Register.module.css";
 import {
   Form,
   Button,
@@ -322,7 +323,7 @@ function Profile() {
                       name="old_password"
                       value={passwordData.old_password}
                       onChange={handlePasswordChange}
-                      className={`${inputStyles["form-input"]}`}
+                      className={`${inputStyles["form-input"]} ${passwordInput["passwordInput"]}`}
                     />
                   </Form.Group>
                   <Form.Group controlId="new_password">
@@ -334,7 +335,7 @@ function Profile() {
                       name="new_password"
                       value={passwordData.new_password}
                       onChange={handlePasswordChange}
-                      className={`${inputStyles["form-input"]}`}
+                      className={`${inputStyles["form-input"]} ${passwordInput["passwordInput"]}`}
                     />
                   </Form.Group>
                   <div className="d-flex justify-content-center">
@@ -405,7 +406,7 @@ function Profile() {
                   name="password"
                   value={deletePassword}
                   onChange={(e) => setDeletePassword(e.target.value)}
-                  className={`${modalStyles["deleteAccModalInput"]}`}
+                  className={`${modalStyles["deleteAccModalInput"]} ${passwordInput["passwordInput"]}`}
                 />
               </Form.Group>
               <div className="mt-3">
