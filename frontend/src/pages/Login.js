@@ -6,10 +6,13 @@ import styles from "../styles/Register.module.css";
 import inputStyles from "../styles/ServiceManagement.module.css";
 import LoginTxtImg from "../assets/images/Login.png";
 import PalmImg2 from "../assets/images/palm2.png";
+import AccountAlerts from "../components/AccountAlerts";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
   const emailRef = useRef(null);
   const passwordRef = useRef(null);
   const navigate = useNavigate();
@@ -34,12 +37,20 @@ const Login = () => {
       navigate("/");
     } catch (error) {
       console.error(error);
-      alert("Failed to login. Please check your credentials and try again.");
+      setErrorMessage(
+        "Failed to login. Please check your credentials and try again."
+      );
     }
   };
 
   return (
     <Container fluid className={styles.registerContainer}>
+      <AccountAlerts
+        successMessage={successMessage}
+        setSuccessMessage={setSuccessMessage}
+        errorMessage={errorMessage}
+        setErrorMessage={setErrorMessage}
+      />
       <img src={PalmImg2} alt="Palm Shadow" className={styles.palmImg2} />
       <Row className="justify-content-center">
         <Col md={6} className={styles.formCol}>

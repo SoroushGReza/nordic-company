@@ -3,6 +3,8 @@ import React, { useState, useEffect } from "react";
 import { axiosReq } from "../api/axiosDefaults";
 // Hooks
 import useAuthStatus from "../hooks/useAuthStatus";
+// Components
+import AccountAlerts from "../components/AccountAlerts";
 // Styling & Images
 import styles from "../styles/Profile.module.css";
 import inputStyles from "../styles/ServiceManagement.module.css";
@@ -35,6 +37,8 @@ function Profile() {
   const [errors, setErrors] = useState({});
   const [imagePreview, setImagePreview] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [successMessage, setSuccessMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
   // Fetch profile data on component mount
   useEffect(() => {
@@ -95,7 +99,7 @@ function Profile() {
         },
       });
       setProfileData(data);
-      alert("Profile updated successfully");
+      setSuccessMessage("Profile updated successfully!");
     } catch (err) {
       console.error("Error updating profile:", err);
       if (err.response && err.response.data) {
@@ -117,7 +121,7 @@ function Profile() {
     event.preventDefault();
     try {
       await axiosReq.put("/accounts/change-password/", passwordData);
-      alert("Password updated successfully");
+      setSuccessMessage("Password updated successfully!");
       setPasswordData({ old_password: "", new_password: "" });
     } catch (err) {
       console.error("Error changing password:", err);
@@ -134,7 +138,7 @@ function Profile() {
       await axiosReq.delete("/accounts/delete-account/", {
         data: { password: deletePassword },
       });
-      alert("Account deleted successfully");
+      setSuccessMessage("Account deleted successfully!");
       // Log out the user and redirect to login page
       localStorage.removeItem("access");
       localStorage.removeItem("refresh");
@@ -162,8 +166,14 @@ function Profile() {
 
   return (
     <div className={styles.profilePage}>
+      <AccountAlerts
+        successMessage={successMessage}
+        setSuccessMessage={setSuccessMessage}
+        errorMessage={errorMessage}
+        setErrorMessage={setErrorMessage}
+      />
       <Container fluid>
-        {/* Profile Image Text */}
+        {/* Profile Header Image Text */}
         <Row className="justify-content-center">
           <img
             src={ProfileImageText}
