@@ -18,6 +18,7 @@ import ServiceManagement from "../components/ServiceManagement";
 import ServiceInfo from "../components/ServiceInfo";
 import CustomHeader from "../components/CustomHeader";
 import BookingAlerts from "../components/BookingAlerts";
+import TimezoneInfo from "../components/TimezoneInfo";
 // Hooks
 import useBookingEvents from "../hooks/useBookingEvents";
 import useStickyButton from "../hooks/useStickyButton";
@@ -48,12 +49,12 @@ const AdminBookings = () => {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const todayMin = DateTime.local()
-    .setZone("Europe/Dublin")
+    .setZone("Europe/Stockholm")
     .set({ hour: 8, minute: 0, second: 0, millisecond: 0 })
     .toJSDate();
   todayMin.setHours(8, 0, 0, 0);
   const todayMax = DateTime.local()
-    .setZone("Europe/Dublin")
+    .setZone("Europe/Stockholm")
     .set({ hour: 20, minute: 30, second: 0, millisecond: 0 })
     .toJSDate();
   todayMax.setHours(20, 30, 0, 0);
@@ -183,7 +184,7 @@ const AdminBookings = () => {
       });
       setModalSelectedServices(booking.services.map((service) => service.id));
       const dateTime = DateTime.fromISO(booking.date_time, {
-        zone: "Europe/Dublin",
+        zone: "Europe/Stockholm",
       }).toJSDate();
       setBookingDateTime(dateTime);
 
@@ -196,7 +197,7 @@ const AdminBookings = () => {
       setModalSelectedServices(selectedServices);
       if (selectedTime) {
         const dateTime = DateTime.fromJSDate(selectedTime.start)
-          .setZone("Europe/Dublin")
+          .setZone("Europe/Stockholm")
           .toJSDate();
         setBookingDateTime(dateTime);
       }
@@ -370,7 +371,7 @@ const AdminBookings = () => {
 
       // Convert bookingDateTime to UTC before sending to backend
       const dateTimeUTC = DateTime.fromJSDate(bookingDateTime)
-        .setZone("Europe/Dublin")
+        .setZone("Europe/Stockholm")
         .toUTC()
         .toISO();
 
@@ -513,6 +514,13 @@ const AdminBookings = () => {
             <h2 className={`${styles["choose-date-time-heading"]} mt-2`}>
               Choose Date / Time
             </h2>
+
+            {/* Timezone Information */}
+            <Row className="justify-content-center mt-3">
+              <Col xs="auto">
+                <TimezoneInfo /> {/* Use the component here */}
+              </Col>
+            </Row>
 
             <Row className="justify-content-center">
               <Col xs={12} md={12} className="px-0">
@@ -889,7 +897,7 @@ const AdminBookings = () => {
                         timeCaption="Time"
                         required
                         className={`${inputStyles["form-input"]} ${modalStyles["datePicker"]} form-control`}
-                        timeZone="Europe/Dublin"
+                        timeZone="Europe/Stockholm"
                         placeholderText="Select date and time"
                         minDate={new Date()}
                         maxDate={DateTime.local()
@@ -901,7 +909,9 @@ const AdminBookings = () => {
                       <p className={`${modalStyles["fieldValues"]}`}>
                         {selectedTime
                           ? DateTime.fromJSDate(selectedTime.start)
-                              .setZone("Europe/Dublin", { keepLocalTime: true }) // Convert to Irish time
+                              .setZone("Europe/Stockholm", {
+                                keepLocalTime: true,
+                              }) // Convert to Swedish time
                               .toFormat("yyyy-MM-dd HH:mm")
                           : "No time selected"}
                       </p>
