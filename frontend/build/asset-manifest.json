@@ -1,7 +1,7 @@
 {
   "files": {
-    "main.css": "/static/css/main.e79c194a.css",
-    "main.js": "/static/js/main.232ed869.js",
+    "main.css": "/static/css/main.81d123f2.css",
+    "main.js": "/static/js/main.2d79ca52.js",
     "static/js/453.d855a71b.chunk.js": "/static/js/453.d855a71b.chunk.js",
     "static/media/HairServices.png": "/static/media/HairServices.7d7f456f1bfa31f46e67.png",
     "static/media/Blueberry.png": "/static/media/Blueberry.fbaac0446ed2790ad72b.png",
@@ -10,13 +10,16 @@
     "static/media/BjorksProducts.png": "/static/media/BjorksProducts.f8860f95b14eb3148acb.png",
     "static/media/header-bg.png": "/static/media/header-bg.c01d039cf0a94c810c9f.png",
     "static/media/Schampoo.png": "/static/media/Schampoo.d8e7672541ac9edaa12f.png",
-    "static/media/2.gif": "/static/media/2.42ea183ae7b71e514c0c.gif",
+    "static/media/3.gif": "/static/media/3.c305c5354e3b53722e21.gif",
     "static/media/brows.png": "/static/media/brows.0a37bcadcb1fe9ddcf09.png",
     "static/media/Poppins-Bold.ttf": "/static/media/Poppins-Bold.cdb29a5d7ccf57ff05a3.ttf",
+    "static/media/palm.png": "/static/media/palm.481fb74d3d7bd25f42de.png",
     "static/media/SixtyfourConvergence-Regular.ttf": "/static/media/SixtyfourConvergence-Regular.086591b6556f9775f9c7.ttf",
     "static/media/Hero-Regular.ttf": "/static/media/Hero-Regular.e7de38fb0b59857c16cd.ttf",
     "static/media/Hero-Light.ttf": "/static/media/Hero-Light.5da03185f926f6717e20.ttf",
     "static/media/anordiccompany.png": "/static/media/anordiccompany.e055d670a3395bc3a192.png",
+    "static/media/palm2.png": "/static/media/palm2.303668b9c07fdd8d30eb.png",
+    "static/media/palm3.png": "/static/media/palm3.f949942730dae81c86f0.png",
     "static/media/BrowServices.png": "/static/media/BrowServices.09d0ed4ce436e75dff25.png",
     "static/media/LashServices.png": "/static/media/LashServices.8d211749dee951a47454.png",
     "static/media/HairServicesImgTxt.png": "/static/media/HairServicesImgTxt.99b1e967d7b87a70f258.png",
@@ -25,14 +28,15 @@
     "static/media/AboutUs.png": "/static/media/AboutUs.9632287021d8d40fd57a.png",
     "static/media/nc-logo-white.png": "/static/media/nc-logo-white.0c295722518cced56855.png",
     "static/media/nc-logo-black.png": "/static/media/nc-logo-black.a2878eba8c3049127501.png",
+    "static/media/Bookings.png": "/static/media/Bookings.065e89b3bb5f5ae9d7a9.png",
     "static/media/AfterCare.png": "/static/media/AfterCare.326203fe3bcf3fc67653.png",
     "index.html": "/index.html",
-    "main.e79c194a.css.map": "/static/css/main.e79c194a.css.map",
-    "main.232ed869.js.map": "/static/js/main.232ed869.js.map",
+    "main.81d123f2.css.map": "/static/css/main.81d123f2.css.map",
+    "main.2d79ca52.js.map": "/static/js/main.2d79ca52.js.map",
     "453.d855a71b.chunk.js.map": "/static/js/453.d855a71b.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.e79c194a.css",
-    "static/js/main.232ed869.js"
+    "static/css/main.81d123f2.css",
+    "static/js/main.2d79ca52.js"
   ]
 }
