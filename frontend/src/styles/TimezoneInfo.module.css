@@ -1,0 +1,39 @@
+.timezone-info {
+  background-color: #f3fa8f;
+  padding: 10px 15px !important;
+  max-width: fit-content;
+  border-radius: 5px;
+  margin-bottom: 5px;
+  line-height: 1.5 !important;
+  display: flex !important;
+  align-items: center !important;
+  font-size: 15px;
+  font-family: "hero-regular";
+}
+
+.timezone-info p {
+  margin: 0;
+}
+
+@media only screen and (max-width: 768px) {
+  .timezone-info {
+    font-size: 0.7rem;
+    padding: 5px;
+    line-height: 10px;
+  }
+}
+
+@media only screen and (max-width: 477px) {
+  .timezone-info {
+    font-size: 0.6rem;
+    padding: 5px;
+  }
+}
+
+@media only screen and (max-width: 406px) {
+  .timezone-info {
+    font-size: 0.5rem;
+    padding: 5px;
+    line-height: 5px;
+  }
+}
