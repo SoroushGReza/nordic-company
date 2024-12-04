@@ -24,6 +24,7 @@ import BookingImage from "../assets/images/Bookings.png";
 import ServiceInfo from "../components/ServiceInfo";
 import CustomHeader from "../components/CustomHeader";
 import BookingAlerts from "../components/BookingAlerts";
+import TimezoneInfo from "../components/TimezoneInfo";
 // Hooks
 import useBookingEvents from "../hooks/useBookingEvents";
 import useAdminCheck from "../hooks/useAdminCheck";
@@ -148,9 +149,10 @@ const Bookings = () => {
   const [isSubmitting] = useState(false);
 
   // Update total booking duration, price, and work time based on selected services
+  // Update total booking duration, price, and work time based on selected services
   useEffect(() => {
     const selectedServiceDetails = services.filter((service) =>
-      modalSelectedServices.includes(service.id)
+      selectedServices.includes(service.id)
     );
 
     // Calculate total duration of booking
@@ -166,7 +168,7 @@ const Bookings = () => {
       return total + parseWorktimeToMinutes(service.worktime);
     }, 0);
     setTotalWorktime(totalWorkMinutes);
-  }, [modalSelectedServices, services]);
+  }, [selectedServices, services]);
 
   const handleBookingSubmit = async () => {
     if (!selectedTime || selectedServices.length === 0) {
@@ -180,7 +182,7 @@ const Bookings = () => {
     }
     try {
       const dateTimeString = DateTime.fromJSDate(selectedTime.start)
-        .setZone("Europe/Dublin")
+        .setZone("Europe/Stockholm")
         .toISO();
       const bookingData = {
         service_ids: selectedServices,
@@ -293,6 +295,13 @@ const Bookings = () => {
             <h2 className={`${styles["choose-date-time-heading"]}`}>
               Choose Date / Time
             </h2>
+
+            {/* Timezone Information */}
+            <Row className="justify-content-center mt-3">
+              <Col xs="auto">
+                <TimezoneInfo /> {/* Use the component here */}
+              </Col>
+            </Row>
 
             {/* Booking Cancelation Warning */}
             <Row className="justify-content-center">
@@ -515,7 +524,7 @@ const Bookings = () => {
                           timeCaption="Time"
                           required
                           className={`${inputStyles["form-input"]} ${modalStyles["datePicker"]} form-control`}
-                          timeZone="Europe/Dublin"
+                          timeZone="Europe/Stockholm"
                           placeholderText="Select date and time"
                           minDate={new Date()}
                           maxDate={DateTime.local()
@@ -527,9 +536,9 @@ const Bookings = () => {
                         <p className={`${modalStyles["fieldValues"]}`}>
                           {selectedTime
                             ? DateTime.fromJSDate(selectedTime.start)
-                                .setZone("Europe/Dublin", {
+                                .setZone("Europe/Stockholm", {
                                   keepLocalTime: true,
-                                }) // Convert to Irish time
+                                }) // Convert to Swedish time
                                 .toFormat("yyyy-MM-dd HH:mm")
                             : "No time selected"}
                         </p>
@@ -562,11 +571,9 @@ const Bookings = () => {
                                 service.id
                               )}
                               onChange={(e) => {
-                                const selectedServiceId = parseInt(
-                                  e.target.value
-                                );
+                                const selectedServiceId = parseInt(e.target.value);
                                 let updatedSelectedServices;
-
+                              
                                 if (e.target.checked) {
                                   // Add selected service to list
                                   updatedSelectedServices = [
@@ -575,16 +582,13 @@ const Bookings = () => {
                                   ];
                                 } else {
                                   // Remove unselected service from list
-                                  updatedSelectedServices =
-                                    modalSelectedServices.filter(
-                                      (id) => id !== selectedServiceId
-                                    );
+                                  updatedSelectedServices = modalSelectedServices.filter(
+                                    (id) => id !== selectedServiceId
+                                  );
                                 }
-
-                                setModalSelectedServices(
-                                  updatedSelectedServices
-                                );
-
+                              
+                                setModalSelectedServices(updatedSelectedServices);
+                              
                                 // Calculate total worktime for selected services
                                 const selectedServiceTimes = services
                                   .filter((service) =>
@@ -592,25 +596,32 @@ const Bookings = () => {
                                   )
                                   .reduce(
                                     (total, service) =>
-                                      total +
-                                      parseWorktimeToMinutes(service.worktime),
+                                      total + parseWorktimeToMinutes(service.worktime),
                                     0
                                   );
-
+                              
                                 setTotalWorktime(selectedServiceTimes);
-
+                              
                                 // Calculate new end time based on updated total worktime
                                 const newEndTime = DateTime.fromJSDate(
                                   selectedBooking.start
                                 )
                                   .plus({ minutes: selectedServiceTimes })
                                   .toJSDate();
-
+                              
                                 // Update the selectedBooking state with new end time for duration calculation
                                 setSelectedBooking((prev) => ({
                                   ...prev,
                                   end: newEndTime,
                                 }));
+                              
+                                // Calculate total duration of booking
+                                const duration = calculateBookingDuration(
+                                  services.filter((service) =>
+                                    updatedSelectedServices.includes(service.id)
+                                  )
+                                );
+                                setTotalDuration(duration);
                               }}
                               className={styles["service-checkbox"]}
                             />
