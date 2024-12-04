@@ -90,9 +90,14 @@ function Profile() {
     formData.append("name", profileData.name);
     formData.append("surname", profileData.surname);
     formData.append("phone_number", profileData.phone_number);
-    if (profileData.profile_image instanceof File) {
+
+    // Check if a new image is uploaded
+    const isNewImage = profileData.profile_image instanceof File;
+
+    if (isNewImage) {
       formData.append("profile_image", profileData.profile_image);
     }
+
     try {
       const { data } = await axiosReq.put("/accounts/profile/", formData, {
         headers: {
@@ -101,6 +106,11 @@ function Profile() {
       });
       setProfileData(data);
       setSuccessMessage("Profile updated successfully!");
+
+      // Reload the page if a new image is uploaded
+      if (isNewImage) {
+        window.location.reload();
+      }
     } catch (err) {
       console.error("Error updating profile:", err);
       if (err.response && err.response.data) {
