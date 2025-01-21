@@ -187,7 +187,7 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "frontend", "build", "static"),
 ]
 
-# WHITENOISE_ROOT = BASE_DIR / "staticfiles" / "build"
+WHITENOISE_ROOT = BASE_DIR / "staticfiles" / "build"
 
 
 # Whitenoise Settings
