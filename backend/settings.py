@@ -37,17 +37,23 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DJANGO_DEVELOPMENT") == "True"
 
-ALLOWED_HOSTS = ["nordic-company-b4376fa6e38c.herokuapp.com", "localhost", "127.0.0.1"]
+ALLOWED_HOSTS = [
+    "nordiccompany.online",
+    "www.nordiccompany.online",
+    "localhost",
+    "127.0.0.1",
+]
 
 CSRF_TRUSTED_ORIGINS = [
-    "https://*.gitpod.io",
+    "https://nordiccompany.online",
+    "https://www.nordiccompany.online",
     "http://localhost:3000",
-    "https://nordic-company-b4376fa6e38c.herokuapp.com",
 ]
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
-    "https://nordic-company-b4376fa6e38c.herokuapp.com",
+    "https://nordiccompany.online",
+    "https://www.nordiccompany.online",
 ]
 
 CORS_ALLOW_CREDENTIALS = True
