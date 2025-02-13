@@ -1418,7 +1418,7 @@
         "kind": 6,
         "importPath": "accounts.views",
         "description": "accounts.views",
-        "peekOfCode": "class UserListView(generics.ListAPIView):\n    queryset = CustomUser.objects.all()\n    serializer_class = UserSerializer\n    permission_classes = [permissions.IsAdminUser]\nclass UserRegistrationView(generics.CreateAPIView):\n    queryset = CustomUser.objects.all()\n    serializer_class = UserRegistrationSerializer\n    def perform_create(self, serializer):\n        user = serializer.save()\n        login(self.request, user)  # Logga in anv�ndaren",
+        "peekOfCode": "class UserListView(generics.ListAPIView):\n    queryset = CustomUser.objects.all()\n    serializer_class = UserSerializer\n    permission_classes = [permissions.IsAdminUser]\nclass UserRegistrationView(generics.CreateAPIView):\n    queryset = CustomUser.objects.all()\n    serializer_class = UserRegistrationSerializer\n    def perform_create(self, serializer):\n        user = serializer.save()\n        login(self.request, user)",
         "detail": "accounts.views",
         "documentation": {}
     },
@@ -1427,7 +1427,7 @@
         "kind": 6,
         "importPath": "accounts.views",
         "description": "accounts.views",
-        "peekOfCode": "class UserRegistrationView(generics.CreateAPIView):\n    queryset = CustomUser.objects.all()\n    serializer_class = UserRegistrationSerializer\n    def perform_create(self, serializer):\n        user = serializer.save()\n        login(self.request, user)  # Logga in anv�ndaren\n        # Generera en JWT-token\n        refresh = RefreshToken.for_user(user)\n        # Spara eller skapa en token om du anv�nder den ocks� (valfritt beroende p� ditt behov)\n        token, created = Token.objects.get_or_create(user=user)",
+        "peekOfCode": "class UserRegistrationView(generics.CreateAPIView):\n    queryset = CustomUser.objects.all()\n    serializer_class = UserRegistrationSerializer\n    def perform_create(self, serializer):\n        user = serializer.save()\n        login(self.request, user)\n        # Generate JWT-token\n        refresh = RefreshToken.for_user(user)\n        token, created = Token.objects.get_or_create(user=user)\n        self.jwt_refresh = refresh",
         "detail": "accounts.views",
         "documentation": {}
     },
@@ -1572,6 +1572,51 @@
         "importPath": "backend.settings",
         "description": "backend.settings",
         "peekOfCode": "SIMPLE_JWT = {\n    \"ACCESS_TOKEN_LIFETIME\": timedelta(minutes=30),\n    \"REFRESH_TOKEN_LIFETIME\": timedelta(days=1),\n    \"ROTATE_REFRESH_TOKENS\": True,\n    \"BLACKLIST_AFTER_ROTATION\": True,\n    \"AUTH_HEADER_TYPES\": (\"Bearer\",),\n    \"AUTH_TOKEN_CLASSES\": (\"rest_framework_simplejwt.tokens.AccessToken\",),\n    \"AUTH_COOKIE\": \"access_token\",\n    \"AUTH_COOKIE_DOMAIN\": None,\n    \"AUTH_COOKIE_SECURE\": False,",
+        "detail": "backend.settings",
+        "documentation": {}
+    },
+    {
+        "label": "SECURE_PROXY_SSL_HEADER",
+        "kind": 5,
+        "importPath": "backend.settings",
+        "description": "backend.settings",
+        "peekOfCode": "SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')\nSECURE_SSL_REDIRECT = True\nSESSION_COOKIE_SECURE = True\nCSRF_COOKIE_SECURE = True\n# Add cross-origin-opener-policy header\nSECURE_CROSS_ORIGIN_OPENER_POLICY = 'same-origin'\nREST_USE_JWT = True\n# Email verification Temporarly OFF\nACCOUNT_EMAIL_VERIFICATION = \"none\"\n# Application definition",
+        "detail": "backend.settings",
+        "documentation": {}
+    },
+    {
+        "label": "SECURE_SSL_REDIRECT",
+        "kind": 5,
+        "importPath": "backend.settings",
+        "description": "backend.settings",
+        "peekOfCode": "SECURE_SSL_REDIRECT = True\nSESSION_COOKIE_SECURE = True\nCSRF_COOKIE_SECURE = True\n# Add cross-origin-opener-policy header\nSECURE_CROSS_ORIGIN_OPENER_POLICY = 'same-origin'\nREST_USE_JWT = True\n# Email verification Temporarly OFF\nACCOUNT_EMAIL_VERIFICATION = \"none\"\n# Application definition\nINSTALLED_APPS = [",
+        "detail": "backend.settings",
+        "documentation": {}
+    },
+    {
+        "label": "SESSION_COOKIE_SECURE",
+        "kind": 5,
+        "importPath": "backend.settings",
+        "description": "backend.settings",
+        "peekOfCode": "SESSION_COOKIE_SECURE = True\nCSRF_COOKIE_SECURE = True\n# Add cross-origin-opener-policy header\nSECURE_CROSS_ORIGIN_OPENER_POLICY = 'same-origin'\nREST_USE_JWT = True\n# Email verification Temporarly OFF\nACCOUNT_EMAIL_VERIFICATION = \"none\"\n# Application definition\nINSTALLED_APPS = [\n    \"django.contrib.admin\",",
+        "detail": "backend.settings",
+        "documentation": {}
+    },
+    {
+        "label": "CSRF_COOKIE_SECURE",
+        "kind": 5,
+        "importPath": "backend.settings",
+        "description": "backend.settings",
+        "peekOfCode": "CSRF_COOKIE_SECURE = True\n# Add cross-origin-opener-policy header\nSECURE_CROSS_ORIGIN_OPENER_POLICY = 'same-origin'\nREST_USE_JWT = True\n# Email verification Temporarly OFF\nACCOUNT_EMAIL_VERIFICATION = \"none\"\n# Application definition\nINSTALLED_APPS = [\n    \"django.contrib.admin\",\n    \"django.contrib.auth\",",
+        "detail": "backend.settings",
+        "documentation": {}
+    },
+    {
+        "label": "SECURE_CROSS_ORIGIN_OPENER_POLICY",
+        "kind": 5,
+        "importPath": "backend.settings",
+        "description": "backend.settings",
+        "peekOfCode": "SECURE_CROSS_ORIGIN_OPENER_POLICY = 'same-origin'\nREST_USE_JWT = True\n# Email verification Temporarly OFF\nACCOUNT_EMAIL_VERIFICATION = \"none\"\n# Application definition\nINSTALLED_APPS = [\n    \"django.contrib.admin\",\n    \"django.contrib.auth\",\n    \"django.contrib.contenttypes\",\n    \"django.contrib.sessions\",",
         "detail": "backend.settings",
         "documentation": {}
     },

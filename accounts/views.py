@@ -34,14 +34,11 @@ class UserRegistrationView(generics.CreateAPIView):
 
     def perform_create(self, serializer):
         user = serializer.save()
-        login(self.request, user)  # Logga in anv�ndaren
+        login(self.request, user)
 
-        # Generera en JWT-token
+        # Generate JWT-token
         refresh = RefreshToken.for_user(user)
-        # Spara eller skapa en token om du anv�nder den ocks� (valfritt beroende p� ditt behov)
         token, created = Token.objects.get_or_create(user=user)
-
-        # Spara JWT-token f�r att skicka den i post metoden
         self.jwt_refresh = refresh
 
     def post(self, request, *args, **kwargs):
@@ -69,8 +66,7 @@ class UserLoginView(APIView):
             password=serializer.validated_data["password"],
         )
         if user is not None:
-            login(request, user)  # Logga in anv�ndaren
-            # Generera en JWT-token
+            login(request, user)
             refresh = RefreshToken.for_user(user)
             return Response(
                 {
